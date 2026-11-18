@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased min-h-screen font-sans;
+  }
+}
+
+/* Print styles for official government documents (Berita Acara & Kontrak LKPP) */
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm 15mm 18mm 15mm;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-page {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    page-break-after: always;
+    break-after: page;
+  }
+  .print-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  th, td {
+    color: black !important;
+  }
+
+  /* Table wrapper for print pagination to reserve bottom space for repeating paraf footer */
+  table.print-doc-table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    border: none !important;
+    background: transparent !important;
+  }
+  table.print-doc-table > tbody > tr {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+  table.print-doc-table > tbody > tr > td {
+    padding: 0 !important;
+    border: none !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+  table.print-doc-table > tfoot {
+    display: table-footer-group !important;
+  }
+  table.print-doc-table > tfoot > tr > td {
+    padding: 0 !important;
+    border: none !important;
+    height: 20mm !important;
+  }
+  .print-footer-space {
+    height: 20mm !important;
+    display: block !important;
+  }
+
+  /* Compact width and clear text visibility for the paraf koordinasi table */
+  .contract-footer-paraf {
+    display: block !important;
+  }
+  .contract-footer-paraf table {
+    width: 235px !important;
+    max-width: 240px !important;
+    border-collapse: collapse !important;
+  }
+  .contract-footer-paraf td {
+    color: #000000 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+  }
+}
