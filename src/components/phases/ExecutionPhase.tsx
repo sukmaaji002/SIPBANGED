@@ -2257,8 +2257,8 @@ export const ExecutionPhase: React.FC = () => {
                 </div>
 
                 {/* Table of Points */}
-                <div className="border border-slate-200 rounded-xl overflow-hidden max-h-60 overflow-y-auto">
-                  <table className="w-full text-left text-xs divide-y divide-slate-200">
+                <div className="border border-slate-200 rounded-xl overflow-hidden max-h-60 overflow-y-auto overflow-x-auto">
+                  <table className="w-full text-left text-xs divide-y divide-slate-200 min-w-[320px]">
                     <thead className="bg-slate-50 text-slate-600 font-bold">
                       <tr>
                         <th className="px-3 py-2">Minggu</th>

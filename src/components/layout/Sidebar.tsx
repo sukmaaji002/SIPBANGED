@@ -12,7 +12,9 @@ import {
   Coins, 
   ShieldAlert,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  X,
+  Layers
 } from 'lucide-react';
 
 export type ActiveTab = 
@@ -32,19 +34,23 @@ interface SidebarProps {
   setActiveTab: (tab: ActiveTab) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
   activeTab, 
   setActiveTab,
   isCollapsed: controlledCollapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  isMobileOpen = false,
+  onCloseMobile
 }) => {
   const [internalCollapsed, setInternalCollapsed] = useState(false);
   const isCollapsed = controlledCollapsed !== undefined ? controlledCollapsed : internalCollapsed;
   const toggleCollapse = onToggleCollapse || (() => setInternalCollapsed(prev => !prev));
 
-  const { selectedProject } = useApp();
+  const { selectedProject, projects, setSelectedProjectId } = useApp();
 
   const navItems: {
     id: ActiveTab;
@@ -116,184 +122,340 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   ];
 
-  let currentCategory = '';
+  let currentDesktopCategory = '';
+  let currentMobileCategory = '';
+
+  const handleMobileNavClick = (id: ActiveTab) => {
+    setActiveTab(id);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  };
 
   return (
-    <aside 
-      className={`${
-        isCollapsed ? 'w-16 p-2' : 'w-64 p-3'
-      } bg-white border-r border-slate-200 flex flex-col flex-shrink-0 min-h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out no-print select-none`}
-    >
-      {/* Top Header Toggle Button */}
-      <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} pb-2 mb-2 border-b border-slate-100`}>
-        {!isCollapsed && (
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            Menu Navigasi
-          </span>
-        )}
-        <button
-          onClick={toggleCollapse}
-          title={isCollapsed ? "Perbesar Menu (Expand)" : "Perkecil Menu (Collapse)"}
-          className={`flex items-center gap-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors ${
-            isCollapsed ? 'p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50' : 'px-2 py-1 text-[11px] font-medium'
-          }`}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="w-4 h-4" />
-          ) : (
-            <>
-              <span>Perkecil</span>
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </>
-          )}
-        </button>
-      </div>
-      
-      {/* Current Project Brief Badge */}
-      {selectedProject && (
-        isCollapsed ? (
-          <div 
-            className="mb-3 p-2 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center cursor-pointer group relative hover:border-emerald-300 transition-colors"
-            title={`Proyek: ${selectedProject.nama} (Fisik: ${selectedProject.progresFisikRealisasi}%)`}
-          >
-            <div className="w-2 h-2 rounded-full bg-emerald-500 mb-1 animate-pulse" />
-            <span className="text-[10px] font-bold text-emerald-600">
-              {selectedProject.progresFisikRealisasi}%
+    <>
+      {/* =========================================
+          1. DESKTOP SIDEBAR (Visible on md: and up)
+         ========================================= */}
+      <aside 
+        className={`hidden md:flex flex-col flex-shrink-0 ${
+          isCollapsed ? 'w-16 p-2' : 'w-64 p-3'
+        } bg-white border-r border-slate-200 min-h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out no-print select-none`}
+      >
+        {/* Top Header Toggle Button */}
+        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} pb-2 mb-2 border-b border-slate-100`}>
+          {!isCollapsed && (
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Menu Navigasi
             </span>
-
-            {/* Floating Tooltip */}
-            <div className="absolute left-full ml-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50">
-              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Proyek Dipilih</div>
-              <div className="font-semibold text-slate-100 max-w-[200px] truncate">{selectedProject.nama}</div>
-              <div className="flex items-center gap-1.5 mt-1 pt-1 border-t border-slate-800 text-[11px]">
-                <span className="text-slate-400">Realisasi Fisik:</span>
-                <span className="font-bold text-emerald-400">{selectedProject.progresFisikRealisasi}%</span>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="mb-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-              Proyek Dipilih
-            </div>
-            <div className="text-xs font-bold text-slate-800 line-clamp-2 leading-snug">
-              {selectedProject.nama}
-            </div>
-            <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-200/60 text-[11px]">
-              <span className="text-slate-500 font-medium">Fisik:</span>
-              <span className="font-bold text-emerald-600">
+          )}
+          <button
+            onClick={toggleCollapse}
+            title={isCollapsed ? "Perbesar Menu (Expand)" : "Perkecil Menu (Collapse)"}
+            className={`flex items-center gap-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors ${
+              isCollapsed ? 'p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50' : 'px-2 py-1 text-[11px] font-medium'
+            }`}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <>
+                <span>Perkecil</span>
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </>
+            )}
+          </button>
+        </div>
+        
+        {/* Current Project Brief Badge */}
+        {selectedProject && (
+          isCollapsed ? (
+            <div 
+              className="mb-3 p-2 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center cursor-pointer group relative hover:border-emerald-300 transition-colors"
+              title={`Proyek: ${selectedProject.nama} (Fisik: ${selectedProject.progresFisikRealisasi}%)`}
+            >
+              <div className="w-2 h-2 rounded-full bg-emerald-500 mb-1 animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-600">
                 {selectedProject.progresFisikRealisasi}%
               </span>
+
+              {/* Floating Tooltip */}
+              <div className="absolute left-full ml-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50">
+                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Proyek Dipilih</div>
+                <div className="font-semibold text-slate-100 max-w-[200px] truncate">{selectedProject.nama}</div>
+                <div className="flex items-center gap-1.5 mt-1 pt-1 border-t border-slate-800 text-[11px]">
+                  <span className="text-slate-400">Realisasi Fisik:</span>
+                  <span className="font-bold text-emerald-400">{selectedProject.progresFisikRealisasi}%</span>
+                </div>
+              </div>
             </div>
-            <div className="w-full bg-slate-200 h-1.5 rounded-full mt-1 overflow-hidden">
-              <div 
-                className="bg-emerald-500 h-full rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(100, selectedProject.progresFisikRealisasi)}%` }}
-              ></div>
+          ) : (
+            <div className="mb-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                Proyek Dipilih
+              </div>
+              <div className="text-xs font-bold text-slate-800 line-clamp-2 leading-snug">
+                {selectedProject.nama}
+              </div>
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-200/60 text-[11px]">
+                <span className="text-slate-500 font-medium">Fisik:</span>
+                <span className="font-bold text-emerald-600">
+                  {selectedProject.progresFisikRealisasi}%
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 h-1.5 rounded-full mt-1 overflow-hidden">
+                <div 
+                  className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, selectedProject.progresFisikRealisasi)}%` }}
+                ></div>
+              </div>
             </div>
-          </div>
-        )
-      )}
+          )
+        )}
 
-      {/* Nav List */}
-      <nav className="flex-1 space-y-1">
-        {navItems.map((item) => {
-          const showCategory = item.category && item.category !== currentCategory;
-          if (showCategory && item.category) {
-            currentCategory = item.category;
-          }
+        {/* Desktop Nav List */}
+        <nav className="flex-1 space-y-1">
+          {navItems.map((item) => {
+            const showCategory = item.category && item.category !== currentDesktopCategory;
+            if (showCategory && item.category) {
+              currentDesktopCategory = item.category;
+            }
 
-          const isActive = activeTab === item.id;
+            const isActive = activeTab === item.id;
 
-          if (isCollapsed) {
+            if (isCollapsed) {
+              return (
+                <React.Fragment key={item.id}>
+                  {showCategory && <div className="my-2 border-t border-slate-100" />}
+                  <button
+                    onClick={() => setActiveTab(item.id)}
+                    className={`w-full flex items-center justify-center p-2.5 rounded-lg transition-all relative group ${
+                      isActive
+                        ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    }`}
+                  >
+                    <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
+
+                    {item.badge && !isActive && (
+                      <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    )}
+
+                    <div className="absolute left-full ml-2 px-3 py-1.5 bg-slate-900 text-white text-xs font-medium rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50">
+                      <div className="flex items-center gap-2">
+                        <span>{item.label}</span>
+                        {item.badge && (
+                          <span className="text-[10px] bg-slate-800 text-emerald-400 px-1.5 py-0.5 rounded font-mono">
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                </React.Fragment>
+              );
+            }
+
             return (
               <React.Fragment key={item.id}>
-                {showCategory && <div className="my-2 border-t border-slate-100" />}
+                {showCategory && (
+                  <div className="pt-3 pb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    {item.category}
+                  </div>
+                )}
                 <button
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-center p-2.5 rounded-lg transition-all relative group ${
+                  className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${
                     isActive
-                      ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30'
+                      ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 font-bold'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
-                  <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
-
-                  {/* Badge indicator dot if badge exists and not active */}
-                  {item.badge && !isActive && (
-                    <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  )}
-
-                  {/* Floating tooltip */}
-                  <div className="absolute left-full ml-2 px-3 py-1.5 bg-slate-900 text-white text-xs font-medium rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50">
-                    <div className="flex items-center gap-2">
-                      <span>{item.label}</span>
-                      {item.badge && (
-                        <span className="text-[10px] bg-slate-800 text-emerald-400 px-1.5 py-0.5 rounded font-mono">
-                          {item.badge}
-                        </span>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-2.5 truncate">
+                    <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
+                    <span className="truncate">{item.label}</span>
                   </div>
+                  {item.badge && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                  {!item.badge && isActive && (
+                    <ChevronRight className="w-3.5 h-3.5 opacity-70" />
+                  )}
                 </button>
               </React.Fragment>
             );
-          }
+          })}
+        </nav>
 
-          return (
-            <React.Fragment key={item.id}>
-              {showCategory && (
-                <div className="pt-3 pb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  {item.category}
-                </div>
-              )}
-              <button
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${
-                  isActive
-                    ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 font-bold'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
-              >
-                <div className="flex items-center gap-2.5 truncate">
-                  <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
-                  <span className="truncate">{item.label}</span>
-                </div>
-                {item.badge && (
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    {item.badge}
+        {/* Footer Info */}
+        <div className={`border-t border-slate-100 text-center ${isCollapsed ? 'pt-3' : 'pt-4'}`}>
+          {isCollapsed ? (
+            <div title="DPUPR Kab. Tegal • LKPP Compliant" className="cursor-help">
+              <p className="text-[9px] font-bold text-slate-400">©2026</p>
+            </div>
+          ) : (
+            <>
+              <p className="text-[10px] text-slate-400">
+                DPUPR Kabupaten Tegal © 2026
+              </p>
+              <p className="text-[9px] text-slate-400">
+                Perlem LKPP No. 12/2021 Compliant
+              </p>
+            </>
+          )}
+        </div>
+      </aside>
+
+      {/* =========================================
+          2. MOBILE DRAWER (Off-canvas for < md:)
+         ========================================= */}
+      <div 
+        className={`fixed inset-0 z-50 md:hidden transition-all duration-300 ${
+          isMobileOpen ? 'visible opacity-100' : 'invisible opacity-0 pointer-events-none'
+        }`}
+      >
+        {/* Backdrop Overlay */}
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-300"
+          onClick={onCloseMobile}
+          aria-label="Tutup menu"
+        />
+
+        {/* Drawer Sliding Panel */}
+        <aside 
+          className={`fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white shadow-2xl flex flex-col z-10 transform transition-transform duration-300 ease-in-out select-none ${
+            isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          {/* Mobile Header */}
+          <div className="p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-slate-900 text-white flex items-center justify-between shadow-md">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white shadow-inner">
+                <Building className="w-5 h-5 text-emerald-300" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-extrabold text-base tracking-tight text-white">
+                    SIP<span className="text-emerald-300">BANGED</span>
                   </span>
-                )}
-                {!item.badge && isActive && (
-                  <ChevronRight className="w-3.5 h-3.5 opacity-70" />
-                )}
-              </button>
-            </React.Fragment>
-          );
-        })}
-      </nav>
-
-      {/* Footer Info */}
-      <div className={`border-t border-slate-100 text-center ${isCollapsed ? 'pt-3' : 'pt-4'}`}>
-        {isCollapsed ? (
-          <div title="DPUPR Kab. Tegal • LKPP Compliant" className="cursor-help">
-            <p className="text-[9px] font-bold text-slate-400">©2026</p>
+                  <span className="text-[9px] font-bold bg-white/20 text-white px-1.5 py-0.2 rounded uppercase">
+                    PBLTARU
+                  </span>
+                </div>
+                <div className="text-[10px] text-emerald-100 font-medium leading-tight">
+                  DPUPR Kab. Tegal
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={onCloseMobile}
+              className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+              title="Tutup Menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-        ) : (
-          <>
-            <p className="text-[10px] text-slate-400">
-              DPUPR Kabupaten Tegal © 2026
-            </p>
-            <p className="text-[9px] text-slate-400">
-              Perlem LKPP No. 12/2021 Compliant
-            </p>
-          </>
-        )}
-      </div>
 
-    </aside>
+          {/* Drawer Body (Scrollable) */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            {/* Project Selector inside Mobile Drawer */}
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Proyek Terpilih
+                </div>
+                <Layers className="w-3.5 h-3.5 text-emerald-600" />
+              </div>
+
+              {/* Dropdown to switch project directly on mobile */}
+              <select
+                value={selectedProject?.id || ''}
+                onChange={(e) => setSelectedProjectId(e.target.value)}
+                className="w-full text-xs font-semibold text-slate-800 bg-white border border-slate-300 rounded-lg p-2 mb-2 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+              >
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama}
+                  </option>
+                ))}
+              </select>
+
+              {selectedProject && (
+                <>
+                  <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/80">
+                    <span className="text-slate-500">Realisasi Fisik:</span>
+                    <span className="font-bold text-emerald-600">
+                      {selectedProject.progresFisikRealisasi}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 h-1.5 rounded-full mt-1 overflow-hidden">
+                    <div 
+                      className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, selectedProject.progresFisikRealisasi)}%` }}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Nav Items */}
+            <nav className="space-y-1">
+              {navItems.map((item) => {
+                const showCategory = item.category && item.category !== currentMobileCategory;
+                if (showCategory && item.category) {
+                  currentMobileCategory = item.category;
+                }
+
+                const isActive = activeTab === item.id;
+
+                return (
+                  <React.Fragment key={item.id}>
+                    {showCategory && (
+                      <div className="pt-3 pb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        {item.category}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => handleMobileNavClick(item.id)}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-xl transition-all ${
+                        isActive
+                          ? 'bg-emerald-600 text-white shadow-sm font-bold'
+                          : 'text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 truncate">
+                        <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span className={`text-[10px] px-2 py-0.5 rounded-md font-mono ${
+                          isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
+                      {!item.badge && isActive && (
+                        <ChevronRight className="w-4 h-4 opacity-75" />
+                      )}
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Drawer Footer */}
+          <div className="p-3 border-t border-slate-100 text-center bg-slate-50/70">
+            <p className="text-[10px] text-slate-500 font-medium">DPUPR Kabupaten Tegal © 2026</p>
+            <p className="text-[9px] text-slate-400">Perlem LKPP No. 12/2021 Compliant</p>
+          </div>
+        </aside>
+      </div>
+    </>
   );
 };
 

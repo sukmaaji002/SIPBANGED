@@ -97,8 +97,8 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ isOpen
         </div>
 
         {/* User Table List */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <table className="w-full text-left text-xs">
+        <div className="flex-1 overflow-y-auto overflow-x-auto p-4 sm:p-6">
+          <table className="w-full text-left text-xs min-w-[500px]">
             <thead>
               <tr className="border-b border-slate-200 text-slate-400 font-semibold uppercase text-[10px]">
                 <th className="pb-3">Pengguna & Instansi</th>

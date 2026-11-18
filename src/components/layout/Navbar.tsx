@@ -19,13 +19,15 @@ interface NavbarProps {
   onOpenUserManagement: () => void;
   onToggleSidebar?: () => void;
   isSidebarCollapsed?: boolean;
+  onToggleMobileSidebar?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
   onOpenRegister, 
   onOpenUserManagement,
   onToggleSidebar,
-  isSidebarCollapsed
+  isSidebarCollapsed,
+  onToggleMobileSidebar
 }) => {
   const { 
     currentUser, 
@@ -55,40 +57,55 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs no-print">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4">
           
           {/* Logo & Brand Title */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Desktop Collapse Toggle */}
             {onToggleSidebar && (
               <button
                 onClick={onToggleSidebar}
-                className="p-2 text-slate-500 hover:text-emerald-700 hover:bg-slate-100 rounded-lg transition-colors"
+                className="hidden md:flex p-2 text-slate-500 hover:text-emerald-700 hover:bg-slate-100 rounded-lg transition-colors"
                 title={isSidebarCollapsed ? "Perbesar Menu (Expand)" : "Perkecil Menu (Collapse)"}
-                aria-label="Toggle Sidebar"
+                aria-label="Toggle Desktop Sidebar"
               >
                 <Menu className="w-5 h-5" />
               </button>
             )}
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
-              <Building2 className="w-6 h-6" />
+
+            {/* Mobile Drawer Toggle */}
+            {onToggleMobileSidebar && (
+              <button
+                onClick={onToggleMobileSidebar}
+                className="flex md:hidden p-2 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-lg transition-colors"
+                title="Buka Menu Navigasi"
+                aria-label="Buka Menu Navigasi"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            )}
+
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 flex-shrink-0">
+              <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
+
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg tracking-tight text-slate-900">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900">
                   SIP<span className="text-emerald-600">BANGED</span>
                 </span>
-                <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded uppercase">
+                <span className="text-[9px] sm:text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded uppercase hidden xs:inline-block">
                   PBLTARU
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium hidden sm:block">
+              <p className="text-[11px] text-slate-500 font-medium hidden lg:block">
                 Penyelenggaraan Bangunan Gedung • DPUPR Kab. Tegal
               </p>
             </div>
           </div>
 
-          {/* Project Quick Selector */}
+          {/* Project Quick Selector (Desktop) */}
           <div className="relative hidden md:block">
             <button
               onClick={() => setShowProjectDropdown(!showProjectDropdown)}
@@ -134,26 +151,26 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Right Action: Role Simulator & User Profile */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
             
             {/* Quick Role Switcher (Simulasi Pembatasan Akun) */}
             <div className="relative">
               <button
                 onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all ${
                   currentRoleDetail ? currentRoleDetail.badgeColor : 'bg-slate-100 text-slate-700'
                 }`}
                 title="Klik untuk mensimulasikan login sebagai peran/pengguna lain"
               >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span className="hidden lg:inline">Peran Aktif:</span>
-                <span>{currentRoleDetail?.label || 'Belum Login'}</span>
-                <ChevronDown className="w-3 h-3 ml-0.5 opacity-70" />
+                <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" />
+                <span className="hidden xl:inline">Peran:</span>
+                <span className="truncate max-w-[85px] sm:max-w-none">{currentRoleDetail?.label || 'Login'}</span>
+                <ChevronDown className="w-3 h-3 opacity-70 flex-shrink-0" />
               </button>
 
               {showRoleDropdown && (
                 <div 
-                  className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-slate-100 p-2 z-50 text-left"
+                  className="fixed sm:absolute right-2 sm:right-0 top-16 sm:top-full sm:mt-2 w-[calc(100vw-1rem)] sm:w-72 bg-white rounded-xl shadow-2xl border border-slate-100 p-2 z-50 text-left max-h-[80vh] overflow-y-auto"
                   onMouseLeave={() => setShowRoleDropdown(false)}
                 >
                   <div className="px-2 py-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 mb-1">
@@ -211,7 +228,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Register New Account Button */}
             <button
               onClick={onOpenRegister}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors shadow-2xs"
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors shadow-2xs"
               title="Daftar Akun Baru dengan Email"
             >
               <UserPlus className="w-3.5 h-3.5 text-emerald-600" />
@@ -233,7 +250,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* User Logout or Info */}
             {currentUser && (
-              <div className="flex items-center pl-2 border-l border-slate-200 gap-2">
+              <div className="flex items-center pl-1.5 sm:pl-2 border-l border-slate-200 gap-1.5 sm:gap-2">
                 <div className="text-right hidden xl:block">
                   <div className="text-xs font-semibold text-slate-800 leading-tight">
                     {currentUser.name}
