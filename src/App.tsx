@@ -19,6 +19,17 @@ const MainApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('sipbanged_sidebar_collapsed') === 'true';
+  });
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('sipbanged_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -53,13 +64,20 @@ const MainApp: React.FC = () => {
       <Navbar 
         onOpenRegister={() => setIsRegisterOpen(true)}
         onOpenUserManagement={() => setIsUserManagementOpen(true)}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={toggleSidebar}
       />
 
       {/* Main Layout */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="flex-1 flex w-full max-w-[1600px] mx-auto">
+        <Sidebar 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={toggleSidebar}
+        />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-y-auto transition-all duration-300">
           {renderContent()}
         </main>
       </div>
