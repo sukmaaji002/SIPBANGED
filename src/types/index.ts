@@ -21,6 +21,21 @@ export interface User {
 
 export type ProjectStage = 'perencanaan' | 'pelaksanaan' | 'pengawasan' | 'pemeliharaan' | 'selesai';
 
+export interface ProjectPackageDetail {
+  isActive: boolean;
+  namaPerusahaan: string;
+  namaDirektur?: string;
+  nilaiKontrak?: number;
+  nomorKontrak?: string;
+  tanggalMulai?: string;
+  tanggalSelesai?: string;
+  durasiHari?: number;
+  usePpkAcuan: boolean;
+  ppkNama?: string;
+  ppkNip?: string;
+  ppkJabatan?: string;
+}
+
 export interface Project {
   id: string;
   kodePaket: string;
@@ -34,14 +49,36 @@ export interface Project {
   hps: number;
   nilaiKontrak: number;
   
-  // Stakeholders
+  // Data Acuan PPK (Master Reference PPK)
+  isPpkAcuan?: boolean; // Menandakan apakah data PPK ini dijadikan acuan proyek
   ppkNama: string;
   ppkNip: string;
+  ppkJabatan?: string;
   pptkNama: string;
+  
+  // 1. Opsi & Data Paket Pekerjaan Fisik (Konstruksi)
+  hasFisik?: boolean;
+  paketFisik?: ProjectPackageDetail;
   kontraktorNama: string;
   kontraktorDirektur: string;
+  nilaiKontrakFisik?: number;
+  nomorKontrakFisik?: string;
+
+  // 2. Opsi & Data Paket Konsultan Pengawas
+  hasPengawas?: boolean;
+  paketPengawas?: ProjectPackageDetail;
   pengawasNama: string;
+  pengawasDirektur?: string;
+  nilaiKontrakPengawas?: number;
+  nomorKontrakPengawas?: string;
+
+  // 3. Opsi & Data Paket Konsultan Perencana
+  hasPerencana?: boolean;
+  paketPerencana?: ProjectPackageDetail;
   perencanaNama: string;
+  perencanaDirektur?: string;
+  nilaiKontrakPerencana?: number;
+  nomorKontrakPerencana?: string;
   
   // Waktu
   tanggalMulai: string;

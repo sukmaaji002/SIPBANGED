@@ -217,11 +217,21 @@ export function createDefaultSpkForProject(project: Project, spkType: SpkType): 
   const comp = parseKomponenTanggalKontrak(project.tanggalMulai || '2026-03-01');
 
   if (spkType === 'fisik') {
+    const isCustomPpk = project.paketFisik?.usePpkAcuan === false && !!project.paketFisik?.ppkNama;
+    const finalPpkNama = isCustomPpk ? project.paketFisik!.ppkNama! : (project.ppkNama || 'Ahmad Fauzi, S.T., M.Eng.');
+    const finalPpkNip = isCustomPpk ? project.paketFisik!.ppkNip! : (project.ppkNip || '19820719 200604 1 009');
+    const finalPpkJabatan = isCustomPpk ? (project.paketFisik!.ppkJabatan || 'PPK Pekerjaan Fisik') : (project.ppkJabatan || 'Pejabat Pembuat Komitmen (PPK) Bidang Bangunan Gedung dan Permukiman');
+
+    const penyediaNama = project.paketFisik?.namaPerusahaan || (project.kontraktorNama && project.kontraktorNama !== '-' ? project.kontraktorNama : 'PT Wijaya Bangun Tegal Perkasa');
+    const pimpinanNama = project.paketFisik?.namaDirektur || (project.kontraktorDirektur && project.kontraktorDirektur !== '-' ? project.kontraktorDirektur : 'Ir. Bambang Haryadi');
+    const nilaiKontrakVal = project.paketFisik?.nilaiKontrak || project.nilaiKontrakFisik || (project.nilaiKontrak && project.nilaiKontrak > 0 ? project.nilaiKontrak : 185000000);
+    const nomorSpkVal = project.paketFisik?.nomorKontrak || project.nomorKontrakFisik || `602.1/SPK-FSK/${project.kodePaket || '01'}/DPUPR/2026`;
+
     return {
       id: `spk-fsk-${project.id}`,
       projectId: project.id,
       spkType: 'fisik',
-      nomorSpk: `602.1/SPK-FSK/${project.kodePaket || '01'}/DPUPR/2026`,
+      nomorSpk: nomorSpkVal,
       tanggalSpk: project.tanggalMulai || '2026-03-01',
       hariSpk: comp.hari,
       tanggalTeksSpk: comp.tanggalTeks,
@@ -230,28 +240,28 @@ export function createDefaultSpkForProject(project: Project, spkType: SpkType): 
       nomorSppbj: `602.1/SPPBJ/${project.kodePaket || '01'}/DPUPR/2026`,
       tanggalSppbj: '2026-02-25',
       metodePengadaan: 'Pengadaan Langsung',
-      ppkNama: project.ppkNama || 'Ahmad Fauzi, S.T., M.Eng.',
-      ppkNip: project.ppkNip || '19820719 200604 1 009',
-      ppkJabatan: 'Pejabat Pembuat Komitmen (PPK) Bidang Bangunan Gedung dan Permukiman',
+      ppkNama: finalPpkNama,
+      ppkNip: finalPpkNip,
+      ppkJabatan: finalPpkJabatan,
       ppkAlamat: 'Jl. Cut Nyak Dien No. 13, Kalisapu, Slawi, Kabupaten Tegal',
       ppkNomorSk: '800.1.3/045/DPUPR/2026',
       ppkTahunAnggaran: project.tahunAnggaran || 2026,
-      penyediaNamaBadanUsaha: project.kontraktorNama || 'PT Wijaya Bangun Tegal Perkasa',
-      penyediaBentukUsaha: project.kontraktorNama?.startsWith('CV') ? 'CV' : 'PT',
-      penyediaNamaPimpinan: project.kontraktorDirektur || 'Ir. Bambang Haryadi',
+      penyediaNamaBadanUsaha: penyediaNama,
+      penyediaBentukUsaha: penyediaNama.startsWith('CV') ? 'CV' : 'PT',
+      penyediaNamaPimpinan: pimpinanNama,
       penyediaJabatanPimpinan: 'Direktur',
       penyediaAlamat: 'Jl. Pemuda No. 88, Slawi, Kabupaten Tegal',
       penyediaNpwp: '01.234.567.8-501.000',
       penyediaBank: 'Bank Jateng Cabang Slawi',
       penyediaNomorRekening: '1-023-45678-9',
-      penyediaNamaRekening: project.kontraktorNama || 'PT Wijaya Bangun Tegal Perkasa',
+      penyediaNamaRekening: penyediaNama,
       namaPaket: project.nama,
       lokasiPekerjaan: project.lokasi,
       tahunAnggaran: project.tahunAnggaran || 2026,
       sumberDana: project.sumberDana || 'APBD Kab. Tegal',
       kodeRekeningKegiatan: '1.03.02.2.01.0005.5.2.03.01.01.0001',
-      nilaiKontrak: project.nilaiKontrak || 185000000,
-      nilaiKontrakTerbilang: angkaKeTerbilang(project.nilaiKontrak || 185000000),
+      nilaiKontrak: nilaiKontrakVal,
+      nilaiKontrakTerbilang: angkaKeTerbilang(nilaiKontrakVal),
       termasukPpn: true,
       jangkaWaktuHari: project.durasiHari || 120,
       jangkaWaktuHuruf: angkaKeTerbilang(project.durasiHari || 120).replace('rupiah', '').trim(),
@@ -294,12 +304,21 @@ export function createDefaultSpkForProject(project: Project, spkType: SpkType): 
   }
 
   if (spkType === 'pengawas') {
-    const nilaiPengawasan = Math.min(95000000, Math.round((project.nilaiKontrak || 2000000000) * 0.035));
+    const isCustomPpk = project.paketPengawas?.usePpkAcuan === false && !!project.paketPengawas?.ppkNama;
+    const finalPpkNama = isCustomPpk ? project.paketPengawas!.ppkNama! : (project.ppkNama || 'Ahmad Fauzi, S.T., M.Eng.');
+    const finalPpkNip = isCustomPpk ? project.paketPengawas!.ppkNip! : (project.ppkNip || '19820719 200604 1 009');
+    const finalPpkJabatan = isCustomPpk ? (project.paketPengawas!.ppkJabatan || 'PPK Pengawasan') : (project.ppkJabatan || 'Pejabat Pembuat Komitmen (PPK) Bidang Bangunan Gedung dan Permukiman');
+
+    const pengawasNama = project.paketPengawas?.namaPerusahaan || (project.pengawasNama && project.pengawasNama !== '-' ? project.pengawasNama : 'PT Cipta Matra Mandiri');
+    const pengawasPimpinan = project.paketPengawas?.namaDirektur || project.pengawasDirektur || 'Hendra Kusuma, S.T.';
+    const nilaiPengawasan = project.paketPengawas?.nilaiKontrak || project.nilaiKontrakPengawas || Math.min(95000000, Math.round((project.nilaiKontrak || 2000000000) * 0.035));
+    const nomorSpkVal = project.paketPengawas?.nomorKontrak || project.nomorKontrakPengawas || `602.1/SPK-PWS/${project.kodePaket || '01'}/DPUPR/2026`;
+
     return {
       id: `spk-pws-${project.id}`,
       projectId: project.id,
       spkType: 'pengawas',
-      nomorSpk: `602.1/SPK-PWS/${project.kodePaket || '01'}/DPUPR/2026`,
+      nomorSpk: nomorSpkVal,
       tanggalSpk: project.tanggalMulai || '2026-03-01',
       hariSpk: comp.hari,
       tanggalTeksSpk: comp.tanggalTeks,
@@ -308,21 +327,21 @@ export function createDefaultSpkForProject(project: Project, spkType: SpkType): 
       nomorSppbj: `602.1/SPPBJ-PWS/${project.kodePaket || '01'}/DPUPR/2026`,
       tanggalSppbj: '2026-02-24',
       metodePengadaan: 'Pengadaan Langsung',
-      ppkNama: project.ppkNama || 'Ahmad Fauzi, S.T., M.Eng.',
-      ppkNip: project.ppkNip || '19820719 200604 1 009',
-      ppkJabatan: 'Pejabat Pembuat Komitmen (PPK) Bidang Bangunan Gedung dan Permukiman',
+      ppkNama: finalPpkNama,
+      ppkNip: finalPpkNip,
+      ppkJabatan: finalPpkJabatan,
       ppkAlamat: 'Jl. Cut Nyak Dien No. 13, Kalisapu, Slawi, Kabupaten Tegal',
       ppkNomorSk: '800.1.3/045/DPUPR/2026',
       ppkTahunAnggaran: project.tahunAnggaran || 2026,
-      penyediaNamaBadanUsaha: project.pengawasNama || 'PT Cipta Matra Mandiri',
-      penyediaBentukUsaha: project.pengawasNama?.startsWith('CV') ? 'CV' : 'PT',
-      penyediaNamaPimpinan: 'Hendra Kusuma, S.T.',
+      penyediaNamaBadanUsaha: pengawasNama,
+      penyediaBentukUsaha: pengawasNama.startsWith('CV') ? 'CV' : 'PT',
+      penyediaNamaPimpinan: pengawasPimpinan,
       penyediaJabatanPimpinan: 'Direktur / Team Leader',
       penyediaAlamat: 'Jl. Kolonel Sugiono No. 24, Slawi, Kabupaten Tegal',
       penyediaNpwp: '02.456.789.1-501.000',
       penyediaBank: 'Bank Jateng Cabang Slawi',
       penyediaNomorRekening: '1-023-99887-1',
-      penyediaNamaRekening: project.pengawasNama || 'PT Cipta Matra Mandiri',
+      penyediaNamaRekening: pengawasNama,
       namaPaket: `Pengawasan Teknis ${project.nama}`,
       lokasiPekerjaan: project.lokasi,
       tahunAnggaran: project.tahunAnggaran || 2026,
@@ -351,7 +370,7 @@ export function createDefaultSpkForProject(project: Project, spkType: SpkType): 
       personelList: [
         {
           id: 'prs-pws-1',
-          nama: 'Hendra Kusuma, S.T.',
+          nama: pengawasPimpinan,
           posisi: 'Site Engineer / Team Leader',
           kualifikasi: 'S1 Teknik Sipil (Ahli Madya Pengawasan Gedung)',
           sertifikat: 'SKK No. 44321/PENGAWASAN/2024'
@@ -377,12 +396,21 @@ export function createDefaultSpkForProject(project: Project, spkType: SpkType): 
   }
 
   // spkType === 'perencana'
-  const nilaiPerencanaan = Math.min(98000000, Math.round((project.nilaiKontrak || 2000000000) * 0.045));
+  const isCustomPpk = project.paketPerencana?.usePpkAcuan === false && !!project.paketPerencana?.ppkNama;
+  const finalPpkNama = isCustomPpk ? project.paketPerencana!.ppkNama! : (project.ppkNama || 'Ahmad Fauzi, S.T., M.Eng.');
+  const finalPpkNip = isCustomPpk ? project.paketPerencana!.ppkNip! : (project.ppkNip || '19820719 200604 1 009');
+  const finalPpkJabatan = isCustomPpk ? (project.paketPerencana!.ppkJabatan || 'PPK Perencanaan') : (project.ppkJabatan || 'Pejabat Pembuat Komitmen (PPK) Bidang Bangunan Gedung dan Permukiman');
+
+  const perencanaNama = project.paketPerencana?.namaPerusahaan || (project.perencanaNama && project.perencanaNama !== '-' ? project.perencanaNama : 'CV Arsitek Graha Desain Slawi');
+  const perencanaPimpinan = project.paketPerencana?.namaDirektur || project.perencanaDirektur || 'Aris Munandar, S.T., IAI';
+  const nilaiPerencanaan = project.paketPerencana?.nilaiKontrak || project.nilaiKontrakPerencana || Math.min(98000000, Math.round((project.nilaiKontrak || 2000000000) * 0.045));
+  const nomorSpkVal = project.paketPerencana?.nomorKontrak || project.nomorKontrakPerencana || `602.1/SPK-PRC/${project.kodePaket || '01'}/DPUPR/2026`;
+
   return {
     id: `spk-prc-${project.id}`,
     projectId: project.id,
     spkType: 'perencana',
-    nomorSpk: `602.1/SPK-PRC/${project.kodePaket || '01'}/DPUPR/2026`,
+    nomorSpk: nomorSpkVal,
     tanggalSpk: '2026-01-15',
     hariSpk: 'Kamis',
     tanggalTeksSpk: 'lima belas',
@@ -391,21 +419,21 @@ export function createDefaultSpkForProject(project: Project, spkType: SpkType): 
     nomorSppbj: `602.1/SPPBJ-PRC/${project.kodePaket || '01'}/DPUPR/2026`,
     tanggalSppbj: '2026-01-10',
     metodePengadaan: 'Pengadaan Langsung',
-    ppkNama: project.ppkNama || 'Ahmad Fauzi, S.T., M.Eng.',
-    ppkNip: project.ppkNip || '19820719 200604 1 009',
-    ppkJabatan: 'Pejabat Pembuat Komitmen (PPK) Bidang Bangunan Gedung dan Permukiman',
+    ppkNama: finalPpkNama,
+    ppkNip: finalPpkNip,
+    ppkJabatan: finalPpkJabatan,
     ppkAlamat: 'Jl. Cut Nyak Dien No. 13, Kalisapu, Slawi, Kabupaten Tegal',
     ppkNomorSk: '800.1.3/045/DPUPR/2026',
     ppkTahunAnggaran: project.tahunAnggaran || 2026,
-    penyediaNamaBadanUsaha: project.perencanaNama || 'CV Arsitek Graha Desain Slawi',
-    penyediaBentukUsaha: project.perencanaNama?.startsWith('PT') ? 'PT' : 'CV',
-    penyediaNamaPimpinan: 'Aris Munandar, S.T., IAI',
+    penyediaNamaBadanUsaha: perencanaNama,
+    penyediaBentukUsaha: perencanaNama.startsWith('CV') ? 'CV' : 'PT',
+    penyediaNamaPimpinan: perencanaPimpinan,
     penyediaJabatanPimpinan: 'Direktur / Team Leader',
     penyediaAlamat: 'Jl. Dr. Soetomo No. 12, Kalisapu, Slawi, Kabupaten Tegal',
     penyediaNpwp: '03.789.123.4-501.000',
     penyediaBank: 'Bank Jateng Cabang Slawi',
     penyediaNomorRekening: '1-023-77665-2',
-    penyediaNamaRekening: project.perencanaNama || 'CV Arsitek Graha Desain Slawi',
+    penyediaNamaRekening: perencanaNama,
     namaPaket: `Perencanaan Teknis (DED & RAB) ${project.nama}`,
     lokasiPekerjaan: project.lokasi,
     tahunAnggaran: project.tahunAnggaran || 2026,
@@ -435,7 +463,7 @@ export function createDefaultSpkForProject(project: Project, spkType: SpkType): 
     personelList: [
       {
         id: 'prs-prc-1',
-        nama: 'Aris Munandar, S.T., IAI',
+        nama: perencanaPimpinan,
         posisi: 'Team Leader / Ahli Arsitektur',
         kualifikasi: 'S1 Arsitektur (Ahli Madya Perancang Bangunan Gedung)',
         sertifikat: 'STRA / SKK No. 12984/ARSITEK/2024'

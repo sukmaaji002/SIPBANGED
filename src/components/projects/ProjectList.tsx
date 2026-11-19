@@ -12,7 +12,10 @@ import {
   Shield, 
   TrendingUp, 
   Coins,
-  ArrowRight
+  ArrowRight,
+  HardHat,
+  ClipboardCheck,
+  Compass
 } from 'lucide-react';
 import { NewProjectModal } from './NewProjectModal';
 import { ActiveTab } from '../layout/Sidebar';
@@ -152,41 +155,106 @@ export const ProjectList: React.FC<ProjectListProps> = ({ onNavigate }) => {
                   {p.deskripsi}
                 </p>
 
-                {/* Location & Stakeholder */}
-                <div className="mt-3 space-y-1.5 text-xs text-slate-600 bg-slate-50/70 p-3 rounded-xl border border-slate-100">
-                  <div className="flex items-center gap-2 text-[11px]">
+                {/* Lokasi & PPK Acuan */}
+                <div className="mt-3 flex items-center justify-between text-[11px] bg-slate-50 p-2 rounded-xl border border-slate-100">
+                  <div className="flex items-center gap-1.5 text-slate-600 truncate max-w-[55%]">
                     <MapPin className="w-3.5 h-3.5 text-rose-500 flex-shrink-0" />
                     <span className="truncate">{p.lokasi}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[11px]">
-                    <UserCheck className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-                    <span className="truncate">
-                      Penyedia: <strong className="text-slate-800">{p.kontraktorNama}</strong>
-                    </span>
+                  <div className="flex items-center gap-1 text-[10px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200 truncate">
+                    <UserCheck className="w-3 h-3 flex-shrink-0 text-blue-600" />
+                    <span className="truncate font-semibold">PPK: {p.ppkNama?.split(',')[0]}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[11px]">
-                    <Shield className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
-                    <span className="truncate">
-                      Pengawas: {p.pengawasNama}
-                    </span>
+                </div>
+
+                {/* 3 Komponen Paket Kontrak dalam Proyek (Fisik, Pengawas, Perencana) */}
+                <div className="mt-2.5 space-y-1.5">
+                  <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                    Paket Kontrak Proyek:
                   </div>
-                  <div className="flex items-center gap-2 text-[11px]">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                    <span>
-                      Jangka Waktu: {formatTanggalIndo(p.tanggalMulai)} s/d {formatTanggalIndo(p.tanggalSelesai)} ({p.durasiHari} Hari)
-                    </span>
+
+                  {/* 1. Paket Fisik */}
+                  <div className={`p-2 rounded-xl border text-xs transition-all ${
+                    p.hasFisik !== false && p.kontraktorNama && p.kontraktorNama !== '-'
+                      ? 'bg-emerald-50/50 border-emerald-200 text-slate-800'
+                      : 'bg-slate-50 border-slate-200/80 text-slate-400'
+                  }`}>
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex items-center gap-1.5 font-bold truncate">
+                        <HardHat className={`w-3.5 h-3.5 flex-shrink-0 ${p.hasFisik !== false && p.kontraktorNama && p.kontraktorNama !== '-' ? 'text-emerald-600' : 'text-slate-400'}`} />
+                        <span className="text-[11px] text-slate-700">Fisik:</span>
+                        <span className="text-[11px] truncate font-extrabold text-slate-900">
+                          {p.hasFisik !== false && p.kontraktorNama && p.kontraktorNama !== '-' ? p.kontraktorNama : 'Tidak Ada Paket Fisik'}
+                        </span>
+                      </div>
+                      {p.hasFisik !== false && p.kontraktorNama && p.kontraktorNama !== '-' ? (
+                        <span className="text-[10px] font-mono font-bold text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-200 flex-shrink-0">
+                          {formatRupiah(p.nilaiKontrakFisik || p.nilaiKontrak)}
+                        </span>
+                      ) : (
+                        <span className="text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded flex-shrink-0">Nonaktif</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 2. Konsultan Pengawas */}
+                  <div className={`p-2 rounded-xl border text-xs transition-all ${
+                    p.hasPengawas !== false && p.pengawasNama && p.pengawasNama !== '-'
+                      ? 'bg-teal-50/50 border-teal-200 text-slate-800'
+                      : 'bg-slate-50 border-slate-200/80 text-slate-400'
+                  }`}>
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex items-center gap-1.5 font-bold truncate">
+                        <ClipboardCheck className={`w-3.5 h-3.5 flex-shrink-0 ${p.hasPengawas !== false && p.pengawasNama && p.pengawasNama !== '-' ? 'text-teal-600' : 'text-slate-400'}`} />
+                        <span className="text-[11px] text-slate-700">Pengawas:</span>
+                        <span className="text-[11px] truncate font-extrabold text-slate-900">
+                          {p.hasPengawas !== false && p.pengawasNama && p.pengawasNama !== '-' ? p.pengawasNama : 'Tidak Ada Paket Pengawas'}
+                        </span>
+                      </div>
+                      {p.hasPengawas !== false && p.pengawasNama && p.pengawasNama !== '-' ? (
+                        <span className="text-[10px] font-mono font-bold text-teal-700 bg-white px-1.5 py-0.5 rounded border border-teal-200 flex-shrink-0">
+                          {formatRupiah(p.nilaiKontrakPengawas || Math.round(p.nilaiKontrak * 0.035))}
+                        </span>
+                      ) : (
+                        <span className="text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded flex-shrink-0">Nonaktif</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 3. Konsultan Perencana */}
+                  <div className={`p-2 rounded-xl border text-xs transition-all ${
+                    p.hasPerencana !== false && p.perencanaNama && p.perencanaNama !== '-'
+                      ? 'bg-indigo-50/50 border-indigo-200 text-slate-800'
+                      : 'bg-slate-50 border-slate-200/80 text-slate-400'
+                  }`}>
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex items-center gap-1.5 font-bold truncate">
+                        <Compass className={`w-3.5 h-3.5 flex-shrink-0 ${p.hasPerencana !== false && p.perencanaNama && p.perencanaNama !== '-' ? 'text-indigo-600' : 'text-slate-400'}`} />
+                        <span className="text-[11px] text-slate-700">Perencana:</span>
+                        <span className="text-[11px] truncate font-extrabold text-slate-900">
+                          {p.hasPerencana !== false && p.perencanaNama && p.perencanaNama !== '-' ? p.perencanaNama : 'Tidak Ada Paket Perencana'}
+                        </span>
+                      </div>
+                      {p.hasPerencana !== false && p.perencanaNama && p.perencanaNama !== '-' ? (
+                        <span className="text-[10px] font-mono font-bold text-indigo-700 bg-white px-1.5 py-0.5 rounded border border-indigo-200 flex-shrink-0">
+                          {formatRupiah(p.nilaiKontrakPerencana || Math.round(p.nilaiKontrak * 0.045))}
+                        </span>
+                      ) : (
+                        <span className="text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded flex-shrink-0">Nonaktif</span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Financial Summary */}
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-slate-50 p-2 rounded-lg">
-                    <span className="text-[10px] text-slate-400 font-semibold block">Nilai Kontrak</span>
-                    <span className="font-extrabold text-slate-800 text-xs">
+                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                    <span className="text-[10px] text-slate-400 font-semibold block">Total Kontrak Proyek</span>
+                    <span className="font-extrabold text-emerald-700 text-xs">
                       {formatRupiah(p.nilaiKontrak)}
                     </span>
                   </div>
-                  <div className="bg-slate-50 p-2 rounded-lg">
+                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
                     <span className="text-[10px] text-slate-400 font-semibold block">Pagu Anggaran</span>
                     <span className="font-bold text-slate-600 text-xs">
                       {formatRupiah(p.paguAnggaran)}

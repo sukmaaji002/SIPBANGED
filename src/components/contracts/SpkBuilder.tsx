@@ -80,6 +80,10 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
 
   const canEdit = currentUser ? hasPermission(currentUser.role, 'edit_contract') : true;
 
+  const isFisikInProject = selectedProject.hasFisik !== false && !!selectedProject.kontraktorNama && selectedProject.kontraktorNama !== '-';
+  const isPengawasInProject = selectedProject.hasPengawas !== false && !!selectedProject.pengawasNama && selectedProject.pengawasNama !== '-';
+  const isPerencanaInProject = selectedProject.hasPerencana !== false && !!selectedProject.perencanaNama && selectedProject.perencanaNama !== '-';
+
   // Handlers for Form State
   const handleFieldChange = (field: keyof SpkContract, value: any) => {
     setSpkData(prev => ({ ...prev, [field]: value }));
@@ -271,13 +275,24 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
               : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
           }`}
         >
-          <HardHat className={`w-4 h-4 ${activeSpkType === 'fisik' ? 'text-emerald-600' : 'text-slate-400'}`} />
-          <div className="text-left">
-            <div className="font-bold">1. SPK Fisik / Konstruksi</div>
-            <div className="text-[10px] font-normal text-slate-500">Pekerjaan Pelaksanaan Lapangan</div>
+          <HardHat className={`w-4 h-4 shrink-0 ${activeSpkType === 'fisik' ? 'text-emerald-600' : 'text-slate-400'}`} />
+          <div className="text-left flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 font-bold flex-wrap">
+              <span>1. SPK Fisik / Konstruksi</span>
+              {isFisikInProject ? (
+                <span className="text-[9px] px-1.5 py-0.5 font-semibold bg-emerald-100 text-emerald-700 rounded border border-emerald-200">
+                  Ada di Proyek
+                </span>
+              ) : (
+                <span className="text-[9px] px-1.5 py-0.5 font-semibold bg-slate-200 text-slate-500 rounded">
+                  Nonaktif / Kosong
+                </span>
+              )}
+            </div>
+            <div className="text-[10px] font-normal text-slate-500 truncate">Pekerjaan Pelaksanaan Lapangan</div>
           </div>
           {activeSpkType === 'fisik' && (
-            <span className="w-2 h-2 rounded-full bg-emerald-500 ml-auto animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500 ml-auto shrink-0 animate-pulse" />
           )}
         </button>
 
@@ -289,13 +304,24 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
               : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
           }`}
         >
-          <ClipboardCheck className={`w-4 h-4 ${activeSpkType === 'pengawas' ? 'text-teal-600' : 'text-slate-400'}`} />
-          <div className="text-left">
-            <div className="font-bold">2. SPK Konsultan Pengawas</div>
-            <div className="text-[10px] font-normal text-slate-500">Pengawasan Teknis & Mutu</div>
+          <ClipboardCheck className={`w-4 h-4 shrink-0 ${activeSpkType === 'pengawas' ? 'text-teal-600' : 'text-slate-400'}`} />
+          <div className="text-left flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 font-bold flex-wrap">
+              <span>2. SPK Konsultan Pengawas</span>
+              {isPengawasInProject ? (
+                <span className="text-[9px] px-1.5 py-0.5 font-semibold bg-teal-100 text-teal-700 rounded border border-teal-200">
+                  Ada di Proyek
+                </span>
+              ) : (
+                <span className="text-[9px] px-1.5 py-0.5 font-semibold bg-slate-200 text-slate-500 rounded">
+                  Nonaktif / Kosong
+                </span>
+              )}
+            </div>
+            <div className="text-[10px] font-normal text-slate-500 truncate">Pengawasan Teknis & Mutu</div>
           </div>
           {activeSpkType === 'pengawas' && (
-            <span className="w-2 h-2 rounded-full bg-teal-500 ml-auto animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-teal-500 ml-auto shrink-0 animate-pulse" />
           )}
         </button>
 
@@ -307,13 +333,24 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
               : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
           }`}
         >
-          <Compass className={`w-4 h-4 ${activeSpkType === 'perencana' ? 'text-indigo-600' : 'text-slate-400'}`} />
-          <div className="text-left">
-            <div className="font-bold">3. SPK Konsultan Perencana</div>
-            <div className="text-[10px] font-normal text-slate-500">Perencanaan Teknis DED & RAB</div>
+          <Compass className={`w-4 h-4 shrink-0 ${activeSpkType === 'perencana' ? 'text-indigo-600' : 'text-slate-400'}`} />
+          <div className="text-left flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 font-bold flex-wrap">
+              <span>3. SPK Konsultan Perencana</span>
+              {isPerencanaInProject ? (
+                <span className="text-[9px] px-1.5 py-0.5 font-semibold bg-indigo-100 text-indigo-700 rounded border border-indigo-200">
+                  Ada di Proyek
+                </span>
+              ) : (
+                <span className="text-[9px] px-1.5 py-0.5 font-semibold bg-slate-200 text-slate-500 rounded">
+                  Nonaktif / Kosong
+                </span>
+              )}
+            </div>
+            <div className="text-[10px] font-normal text-slate-500 truncate">Perencanaan Teknis DED & RAB</div>
           </div>
           {activeSpkType === 'perencana' && (
-            <span className="w-2 h-2 rounded-full bg-indigo-500 ml-auto animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-indigo-500 ml-auto shrink-0 animate-pulse" />
           )}
         </button>
       </div>
