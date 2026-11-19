@@ -14,12 +14,11 @@
     margin: 15mm 15mm 18mm 15mm;
   }
 
-  /* Kertas polos putih bersih total tanpa bayangan atau warna latar */
-  html, body, #root, main, div, section, article {
+  /* Kertas polos putih bersih total tanpa bayangan */
+  html, body, #root, main {
     background: #ffffff !important;
     background-color: #ffffff !important;
     box-shadow: none !important;
-    border-color: transparent !important;
   }
 
   body {
@@ -87,6 +86,33 @@
 
   th, td {
     color: black !important;
+  }
+
+  /* Garis Ganda Kop Surat Resmi Kedinasan DPUPR Kab. Tegal */
+  .kop-surat-line-thick {
+    border: none !important;
+    border-top: 2.5px solid #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 0 !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .kop-surat-line-thin {
+    border: none !important;
+    border-top: 1px solid #000000 !important;
+    margin-top: 2px !important;
+    padding: 0 !important;
+    height: 0 !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  /* Cegah judul bagian SSUK terisolasi di bawah halaman tanpa baris isi */
+  .ssuk-section-title {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
   }
 
   /* Table wrapper for print pagination to reserve bottom space for repeating paraf footer */

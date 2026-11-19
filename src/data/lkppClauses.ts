@@ -143,7 +143,7 @@ export const OFFICIAL_SSKK_CLAUSES: ContractClause[] = [
     isActive: true,
     isEditable: true,
     keteranganPerlem: 'SSUK 4.1, 4.2, 5.1, 6.3 & 43.4',
-    kontenDefault: `1. Alamat Satker PPK: Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal, Jl. Cut Nyak Dien, Kalisapu, Slawi. Pos-el: dpupr@tegalkab.go.id.
+    kontenDefault: `1. Alamat Satker PPK: Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal, Jl. Cut Nyak Dien, Kalisapu, Slawi. Email: dpupr@tegalkab.go.id.
 2. Alamat Penyedia: Sesuai data identitas badan usaha dan kontak WhatsApp yang tercantum dalam SSKK.
 3. Jaminan dicairkan dan disetorkan pada Kas Daerah Pemerintah Kabupaten Tegal.`
   },
