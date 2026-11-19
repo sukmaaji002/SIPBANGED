@@ -55,17 +55,32 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
 
                     const paras = isCustom
                       ? customParas.map(cp => {
-                          const numMatch = cp.match(/^(\d+(?:\.\d+)*)\s+(.*)$/s);
+                          const subMatch = cp.match(/^((?:\d+|[a-z])\))\s+(.*)$/is);
                           const letMatch = cp.match(/^([a-z]\.)\s+(.*)$/is);
-                          if (numMatch) return { prefix: numMatch[1], text: numMatch[2], isLetter: false };
-                          if (letMatch) return { prefix: letMatch[1], text: letMatch[2], isLetter: true };
-                          return { prefix: '', text: cp, isLetter: false };
+                          const numMatch = cp.match(/^(\d+(?:\.\d+)*)\s+(.*)$/s);
+                          if (subMatch) return { prefix: subMatch[1], text: subMatch[2], level: 3 };
+                          if (letMatch) return { prefix: letMatch[1], text: letMatch[2], level: 2 };
+                          if (numMatch) return { prefix: numMatch[1], text: numMatch[2], level: 1 };
+                          return { prefix: '', text: cp, level: 0 };
                         })
-                      : (clause.paragraphs || []).map(p => ({
-                          prefix: p.prefix || '',
-                          text: p.text || '',
-                          isLetter: !!(p.prefix && /^[a-z]\.$/.test(p.prefix))
-                        }));
+                      : (clause.paragraphs || []).map(p => {
+                          const pfx = (p.prefix || '').trim();
+                          let level = 0;
+                          if (/^[a-z]\.$/i.test(pfx)) {
+                            level = 2; // Huruf: a., b., c. (rata dengan huruf pertama indent angka)
+                          } else if (/^(\d+|[a-z])\)$/i.test(pfx)) {
+                            level = 3; // Sub-item: 1), 2), a), b)
+                          } else if (/^\d+(\.\d+)*$/.test(pfx)) {
+                            level = 1; // Angka: 1.1, 14.3, 22.2
+                          } else if (pfx) {
+                            level = 2;
+                          }
+                          return {
+                            prefix: pfx,
+                            text: p.text || '',
+                            level
+                          };
+                        });
 
                     if (paras.length === 0) {
                       return (
@@ -97,20 +112,63 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
 
                           {/* Kolom 2: Uraian Isi Paragraf Sub-Pasal dengan Indent Numbering Rapi */}
                           <td className={`w-[74%] ${cIdx > 0 && isFirst ? 'pt-3' : 'py-1'} text-justify border-none align-top`}>
-                            {p.prefix ? (
+                            {p.level === 1 ? (
+                              // Level 1: Indent Angka (1.1, 14.3, 22.2)
                               <div 
-                                className={`flex items-start ${p.isLetter ? 'pl-5 sm:pl-6' : ''}`}
+                                className="flex items-start"
                                 style={{ display: 'flex', alignItems: 'flex-start' }}
                               >
                                 <span 
-                                  className={`shrink-0 select-none font-serif ${
-                                    p.isLetter 
-                                      ? 'w-5 font-semibold text-left' 
-                                      : 'w-9 sm:w-10 font-bold text-left'
-                                  }`}
+                                  className="shrink-0 select-none font-serif font-bold text-left"
                                   style={{
                                     flexShrink: 0,
-                                    width: p.isLetter ? '20px' : '38px',
+                                    width: '36px',
+                                    textAlign: 'left'
+                                  }}
+                                >
+                                  {p.prefix}
+                                </span>
+                                <div 
+                                  className="flex-1 text-justify leading-relaxed text-[11px] font-serif"
+                                  style={{ flex: 1, textAlign: 'justify' }}
+                                >
+                                  <span className={isCustom ? 'whitespace-pre-line' : ''}>{p.text}</span>
+                                </div>
+                              </div>
+                            ) : p.level === 2 ? (
+                              // Level 2: Indent Huruf (a., b., c.) - Rata dengan huruf pertama pada indent angka (pl 36px)
+                              <div 
+                                className="flex items-start"
+                                style={{ display: 'flex', alignItems: 'flex-start', paddingLeft: '36px' }}
+                              >
+                                <span 
+                                  className="shrink-0 select-none font-serif font-semibold text-left"
+                                  style={{
+                                    flexShrink: 0,
+                                    width: '22px',
+                                    textAlign: 'left'
+                                  }}
+                                >
+                                  {p.prefix}
+                                </span>
+                                <div 
+                                  className="flex-1 text-justify leading-relaxed text-[11px] font-serif"
+                                  style={{ flex: 1, textAlign: 'justify' }}
+                                >
+                                  <span className={isCustom ? 'whitespace-pre-line' : ''}>{p.text}</span>
+                                </div>
+                              </div>
+                            ) : p.level === 3 ? (
+                              // Level 3: Sub-item kurung (1), 2), a), b)) - Rata dengan teks indent huruf (pl 58px)
+                              <div 
+                                className="flex items-start"
+                                style={{ display: 'flex', alignItems: 'flex-start', paddingLeft: '58px' }}
+                              >
+                                <span 
+                                  className="shrink-0 select-none font-serif font-semibold text-left"
+                                  style={{
+                                    flexShrink: 0,
+                                    width: '22px',
                                     textAlign: 'left'
                                   }}
                                 >
@@ -124,6 +182,7 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
                                 </div>
                               </div>
                             ) : (
+                              // Level 0: Paragraf teks biasa tanpa prefix
                               <div 
                                 className="leading-relaxed text-[11px] text-justify font-serif"
                                 style={{ textAlign: 'justify' }}

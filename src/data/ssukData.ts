@@ -676,34 +676,34 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "18.6 Penyedia menyerahkan Personel dengan memenuhi ketentuan sebagai berikut:"
           },
           {
-            "prefix": "%3.",
+            "prefix": "a.",
             "text": "bukti sertifikat kompetensi:",
-            "fullText": "%3. bukti sertifikat kompetensi:"
+            "fullText": "a. bukti sertifikat kompetensi:"
           },
           {
-            "prefix": "%4)",
+            "prefix": "1)",
             "text": "personel manajerial pada Pekerjaan Konstruksi; atau",
-            "fullText": "%4) personel manajerial pada Pekerjaan Konstruksi; atau"
+            "fullText": "1) personel manajerial pada Pekerjaan Konstruksi; atau"
           },
           {
-            "prefix": "%4)",
+            "prefix": "2)",
             "text": "personel inti pada Jasa Konsultansi Konstruksi;",
-            "fullText": "%4) personel inti pada Jasa Konsultansi Konstruksi;"
+            "fullText": "2) personel inti pada Jasa Konsultansi Konstruksi;"
           },
           {
-            "prefix": "%3.",
+            "prefix": "b.",
             "text": "bukti sertifikat kompetensi sebagaimana dimaksud dalam huruf a dilaksanakan dengan menghadirkan personel yang bersangkutan;",
-            "fullText": "%3. bukti sertifikat kompetensi sebagaimana dimaksud dalam huruf a dilaksanakan dengan menghadirkan personel yang bersangkutan;"
+            "fullText": "b. bukti sertifikat kompetensi sebagaimana dimaksud dalam huruf a dilaksanakan dengan menghadirkan personel yang bersangkutan;"
           },
           {
-            "prefix": "%3.",
+            "prefix": "c.",
             "text": "melakukan sertifikasi bagi operator, teknisi, atau analis yang belum bersertifikat pada saat pelaksanaan pekerjaan; dan",
-            "fullText": "%3. melakukan sertifikasi bagi operator, teknisi, atau analis yang belum bersertifikat pada saat pelaksanaan pekerjaan; dan"
+            "fullText": "c. melakukan sertifikasi bagi operator, teknisi, atau analis yang belum bersertifikat pada saat pelaksanaan pekerjaan; dan"
           },
           {
-            "prefix": "%3.",
+            "prefix": "d.",
             "text": "pelaksanaan alih pengalaman/keahlian bidang konstruksi melalui sistem kerja praktik/magang, membahas paling sedikit terkait jumlah peserta, durasi pelaksanaan, dan jenis keahlian.",
-            "fullText": "%3. pelaksanaan alih pengalaman/keahlian bidang konstruksi melalui sistem kerja praktik/magang, membahas paling sedikit terkait jumlah peserta, durasi pelaksanaan, dan jenis keahlian."
+            "fullText": "d. pelaksanaan alih pengalaman/keahlian bidang konstruksi melalui sistem kerja praktik/magang, membahas paling sedikit terkait jumlah peserta, durasi pelaksanaan, dan jenis keahlian."
           },
           {
             "prefix": "18.7",
@@ -848,24 +848,24 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "a. Penerapan SMKK:"
           },
           {
-            "prefix": "%3)",
+            "prefix": "1)",
             "text": "RKK;",
-            "fullText": "%3) RKK;"
+            "fullText": "1) RKK;"
           },
           {
-            "prefix": "%3)",
+            "prefix": "2)",
             "text": "RMPK;",
-            "fullText": "%3) RMPK;"
+            "fullText": "2) RMPK;"
           },
           {
-            "prefix": "%3)",
+            "prefix": "3)",
             "text": "Rencana Kerja Pengelolaan dan Pemantauan Lingkungan (RKPPL) (apabila ada); dan",
-            "fullText": "%3) Rencana Kerja Pengelolaan dan Pemantauan Lingkungan (RKPPL) (apabila ada); dan"
+            "fullText": "3) Rencana Kerja Pengelolaan dan Pemantauan Lingkungan (RKPPL) (apabila ada); dan"
           },
           {
-            "prefix": "%3)",
+            "prefix": "4)",
             "text": "Rencana Manajemen Lalu Lintas (RMLL) (apabila ada);",
-            "fullText": "%3) Rencana Manajemen Lalu Lintas (RMLL) (apabila ada);"
+            "fullText": "4) Rencana Manajemen Lalu Lintas (RMLL) (apabila ada);"
           },
           {
             "prefix": "b.",
@@ -898,14 +898,14 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "g. Subkontraktor yang akan melaksanakan bagian pekerjaan dengan ketentuan berdasarkan daftar pekerjaan yang disubkontrakkan dan subkontraktor dalam syarat-syarat khusus kontrak:"
           },
           {
-            "prefix": "%4.",
+            "prefix": "1)",
             "text": "Untuk pekerjaan utama, dilakukan klarifikasi terhadap kesesuaian pekerjaan yang disubkontrakkan dan subklasifikasi SBU subpenyedia jasa spesialis yang dinominasikan; dan/atau",
-            "fullText": "%4. Untuk pekerjaan utama, dilakukan klarifikasi terhadap kesesuaian pekerjaan yang disubkontrakkan dan subklasifikasi SBU subpenyedia jasa spesialis yang dinominasikan; dan/atau"
+            "fullText": "1) Untuk pekerjaan utama, dilakukan klarifikasi terhadap kesesuaian pekerjaan yang disubkontrakkan dan subklasifikasi SBU subpenyedia jasa spesialis yang dinominasikan; dan/atau"
           },
           {
-            "prefix": "%4.",
+            "prefix": "2)",
             "text": "Untuk pekerjaan yang bukan pekerjaan utama, dilakukan klarifikasi terhadap kesesuaian pekerjaan yang disubkontrakkan, kesesuaian kualifikasi usaha, dan kesesuaian lokasi/domisili usaha subpenyedia jasa usaha kualifikasi kecil yang dinominasikan.",
-            "fullText": "%4. Untuk pekerjaan yang bukan pekerjaan utama, dilakukan klarifikasi terhadap kesesuaian pekerjaan yang disubkontrakkan, kesesuaian kualifikasi usaha, dan kesesuaian lokasi/domisili usaha subpenyedia jasa usaha kualifikasi kecil yang dinominasikan."
+            "fullText": "2) Untuk pekerjaan yang bukan pekerjaan utama, dilakukan klarifikasi terhadap kesesuaian pekerjaan yang disubkontrakkan, kesesuaian kualifikasi usaha, dan kesesuaian lokasi/domisili usaha subpenyedia jasa usaha kualifikasi kecil yang dinominasikan."
           },
           {
             "text": "Dalam hal dalam klarifikasi ditemukan ketidak sesuaian, Penyedia wajib mengganti subkontraktor dan/atau bagian pekerjaan yang di subkontrakkan dengan persetujuan Pejabat Penandatangan Kontrak;",
@@ -1504,24 +1504,24 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "36.1 Dalam hal terdapat perbedaan antara kondisi lapangan pada saat pelaksanaan dengan gambar dan/atau spesifikasi teknis yang ditentukan dalam dokumen Kontrak, Pejabat Penandatangan Kontrak bersama Penyedia dapat melakukan perubahan pekerjaan, yang meliputi:"
           },
           {
-            "prefix": "%3.",
+            "prefix": "a.",
             "text": "menambah atau mengurangi volume yang tercantum dalam Kontrak;",
-            "fullText": "%3. menambah atau mengurangi volume yang tercantum dalam Kontrak;"
+            "fullText": "a. menambah atau mengurangi volume yang tercantum dalam Kontrak;"
           },
           {
-            "prefix": "%3.",
+            "prefix": "b.",
             "text": "menambah dan/atau mengurangi jenis kegiatan/pekerjaan;",
-            "fullText": "%3. menambah dan/atau mengurangi jenis kegiatan/pekerjaan;"
+            "fullText": "b. menambah dan/atau mengurangi jenis kegiatan/pekerjaan;"
           },
           {
-            "prefix": "%3.",
+            "prefix": "c.",
             "text": "mengubah spesifikasi teknis dan/atau gambar pekerjaan; dan/atau",
-            "fullText": "%3. mengubah spesifikasi teknis dan/atau gambar pekerjaan; dan/atau"
+            "fullText": "c. mengubah spesifikasi teknis dan/atau gambar pekerjaan; dan/atau"
           },
           {
-            "prefix": "%3.",
+            "prefix": "d.",
             "text": "mengubah jadwal pelaksanaan pekerjaan.",
-            "fullText": "%3. mengubah jadwal pelaksanaan pekerjaan."
+            "fullText": "d. mengubah jadwal pelaksanaan pekerjaan."
           },
           {
             "prefix": "36.2",
@@ -1529,19 +1529,19 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "36.2 Dalam hal tidak terjadi perubahan kondisi lapangan seperti yang dimaksud pada Pasal 36.1 namun ada perintah perubahan dari Pejabat Penandatangan Kontrak, Pejabat Penandatangan Kontrak bersama Penyedia dapat menyepakati perubahan pekerjaan yang meliputi:"
           },
           {
-            "prefix": "%3.",
+            "prefix": "a.",
             "text": "menambah dan/atau mengurangi jenis kegiatan/pekerjaan;",
-            "fullText": "%3. menambah dan/atau mengurangi jenis kegiatan/pekerjaan;"
+            "fullText": "a. menambah dan/atau mengurangi jenis kegiatan/pekerjaan;"
           },
           {
-            "prefix": "%3.",
+            "prefix": "b.",
             "text": "mengubah spesifikasi teknis dan/atau gambar pekerjaan; dan/atau",
-            "fullText": "%3. mengubah spesifikasi teknis dan/atau gambar pekerjaan; dan/atau"
+            "fullText": "b. mengubah spesifikasi teknis dan/atau gambar pekerjaan; dan/atau"
           },
           {
-            "prefix": "%3.",
+            "prefix": "c.",
             "text": "mengubah jadwal pelaksanaan pekerjaan.",
-            "fullText": "%3. mengubah jadwal pelaksanaan pekerjaan."
+            "fullText": "c. mengubah jadwal pelaksanaan pekerjaan."
           },
           {
             "prefix": "36.3",
@@ -1903,24 +1903,24 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "40.8 Dalam hal terjadi Keadaan Kahar, Pelaksanaan pekerjaan dapat dihentikan. Penghentian Pekerjaan karena Keadaan Kahar dapat bersifat"
           },
           {
-            "prefix": "%8.",
+            "prefix": "a.",
             "text": "sementara hingga Keadaan Kahar berakhir apabila akibat Keadaan Kahar masih memungkinkan dilanjutkan/diselesaikannya pekerjaan;",
-            "fullText": "%8. sementara hingga Keadaan Kahar berakhir apabila akibat Keadaan Kahar masih memungkinkan dilanjutkan/diselesaikannya pekerjaan;"
+            "fullText": "a. sementara hingga Keadaan Kahar berakhir apabila akibat Keadaan Kahar masih memungkinkan dilanjutkan/diselesaikannya pekerjaan;"
           },
           {
-            "prefix": "%8.",
+            "prefix": "c.",
             "text": "permanen apabila akibat Keadaan Kahar tidak memungkinkan dilanjutkan/diselesaikannya pekerjaan.",
-            "fullText": "%8. permanen apabila akibat Keadaan Kahar tidak memungkinkan dilanjutkan/diselesaikannya pekerjaan."
+            "fullText": "b. permanen apabila akibat Keadaan Kahar tidak memungkinkan dilanjutkan/diselesaikannya pekerjaan."
           },
           {
-            "prefix": "%8.",
+            "prefix": "c.",
             "text": "sebagian apabila Keadaan Kahar hanya berdampak pada bagian Pekerjaan; dan/atau",
-            "fullText": "%8. sebagian apabila Keadaan Kahar hanya berdampak pada bagian Pekerjaan; dan/atau"
+            "fullText": "c. sebagian apabila Keadaan Kahar hanya berdampak pada bagian Pekerjaan; dan/atau"
           },
           {
-            "prefix": "%8.",
+            "prefix": "d.",
             "text": "seluruhnya apabila Keadaan Kahar berdampak terhadap keseluruhan Pekerjaan;",
-            "fullText": "%8. seluruhnya apabila Keadaan Kahar berdampak terhadap keseluruhan Pekerjaan;"
+            "fullText": "d. seluruhnya apabila Keadaan Kahar berdampak terhadap keseluruhan Pekerjaan;"
           },
           {
             "prefix": "40.9",
@@ -2473,24 +2473,24 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "55.1 Penyedia berkewajiban untuk mendapatkan lebih dahulu persetujuan tertulis Pejabat Penandatangan Kontrak sebelum melakukan tindakan-tindakan berikut:"
           },
           {
-            "prefix": "%5.",
+            "prefix": "b.",
             "text": "mensubkontrakkan sebagian pekerjaan yang belum tercantum dalam Lampiran A SSKK;",
-            "fullText": "%5. mensubkontrakkan sebagian pekerjaan yang belum tercantum dalam Lampiran A SSKK;"
+            "fullText": "a. mensubkontrakkan sebagian pekerjaan yang belum tercantum dalam Lampiran A SSKK;"
           },
           {
-            "prefix": "%5.",
+            "prefix": "c.",
             "text": "menunjuk Personel Manajerial yang namanya tidak tercantum dalam Lampiran A SSKK;",
-            "fullText": "%5. menunjuk Personel Manajerial yang namanya tidak tercantum dalam Lampiran A SSKK;"
+            "fullText": "b. menunjuk Personel Manajerial yang namanya tidak tercantum dalam Lampiran A SSKK;"
           },
           {
-            "prefix": "%5.",
+            "prefix": "d.",
             "text": "mengubah atau memutakhirkan dokumen penerapan SMKK;",
-            "fullText": "%5. mengubah atau memutakhirkan dokumen penerapan SMKK;"
+            "fullText": "c. mengubah atau memutakhirkan dokumen penerapan SMKK;"
           },
           {
-            "prefix": "%5.",
+            "prefix": "a.",
             "text": "tindakan lain selain yang diatur dalam SSKK.",
-            "fullText": "%5. tindakan lain selain yang diatur dalam SSKK."
+            "fullText": "d. tindakan lain selain yang diatur dalam SSKK."
           },
           {
             "prefix": "55.2",
@@ -2498,24 +2498,24 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "55.2 Penyedia berkewajiban untuk mendapatkan lebih dahulu persetujuan tertulis Pengawas Pekerjaan sebelum melakukan tindakan-tindakan berikut:"
           },
           {
-            "prefix": "%5.",
+            "prefix": "b.",
             "text": "melaksanakan setiap tahapan pekerjaan berdasarkan rencana kerja dan metode kerja;",
-            "fullText": "%5. melaksanakan setiap tahapan pekerjaan berdasarkan rencana kerja dan metode kerja;"
+            "fullText": "a. melaksanakan setiap tahapan pekerjaan berdasarkan rencana kerja dan metode kerja;"
           },
           {
-            "prefix": "%5.",
+            "prefix": "c.",
             "text": "mengubah syarat dan ketentuan polis asuransi;",
-            "fullText": "%5. mengubah syarat dan ketentuan polis asuransi;"
+            "fullText": "b. mengubah syarat dan ketentuan polis asuransi;"
           },
           {
-            "prefix": "%5.",
+            "prefix": "d.",
             "text": "mengubah Personel Manajerial dan/atau Peralatan Utama;",
-            "fullText": "%5. mengubah Personel Manajerial dan/atau Peralatan Utama;"
+            "fullText": "c. mengubah Personel Manajerial dan/atau Peralatan Utama;"
           },
           {
-            "prefix": "%5.",
+            "prefix": "d.",
             "text": "tindakan lain selain yang diatur dalam SSKK.",
-            "fullText": "%5. tindakan lain selain yang diatur dalam SSKK."
+            "fullText": "d. tindakan lain selain yang diatur dalam SSKK."
           },
           {
             "prefix": "55.3",
@@ -2636,14 +2636,14 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "1) Sebagian pekerjaan utama yang disubkontrakkan kepada penyedia jasa spesialis, dengan ketentuan:"
           },
           {
-            "prefix": "%5)",
+            "prefix": "a)",
             "text": "Paling banyak 2 (dua) pekerjaan;",
-            "fullText": "%5) Paling banyak 2 (dua) pekerjaan;"
+            "fullText": "a) Paling banyak 2 (dua) pekerjaan;"
           },
           {
-            "prefix": "%5)",
+            "prefix": "b)",
             "text": "Pekerjaan sebagaimana dimaksud pada huruf a) sesuai dengan subklasifikasi SBU;",
-            "fullText": "%5) Pekerjaan sebagaimana dimaksud pada huruf a) sesuai dengan subklasifikasi SBU;"
+            "fullText": "b) Pekerjaan sebagaimana dimaksud pada huruf a) sesuai dengan subklasifikasi SBU;"
           },
           {
             "prefix": "2)",
@@ -2651,14 +2651,14 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "2) Sebagian pekerjaan yang bukan pekerjaan utama kepada sub penyedia jasa usaha kualifikasi kecil dengan ketentuan:"
           },
           {
-            "prefix": "%4)",
+            "prefix": "a)",
             "text": "Paling banyak 2 (dua) pekerjaan;",
-            "fullText": "%4) Paling banyak 2 (dua) pekerjaan;"
+            "fullText": "a) Paling banyak 2 (dua) pekerjaan;"
           },
           {
-            "prefix": "%4)",
+            "prefix": "b)",
             "text": "Pekerjaan sebagaimana dimaksud pada huruf a) tidak mensyaratkan subklasifikasi SBU.",
-            "fullText": "%4) Pekerjaan sebagaimana dimaksud pada huruf a) tidak mensyaratkan subklasifikasi SBU."
+            "fullText": "b) Pekerjaan sebagaimana dimaksud pada huruf a) tidak mensyaratkan subklasifikasi SBU."
           },
           {
             "prefix": "58.2",
@@ -2755,29 +2755,29 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "62.3 Penggunaan Jaminan Pelaksanaan, Jaminan Uang Muka dan Jaminan Pemeliharaan sebagai berikut:"
           },
           {
-            "prefix": "%5.",
+            "prefix": "a.",
             "text": "Bank Umum;",
-            "fullText": "%5. Bank Umum;"
+            "fullText": "a. Bank Umum;"
           },
           {
-            "prefix": "%5.",
+            "prefix": "b.",
             "text": "Perusahaan Asuransi;",
-            "fullText": "%5. Perusahaan Asuransi;"
+            "fullText": "b. Perusahaan Asuransi;"
           },
           {
-            "prefix": "%5.",
+            "prefix": "c.",
             "text": "Perusahaan Penjaminan; atau",
-            "fullText": "%5. Perusahaan Penjaminan; atau"
+            "fullText": "c. Perusahaan Penjaminan; atau"
           },
           {
-            "prefix": "%5.",
+            "prefix": "d.",
             "text": "lembaga keuangan khusus yang menjalankan usaha di bidang pembiayaan, penjaminan, dan asuransi untuk mendorong ekspor Indonesia sesuai dengan ketentuan peraturan perundang-undangan di bidang lembaga pembiayaan ekspor Indonesia.",
-            "fullText": "%5. lembaga keuangan khusus yang menjalankan usaha di bidang pembiayaan, penjaminan, dan asuransi untuk mendorong ekspor Indonesia sesuai dengan ketentuan peraturan perundang-undangan di bidang lembaga pembiayaan ekspor Indonesia."
+            "fullText": "d. lembaga keuangan khusus yang menjalankan usaha di bidang pembiayaan, penjaminan, dan asuransi untuk mendorong ekspor Indonesia sesuai dengan ketentuan peraturan perundang-undangan di bidang lembaga pembiayaan ekspor Indonesia."
           },
           {
-            "prefix": "%5.",
+            "prefix": "e.",
             "text": "Konsorsium perusahaan asuransi umum/ Konsorsium Lembaga penjaminan/ Konsorsium perusahaan penjaminan yang mempunyai program asuransi kerugian (suretyship).",
-            "fullText": "%5. Konsorsium perusahaan asuransi umum/ Konsorsium Lembaga penjaminan/ Konsorsium perusahaan penjaminan yang mempunyai program asuransi kerugian (suretyship)."
+            "fullText": "e. Konsorsium perusahaan asuransi umum/ Konsorsium Lembaga penjaminan/ Konsorsium perusahaan penjaminan yang mempunyai program asuransi kerugian (suretyship)."
           },
           {
             "prefix": "62.4",
@@ -3172,74 +3172,74 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "Pembayaran prestasi hasil pekerjaan yang disepakati dilakukan oleh Pejabat Penandatangan Kontrak, dengan ketentuan:"
           },
           {
-            "prefix": "%7.",
+            "prefix": "a.",
             "text": "Penyedia telah mengajukan tagihan disertai laporan kemajuan hasil pekerjaan;",
-            "fullText": "%7. Penyedia telah mengajukan tagihan disertai laporan kemajuan hasil pekerjaan;"
+            "fullText": "a. Penyedia telah mengajukan tagihan disertai laporan kemajuan hasil pekerjaan;"
           },
           {
-            "prefix": "%7.",
+            "prefix": "b.",
             "text": "pembayaran dilakukan tidak boleh melebihi kemajuan hasil pekerjaan yang telah dicapai dan diterima oleh Pejabat Penandatangan Kontrak;",
-            "fullText": "%7. pembayaran dilakukan tidak boleh melebihi kemajuan hasil pekerjaan yang telah dicapai dan diterima oleh Pejabat Penandatangan Kontrak;"
+            "fullText": "b. pembayaran dilakukan tidak boleh melebihi kemajuan hasil pekerjaan yang telah dicapai dan diterima oleh Pejabat Penandatangan Kontrak;"
           },
           {
-            "prefix": "%7.",
+            "prefix": "c.",
             "text": "pembayaran dilakukan terhadap pekerjaan yang sudah terpasang;",
-            "fullText": "%7. pembayaran dilakukan terhadap pekerjaan yang sudah terpasang;"
+            "fullText": "c. pembayaran dilakukan terhadap pekerjaan yang sudah terpasang;"
           },
           {
-            "prefix": "%7.",
+            "prefix": "d.",
             "text": "pembayaran dilakukan dengan sistem bulanan atau sistem termin sesuai ketentuan dalam SSKK;",
-            "fullText": "%7. pembayaran dilakukan dengan sistem bulanan atau sistem termin sesuai ketentuan dalam SSKK;"
+            "fullText": "d. pembayaran dilakukan dengan sistem bulanan atau sistem termin sesuai ketentuan dalam SSKK;"
           },
           {
-            "prefix": "%7.",
+            "prefix": "e.",
             "text": "pembayaran harus memperhitungkan:",
-            "fullText": "%7. pembayaran harus memperhitungkan:"
+            "fullText": "e. pembayaran harus memperhitungkan:"
           },
           {
-            "prefix": "%5)",
+            "prefix": "1)",
             "text": "angsuran uang muka;",
-            "fullText": "%5) angsuran uang muka;"
+            "fullText": "1) angsuran uang muka;"
           },
           {
-            "prefix": "%5)",
+            "prefix": "2)",
             "text": "peralatan dan/atau bahan yang menjadi bagian permanen dari hasil pekerjaan  yang akan diserahterimakan (material on site) yang sudah dibayar sebelumnya;",
-            "fullText": "%5) peralatan dan/atau bahan yang menjadi bagian permanen dari hasil pekerjaan  yang akan diserahterimakan (material on site) yang sudah dibayar sebelumnya;"
+            "fullText": "2) peralatan dan/atau bahan yang menjadi bagian permanen dari hasil pekerjaan  yang akan diserahterimakan (material on site) yang sudah dibayar sebelumnya;"
           },
           {
-            "prefix": "%5)",
+            "prefix": "3)",
             "text": "denda (apabila ada);",
-            "fullText": "%5) denda (apabila ada);"
+            "fullText": "3) denda (apabila ada);"
           },
           {
-            "prefix": "%5)",
+            "prefix": "4)",
             "text": "pajak; dan/atau",
-            "fullText": "%5) pajak; dan/atau"
+            "fullText": "4) pajak; dan/atau"
           },
           {
-            "prefix": "%5)",
+            "prefix": "5)",
             "text": "uang retensi.",
-            "fullText": "%5) uang retensi."
+            "fullText": "5) uang retensi."
           },
           {
-            "prefix": "%7.",
+            "prefix": "f.",
             "text": "untuk Kontrak yang mempunyai subkontrak, permintaan pembayaran harus dilengkapi bukti pembayaran kepada seluruh Subkontraktor sesuai dengan prestasi pekerjaan. Pembayaran kepada Subkontraktor dilakukan sesuai prestasi pekerjaan yang selesai dilaksanakan oleh Subkontraktor tanpa harus menunggu pembayaran terlebih dahulu dari Pejabat Penandatangan Kontrak;",
-            "fullText": "%7. untuk Kontrak yang mempunyai subkontrak, permintaan pembayaran harus dilengkapi bukti pembayaran kepada seluruh Subkontraktor sesuai dengan prestasi pekerjaan. Pembayaran kepada Subkontraktor dilakukan sesuai prestasi pekerjaan yang selesai dilaksanakan oleh Subkontraktor tanpa harus menunggu pembayaran terlebih dahulu dari Pejabat Penandatangan Kontrak;"
+            "fullText": "f. untuk Kontrak yang mempunyai subkontrak, permintaan pembayaran harus dilengkapi bukti pembayaran kepada seluruh Subkontraktor sesuai dengan prestasi pekerjaan. Pembayaran kepada Subkontraktor dilakukan sesuai prestasi pekerjaan yang selesai dilaksanakan oleh Subkontraktor tanpa harus menunggu pembayaran terlebih dahulu dari Pejabat Penandatangan Kontrak;"
           },
           {
-            "prefix": "%7.",
+            "prefix": "h.",
             "text": "pembayaran terakhir hanya dilakukan setelah pekerjaan selesai 100% (seratus persen) dan Berita Acara Serah Terima Pertama Pekerjaan ditandatangani oleh Pejabat Penandatangan Kontrak dan Penyedia;",
-            "fullText": "%7. pembayaran terakhir hanya dilakukan setelah pekerjaan selesai 100% (seratus persen) dan Berita Acara Serah Terima Pertama Pekerjaan ditandatangani oleh Pejabat Penandatangan Kontrak dan Penyedia;"
+            "fullText": "g. pembayaran terakhir hanya dilakukan setelah pekerjaan selesai 100% (seratus persen) dan Berita Acara Serah Terima Pertama Pekerjaan ditandatangani oleh Pejabat Penandatangan Kontrak dan Penyedia;"
           },
           {
-            "prefix": "%7.",
+            "prefix": "i.",
             "text": "Pejabat Penandatangan Kontrak dalam kurun waktu 7 (tujuh) hari kerja setelah pengajuan permintaan pembayaran dari Penyedia diterima harus sudah mengajukan Surat Permintaan Pembayaran kepada Pejabat Penandatanganan Surat Perintah Membayar (PPSPM);",
-            "fullText": "%7. Pejabat Penandatangan Kontrak dalam kurun waktu 7 (tujuh) hari kerja setelah pengajuan permintaan pembayaran dari Penyedia diterima harus sudah mengajukan Surat Permintaan Pembayaran kepada Pejabat Penandatanganan Surat Perintah Membayar (PPSPM);"
+            "fullText": "h. Pejabat Penandatangan Kontrak dalam kurun waktu 7 (tujuh) hari kerja setelah pengajuan permintaan pembayaran dari Penyedia diterima harus sudah mengajukan Surat Permintaan Pembayaran kepada Pejabat Penandatanganan Surat Perintah Membayar (PPSPM);"
           },
           {
-            "prefix": "%7.",
+            "prefix": "a.",
             "text": "apabila terdapat ketidaksesuaian dalam perhitungan angsuran, tidak akan menjadi alasan untuk menunda pembayaran. Pejabat Penandatangan Kontrak dapat meminta Penyedia untuk menyampaikan perhitungan prestasi sementara dengan mengesampingkan hal-hal yang sedang menjadi perselisihan.",
-            "fullText": "%7. apabila terdapat ketidaksesuaian dalam perhitungan angsuran, tidak akan menjadi alasan untuk menunda pembayaran. Pejabat Penandatangan Kontrak dapat meminta Penyedia untuk menyampaikan perhitungan prestasi sementara dengan mengesampingkan hal-hal yang sedang menjadi perselisihan."
+            "fullText": "i. apabila terdapat ketidaksesuaian dalam perhitungan angsuran, tidak akan menjadi alasan untuk menunda pembayaran. Pejabat Penandatangan Kontrak dapat meminta Penyedia untuk menyampaikan perhitungan prestasi sementara dengan mengesampingkan hal-hal yang sedang menjadi perselisihan."
           },
           {
             "prefix": "69.3",
@@ -3251,59 +3251,59 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "Bahan dan/atau peralatan yang menjadi bagian dari hasil pekerjaan memenuhi ketentuan:"
           },
           {
-            "prefix": "%7.",
+            "prefix": "b.",
             "text": "bahan dan/atau peralatan yang menjadi bagian permanen dari hasil pekerjaan",
-            "fullText": "%7. bahan dan/atau peralatan yang menjadi bagian permanen dari hasil pekerjaan"
+            "fullText": "a. bahan dan/atau peralatan yang menjadi bagian permanen dari hasil pekerjaan"
           },
           {
-            "prefix": "%7.",
+            "prefix": "c.",
             "text": "bahan dan/atau peralatan yang belum dilakukan uji fungsi (commisioning), serta merupakan bagian dari pekerjaan utama harus memenuhi ketentuan sebagai berikut:",
-            "fullText": "%7. bahan dan/atau peralatan yang belum dilakukan uji fungsi (commisioning), serta merupakan bagian dari pekerjaan utama harus memenuhi ketentuan sebagai berikut:"
+            "fullText": "b. bahan dan/atau peralatan yang belum dilakukan uji fungsi (commisioning), serta merupakan bagian dari pekerjaan utama harus memenuhi ketentuan sebagai berikut:"
           },
           {
-            "prefix": "%6)",
+            "prefix": "1)",
             "text": "berada di lokasi pekerjaan sebagaimana tercantum dalam Kontrak dan perubahannya;",
-            "fullText": "%6) berada di lokasi pekerjaan sebagaimana tercantum dalam Kontrak dan perubahannya;"
+            "fullText": "1) berada di lokasi pekerjaan sebagaimana tercantum dalam Kontrak dan perubahannya;"
           },
           {
-            "prefix": "%6)",
+            "prefix": "2)",
             "text": "memiliki sertifikat uji mutu dari pabrikan/produsen;",
-            "fullText": "%6) memiliki sertifikat uji mutu dari pabrikan/produsen;"
+            "fullText": "2) memiliki sertifikat uji mutu dari pabrikan/produsen;"
           },
           {
-            "prefix": "%6)",
+            "prefix": "3)",
             "text": "bersertifikat garansi dari produsen/agen resmi yang ditunjuk oleh produsen;",
-            "fullText": "%6) bersertifikat garansi dari produsen/agen resmi yang ditunjuk oleh produsen;"
+            "fullText": "3) bersertifikat garansi dari produsen/agen resmi yang ditunjuk oleh produsen;"
           },
           {
-            "prefix": "%6)",
+            "prefix": "4)",
             "text": "disetujui oleh Pejabat Penandatangan Kontrak sesuai dengan capaian fisik yang diterima;",
-            "fullText": "%6) disetujui oleh Pejabat Penandatangan Kontrak sesuai dengan capaian fisik yang diterima;"
+            "fullText": "4) disetujui oleh Pejabat Penandatangan Kontrak sesuai dengan capaian fisik yang diterima;"
           },
           {
-            "prefix": "%6)",
+            "prefix": "5)",
             "text": "dilarang dipindahkan dari area lokasi pekerjaan dan/atau dipindah-tangankan oleh pihak manapun; dan",
-            "fullText": "%6) dilarang dipindahkan dari area lokasi pekerjaan dan/atau dipindah-tangankan oleh pihak manapun; dan"
+            "fullText": "5) dilarang dipindahkan dari area lokasi pekerjaan dan/atau dipindah-tangankan oleh pihak manapun; dan"
           },
           {
-            "prefix": "%6)",
+            "prefix": "6)",
             "text": "keamanan penyimpanan dan risiko kerusakan sebelum diserahterimakan secara satu kesatuan fungsi merupakan tanggung jawab Penyedia.",
-            "fullText": "%6) keamanan penyimpanan dan risiko kerusakan sebelum diserahterimakan secara satu kesatuan fungsi merupakan tanggung jawab Penyedia."
+            "fullText": "6) keamanan penyimpanan dan risiko kerusakan sebelum diserahterimakan secara satu kesatuan fungsi merupakan tanggung jawab Penyedia."
           },
           {
-            "prefix": "%7.",
+            "prefix": "d.",
             "text": "sertifikat uji mutu dan sertifikat garansi tidak diperlukan dalam hal peralatan dan/atau bahan dibuat/dirakit oleh Penyedia;",
-            "fullText": "%7. sertifikat uji mutu dan sertifikat garansi tidak diperlukan dalam hal peralatan dan/atau bahan dibuat/dirakit oleh Penyedia;"
+            "fullText": "c. sertifikat uji mutu dan sertifikat garansi tidak diperlukan dalam hal peralatan dan/atau bahan dibuat/dirakit oleh Penyedia;"
           },
           {
-            "prefix": "%7.",
+            "prefix": "e.",
             "text": "besaran yang akan dibayarkan dari material on site (maksimal sampai dengan 70%) dari Harga Satuan Pekerjaan (HSP);",
-            "fullText": "%7. besaran yang akan dibayarkan dari material on site (maksimal sampai dengan 70%) dari Harga Satuan Pekerjaan (HSP);"
+            "fullText": "d. besaran yang akan dibayarkan dari material on site (maksimal sampai dengan 70%) dari Harga Satuan Pekerjaan (HSP);"
           },
           {
-            "prefix": "%7.",
+            "prefix": "a.",
             "text": "besaran nilai pembayaran dan jenis material on site dicantumkan di dalam SSKK.",
-            "fullText": "%7. besaran nilai pembayaran dan jenis material on site dicantumkan di dalam SSKK."
+            "fullText": "e. besaran nilai pembayaran dan jenis material on site dicantumkan di dalam SSKK."
           },
           {
             "prefix": "69.4",
@@ -3311,63 +3311,63 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "69.4 Denda dan Ganti Rugi"
           },
           {
-            "prefix": "%7.",
+            "prefix": "b.",
             "text": "Denda merupakan sanksi finansial yang dikenakan kepada Penyedia, antara lain: denda keterlambatan dalam penyelesaian pelaksanaan pekerjaan, denda keterlambatan dalam perbaikan Cacat Mutu, denda terkait pelanggaran ketentuan subkontrak.",
-            "fullText": "%7. Denda merupakan sanksi finansial yang dikenakan kepada Penyedia, antara lain: denda keterlambatan dalam penyelesaian pelaksanaan pekerjaan, denda keterlambatan dalam perbaikan Cacat Mutu, denda terkait pelanggaran ketentuan subkontrak."
+            "fullText": "a. Denda merupakan sanksi finansial yang dikenakan kepada Penyedia, antara lain: denda keterlambatan dalam penyelesaian pelaksanaan pekerjaan, denda keterlambatan dalam perbaikan Cacat Mutu, denda terkait pelanggaran ketentuan subkontrak."
           },
           {
-            "prefix": "%7.",
+            "prefix": "c.",
             "text": "Ganti rugi merupakan sanksi finansial yang dikenakan kepada Pejabat Penandatangan Kontrak maupun Penyedia karena terjadinya cedera janji/wanprestasi. Besarnya sanksi ganti rugi adalah sebesar nilai kerugian yang ditimbulkan.",
-            "fullText": "%7. Ganti rugi merupakan sanksi finansial yang dikenakan kepada Pejabat Penandatangan Kontrak maupun Penyedia karena terjadinya cedera janji/wanprestasi. Besarnya sanksi ganti rugi adalah sebesar nilai kerugian yang ditimbulkan."
+            "fullText": "b. Ganti rugi merupakan sanksi finansial yang dikenakan kepada Pejabat Penandatangan Kontrak maupun Penyedia karena terjadinya cedera janji/wanprestasi. Besarnya sanksi ganti rugi adalah sebesar nilai kerugian yang ditimbulkan."
           },
           {
-            "prefix": "%7.",
+            "prefix": "d.",
             "text": "Besarnya denda keterlambatan yang dikenakan kepada Penyedia atas keterlambatan penyelesaian pekerjaan adalah:",
-            "fullText": "%7. Besarnya denda keterlambatan yang dikenakan kepada Penyedia atas keterlambatan penyelesaian pekerjaan adalah:"
+            "fullText": "c. Besarnya denda keterlambatan yang dikenakan kepada Penyedia atas keterlambatan penyelesaian pekerjaan adalah:"
           },
           {
-            "prefix": "%4)",
+            "prefix": "1)",
             "text": "1‰ (satu perseribu) dari harga bagian Kontrak yang tercantum dalam Kontrak (sebelum PPN); atau",
-            "fullText": "%4) 1‰ (satu perseribu) dari harga bagian Kontrak yang tercantum dalam Kontrak (sebelum PPN); atau"
+            "fullText": "1) 1‰ (satu perseribu) dari harga bagian Kontrak yang tercantum dalam Kontrak (sebelum PPN); atau"
           },
           {
-            "prefix": "%4)",
+            "prefix": "2)",
             "text": "1‰ (satu perseribu) dari Harga Kontrak (sebelum PPN);",
-            "fullText": "%4) 1‰ (satu perseribu) dari Harga Kontrak (sebelum PPN);"
+            "fullText": "2) 1‰ (satu perseribu) dari Harga Kontrak (sebelum PPN);"
           },
           {
             "text": "sesuai yang ditetapkan dalam SSKK.",
             "fullText": "sesuai yang ditetapkan dalam SSKK."
           },
           {
-            "prefix": "%7.",
+            "prefix": "e.",
             "text": "Besaran denda cacat mutu sebesar 1‰ (satu perseribu) per hari keterlambatan perbaikan dari nilai biaya perbaikan pekerjaan yang ditemukan cacat mutu.",
-            "fullText": "%7. Besaran denda cacat mutu sebesar 1‰ (satu perseribu) per hari keterlambatan perbaikan dari nilai biaya perbaikan pekerjaan yang ditemukan cacat mutu."
+            "fullText": "d. Besaran denda cacat mutu sebesar 1‰ (satu perseribu) per hari keterlambatan perbaikan dari nilai biaya perbaikan pekerjaan yang ditemukan cacat mutu."
           },
           {
-            "prefix": "%7.",
+            "prefix": "f.",
             "text": "Besaran denda pelanggaran subkontrak sebesar nilai pekerjaan subkontrak yang disubkontrakkan tidak sesuai ketentuan.",
-            "fullText": "%7. Besaran denda pelanggaran subkontrak sebesar nilai pekerjaan subkontrak yang disubkontrakkan tidak sesuai ketentuan."
+            "fullText": "e. Besaran denda pelanggaran subkontrak sebesar nilai pekerjaan subkontrak yang disubkontrakkan tidak sesuai ketentuan."
           },
           {
-            "prefix": "%7.",
+            "prefix": "g.",
             "text": "Besarnya ganti rugi sebagai akibat Peristiwa Kompensasi yang dibayar oleh Pejabat Penandatangan Kontrak atas keterlambatan pembayaran adalah sebesar bunga dari nilai tagihan yang terlambat dibayar, berdasarkan tingkat suku bunga yang berlaku pada saat itu menurut ketetapan Bank Indonesia, sepanjang telah diputuskan oleh lembaga yang berwenang;",
-            "fullText": "%7. Besarnya ganti rugi sebagai akibat Peristiwa Kompensasi yang dibayar oleh Pejabat Penandatangan Kontrak atas keterlambatan pembayaran adalah sebesar bunga dari nilai tagihan yang terlambat dibayar, berdasarkan tingkat suku bunga yang berlaku pada saat itu menurut ketetapan Bank Indonesia, sepanjang telah diputuskan oleh lembaga yang berwenang;"
+            "fullText": "f. Besarnya ganti rugi sebagai akibat Peristiwa Kompensasi yang dibayar oleh Pejabat Penandatangan Kontrak atas keterlambatan pembayaran adalah sebesar bunga dari nilai tagihan yang terlambat dibayar, berdasarkan tingkat suku bunga yang berlaku pada saat itu menurut ketetapan Bank Indonesia, sepanjang telah diputuskan oleh lembaga yang berwenang;"
           },
           {
-            "prefix": "%7.",
+            "prefix": "h.",
             "text": "Pembayaran denda dan/atau ganti rugi diperhitungkan dalam pembayaran prestasi pekerjaan.",
-            "fullText": "%7. Pembayaran denda dan/atau ganti rugi diperhitungkan dalam pembayaran prestasi pekerjaan."
+            "fullText": "g. Pembayaran denda dan/atau ganti rugi diperhitungkan dalam pembayaran prestasi pekerjaan."
           },
           {
-            "prefix": "%7.",
+            "prefix": "i.",
             "text": "Ganti rugi kepada Penyedia dapat mengubah Harga Kontrak setelah dituangkan dalam adendum kontrak.",
-            "fullText": "%7. Ganti rugi kepada Penyedia dapat mengubah Harga Kontrak setelah dituangkan dalam adendum kontrak."
+            "fullText": "h. Ganti rugi kepada Penyedia dapat mengubah Harga Kontrak setelah dituangkan dalam adendum kontrak."
           },
           {
-            "prefix": "%7.",
+            "prefix": "i.",
             "text": "Pembayaran ganti rugi dilakukan oleh Pejabat Penandatangan Kontrak, apabila Penyedia telah mengajukan tagihan disertai perhitungan dan data-data.",
-            "fullText": "%7. Pembayaran ganti rugi dilakukan oleh Pejabat Penandatangan Kontrak, apabila Penyedia telah mengajukan tagihan disertai perhitungan dan data-data."
+            "fullText": "i. Pembayaran ganti rugi dilakukan oleh Pejabat Penandatangan Kontrak, apabila Penyedia telah mengajukan tagihan disertai perhitungan dan data-data."
           }
         ]
       },
@@ -3388,19 +3388,19 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "fullText": "70.2 Penyedia tidak diperkenankan melakukan pekerjaan apapun di lokasi kerja pada waktu yang secara ketentuan peraturan perundang-undangan dinyatakan sebagai hari libur atau di luar jam kerja normal, kecuali:"
           },
           {
-            "prefix": "%8.",
+            "prefix": "a.",
             "text": "dinyatakan lain di dalam Kontrak;",
-            "fullText": "%8. dinyatakan lain di dalam Kontrak;"
+            "fullText": "a. dinyatakan lain di dalam Kontrak;"
           },
           {
-            "prefix": "%8.",
+            "prefix": "b.",
             "text": "Pejabat Penandatangan Kontrak memberikan izin; atau",
-            "fullText": "%8. Pejabat Penandatangan Kontrak memberikan izin; atau"
+            "fullText": "b. Pejabat Penandatangan Kontrak memberikan izin; atau"
           },
           {
-            "prefix": "%8.",
+            "prefix": "c.",
             "text": "pekerjaan tidak dapat ditunda, atau untuk keselamatan/perlindungan masyarakat, dimana Penyedia harus segera memberitahukan urgensi pekerjaan tersebut kepada Pengawas Pekerjaan dan Pejabat Penandatangan Kontrak.",
-            "fullText": "%8. pekerjaan tidak dapat ditunda, atau untuk keselamatan/perlindungan masyarakat, dimana Penyedia harus segera memberitahukan urgensi pekerjaan tersebut kepada Pengawas Pekerjaan dan Pejabat Penandatangan Kontrak."
+            "fullText": "c. pekerjaan tidak dapat ditunda, atau untuk keselamatan/perlindungan masyarakat, dimana Penyedia harus segera memberitahukan urgensi pekerjaan tersebut kepada Pengawas Pekerjaan dan Pejabat Penandatangan Kontrak."
           },
           {
             "prefix": "70.3",
