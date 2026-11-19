@@ -299,7 +299,16 @@ ALTER TABLE public.sipbanged_contracts DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipbanged_spk_contracts DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipbanged_berita_acara DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipbanged_payments DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.sipbanged_schedule_addendums DISABLE ROW LEVEL SECURITY;`;
+ALTER TABLE public.sipbanged_schedule_addendums DISABLE ROW LEVEL SECURITY;
+
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role;`;
 
   const handleCopySql = () => {
     navigator.clipboard.writeText(SQL_SCHEMA_SCRIPT);

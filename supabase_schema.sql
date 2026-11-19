@@ -121,3 +121,13 @@ ALTER TABLE public.sipbanged_berita_acara DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipbanged_payments DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipbanged_schedule_addendums DISABLE ROW LEVEL SECURITY;
 
+-- BERIKAN HAK AKSES PENUH (GRANT) KEPADA ROLE ANON DAN AUTHENTICATED
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+

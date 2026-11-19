@@ -24,7 +24,10 @@ export const supabaseSync = {
       const { error } = await sb.from('sipbanged_users').select('id').limit(1);
       if (error) {
         if (error.code === '42P01') {
-          return { success: false, message: 'Tabel database belum dibuat. Silakan jalankan skrip SQL di Supabase SQL Editor.' };
+          return { success: false, message: 'Tabel database belum dibuat. Silakan salin & jalankan skrip SQL di Supabase SQL Editor.' };
+        }
+        if (error.code === '42501') {
+          return { success: false, message: 'Izin akses tabel dibatasi (Error 42501). Silakan jalankan perintah GRANT di Supabase SQL Editor agar role anon memiliki izin baca/tulis.' };
         }
         return { success: false, message: `Koneksi gagal: ${error.message}` };
       }

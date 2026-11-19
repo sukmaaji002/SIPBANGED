@@ -3,17 +3,20 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 const STORAGE_KEY_URL = 'sipbanged_supabase_url';
 const STORAGE_KEY_KEY = 'sipbanged_supabase_anon_key';
 
-export function getSupabaseConfig(): { url: string; anonKey: string } {
-  // Check env first, fallback to localStorage
-  const envUrl = import.meta.env.VITE_SUPABASE_URL || '';
-  const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const DEFAULT_SUPABASE_URL = 'https://efokzwpjqskcwjtkdtzs.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_2F1agLnsUZ1P1rAx8QwO0w_XYhGW4eY';
 
+export function getSupabaseConfig(): { url: string; anonKey: string } {
+  // Check localStorage first (jika ada kustomisasi manual di UI), lalu env, lalu default
   const localUrl = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_URL) || '' : '';
   const localKey = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_KEY) || '' : '';
 
+  const envUrl = import.meta.env.VITE_SUPABASE_URL || '';
+  const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
   return {
-    url: envUrl || localUrl,
-    anonKey: envKey || localKey
+    url: localUrl || envUrl || DEFAULT_SUPABASE_URL,
+    anonKey: localKey || envKey || DEFAULT_SUPABASE_ANON_KEY
   };
 }
 
