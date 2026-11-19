@@ -31,6 +31,7 @@ export const RbacMatrix: React.FC = () => {
   ];
 
   const roles: UserRole[] = [
+    'master_admin',
     'admin',
     'kabid',
     'ppk',
@@ -42,7 +43,7 @@ export const RbacMatrix: React.FC = () => {
 
   // Matrix permission logic
   const checkMatrix = (role: UserRole, action: AppAction): boolean => {
-    if (role === 'admin') return true;
+    if (role === 'master_admin' || role === 'admin') return true;
     switch (action) {
       case 'create_project':
         return role === 'ppk' || role === 'kabid';

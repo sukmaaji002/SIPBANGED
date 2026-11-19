@@ -1,11 +1,12 @@
 export type UserRole = 
-  | 'admin'       // Admin Dinas DPUPR Kab Tegal
-  | 'kabid'       // Kepala Bidang PBLTARU / KPA
-  | 'ppk'         // PPK / PPTK Bidang Bangunan Gedung
-  | 'perencana'   // Konsultan Perencana
-  | 'kontraktor'  // Kontraktor Pelaksana Konstruksi
-  | 'pengawas'    // Konsultan Pengawas / Tim Teknis
-  | 'keuangan';   // Bendahara Pengeluaran / Staf Keuangan
+  | 'master_admin' // Master Admin (Super Admin) - Akses tertinggi tanpa batas
+  | 'admin'        // Admin Dinas DPUPR Kab Tegal
+  | 'kabid'        // Kepala Bidang PBLTARU / KPA
+  | 'ppk'          // PPK / PPTK Bidang Bangunan Gedung
+  | 'perencana'    // Konsultan Perencana
+  | 'kontraktor'   // Kontraktor Pelaksana Konstruksi
+  | 'pengawas'     // Konsultan Pengawas / Tim Teknis
+  | 'keuangan';    // Bendahara Pengeluaran / Staf Keuangan
 
 export interface User {
   id: string;

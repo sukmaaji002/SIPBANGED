@@ -10,6 +10,14 @@ export interface RoleDetail {
 }
 
 export const ROLE_DETAILS: Record<UserRole, RoleDetail> = {
+  master_admin: {
+    role: 'master_admin',
+    label: 'MASTER ADMIN (Super Admin)',
+    badgeColor: 'bg-amber-500/20 text-amber-900 border-amber-300 font-black',
+    bgColor: 'bg-amber-600',
+    textColor: 'text-amber-700',
+    deskripsi: 'Akses tertinggi tanpa batas (Superuser): kontrol penuh seluruh modul, kelola seluruh data akun, dan konfigurasi hak akses pengguna.'
+  },
   admin: {
     role: 'admin',
     label: 'Admin DPUPR',
@@ -87,7 +95,7 @@ export type AppAction =
 
 export const hasPermission = (role: UserRole | undefined, action: AppAction): boolean => {
   if (!role) return false;
-  if (role === 'admin') return true; // Superadmin has access to all actions
+  if (role === 'master_admin' || role === 'admin') return true; // Master Admin & Admin have full access to all actions
 
   switch (action) {
     case 'manage_users':

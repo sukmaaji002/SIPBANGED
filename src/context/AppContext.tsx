@@ -40,6 +40,8 @@ interface AppContextType {
   
   users: User[];
   updateUser: (user: User) => void;
+  addUser: (newUser: Omit<User, 'id'>) => User;
+  deleteUser: (id: string) => void;
   
   projects: Project[];
   selectedProjectId: string;
@@ -318,6 +320,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const addUser = (newUser: Omit<User, 'id'>): User => {
+    const id = `user-${Date.now()}`;
+    const created: User = {
+      ...newUser,
+      id
+    };
+    setUsers(prev => [...prev, created]);
+    return created;
+  };
+
+  const deleteUser = (id: string) => {
+    setUsers(prev => prev.filter(u => u.id !== id));
+  };
+
   // Projects
   const selectedProject = projects.find(p => p.id === selectedProjectId) || projects[0];
 
@@ -514,6 +530,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       registerUser,
       users,
       updateUser,
+      addUser,
+      deleteUser,
       projects,
       selectedProjectId,
       setSelectedProjectId,

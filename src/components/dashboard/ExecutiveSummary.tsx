@@ -300,14 +300,16 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({ onNavigate }
               Peran: {currentUser ? currentUser.role.toUpperCase() : '-'}
             </div>
             <p className="text-[11px] text-slate-300 mt-2 leading-relaxed">
-              Anda dapat menguji pembatasan hak akses setiap aktor (Admin, Kabid, PPK, Kontraktor, Pengawas, Perencana, Keuangan) lewat menu drop-down di pojok kanan atas.
+              Sistem membatasi hak akses setiap aktor sesuai regulasi pengadaan pemerintah dan tata kerja DPUPR Kab. Tegal.
             </p>
-            <button
-              onClick={() => onNavigate('rbac-matrix')}
-              className="mt-3 w-full py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg border border-white/20 transition-colors"
-            >
-              Cek Matriks Hak Akses (RBAC)
-            </button>
+            {currentUser?.role === 'master_admin' && (
+              <button
+                onClick={() => onNavigate('rbac-matrix')}
+                className="mt-3 w-full py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg border border-white/20 transition-colors cursor-pointer"
+              >
+                Pengelolaan Hak Akses (RBAC)
+              </button>
+            )}
           </div>
 
           {/* Quick Shortcuts */}

@@ -12,6 +12,7 @@ import { KontrakModularContainer } from './components/contracts/KontrakModularCo
 import { BeritaAcaraList } from './components/beritaAcara/BeritaAcaraList';
 import { FinanceOverview } from './components/finance/FinanceOverview';
 import { RbacMatrix } from './components/auth/RbacMatrix';
+import { UserAccountsPage } from './components/admin/UserAccountsPage';
 import { RegisterModal } from './components/auth/RegisterModal';
 import { UserManagementModal } from './components/auth/UserManagementModal';
 import { 
@@ -63,6 +64,8 @@ const MainApp: React.FC = () => {
         return <BeritaAcaraList />;
       case 'keuangan':
         return <FinanceOverview />;
+      case 'user-management':
+        return <UserAccountsPage />;
       case 'rbac-matrix':
         return <RbacMatrix />;
       default:

@@ -16,7 +16,8 @@ import {
   ChevronDown,
   X,
   Layers,
-  FileCheck2
+  FileCheck2,
+  Users
 } from 'lucide-react';
 
 export type ActiveTab = 
@@ -29,6 +30,7 @@ export type ActiveTab =
   | 'kontrak'
   | 'berita-acara'
   | 'keuangan'
+  | 'user-management'
   | 'rbac-matrix';
 
 interface SidebarProps {
@@ -53,6 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const toggleCollapse = onToggleCollapse || (() => setInternalCollapsed(prev => !prev));
 
   const { 
+    currentUser,
     selectedProject, 
     projects, 
     setSelectedProjectId,
@@ -61,6 +64,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     spkDocType,
     setSpkDocType
   } = useApp();
+
+  const isMasterAdmin = currentUser?.role === 'master_admin';
 
   const [isKontrakExpanded, setIsKontrakExpanded] = useState(true);
   const [isSpkSubExpanded, setIsSpkSubExpanded] = useState(true);
@@ -126,13 +131,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
       category: 'Anggaran & Kas',
       icon: <Coins className="w-4 h-4 flex-shrink-0 text-emerald-600" />
     },
-    // RBAC
-    {
-      id: 'rbac-matrix',
-      label: 'Matriks Hak Akses Akun',
-      category: 'Pengaturan & Keamanan',
-      icon: <ShieldAlert className="w-4 h-4 flex-shrink-0 text-rose-500" />
-    }
+    // KHUSUS MASTER ADMIN (Hanya muncul jika login sebagai Master Admin)
+    ...(isMasterAdmin ? [
+      {
+        id: 'user-management' as ActiveTab,
+        label: 'Data Akun Pengguna',
+        category: 'Super Admin Master',
+        icon: <Users className="w-4 h-4 flex-shrink-0 text-amber-500" />,
+        badge: 'Master'
+      },
+      {
+        id: 'rbac-matrix' as ActiveTab,
+        label: 'Pengelolaan Hak Akses',
+        category: 'Super Admin Master',
+        icon: <ShieldAlert className="w-4 h-4 flex-shrink-0 text-rose-500" />,
+        badge: 'RBAC'
+      }
+    ] : [])
   ];
 
   let currentDesktopCategory = '';

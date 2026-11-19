@@ -15,6 +15,16 @@ import { DEFAULT_LKPP_CLAUSES } from './lkppClauses';
 
 export const INITIAL_USERS: User[] = [
   {
+    id: 'user-master-admin',
+    name: 'Super Administrator DPUPR',
+    email: 'master.admin@dpupr-tegal.go.id',
+    role: 'master_admin',
+    agency: 'Dinas PUPR Kabupaten Tegal',
+    nip: '19790101 200312 1 001',
+    phone: '0811-2233-4455',
+    status: 'active'
+  },
+  {
     id: 'user-admin',
     name: 'Administrator Bidang PBLTARU',
     email: 'admin@dpupr-tegal.go.id',
