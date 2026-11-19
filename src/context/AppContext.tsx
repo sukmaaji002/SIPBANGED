@@ -570,7 +570,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const resetToDefault = () => {
     localStorage.clear();
     setUsers(INITIAL_USERS);
-    setCurrentUser(INITIAL_USERS.find(u => u.role === 'ppk') || INITIAL_USERS[0]);
+    setCurrentUser(INITIAL_USERS.find(u => u.role === 'master_admin') || INITIAL_USERS[0]);
     setProjects(INITIAL_PROJECTS);
     setSelectedProjectId('proj-1');
     setPlanningDocs(INITIAL_PLANNING_DOCS);
