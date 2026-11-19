@@ -231,65 +231,142 @@ export const SSKKPrint: React.FC<Props> = ({ contract }) => {
 
           {/* 62 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">62</td>
-            <td className="border border-black p-2 font-bold">Jaminan</td>
-            <td className="border border-black p-2 space-y-1">
-              <p>Jaminan pelaksanaan dan jaminan uang muka dalam pelaksanaan kontrak ini dapat berupa bank garansi atau surety bond (Bank Umum, Perusahaan Asuransi, Perusahaan Penjaminan, Lembaga Pembiayaan Ekspor Indonesia).</p>
-              <p>Jaminan pemeliharaan dalam pelaksanaan kontrak ini berupa:</p>
-              <ol className="list-alpha pl-4 space-y-0.5">
-                <li>Bank Garansi dengan dilampiri/disertai bukti slip setoran tunai senilai nilai jaminan dari pihak penjamin yang menerbitkan, atau;</li>
-                <li>Bank garansi dengan cara pemblokiran/penahanan dana oleh Bank atas SP2D pekerjaan sebesar 5% (lima perseratus) dari Harga Kontrak untuk keperluan Jaminan Pemeliharaan terhadap pembayaran pekerjaan;</li>
-                <li>Pemblokiran/penahanan dana sebagaimana point b. dapat dicairkan setelah Pejabat yang berwenang untuk menandatangani Kontrak menerbitkan Surat Pencairan Jaminan Pemeliharaan.</li>
-              </ol>
+            <td className="border border-black p-2 font-bold text-center align-top">62</td>
+            <td className="border border-black p-2 font-bold align-top">Jaminan</td>
+            <td className="border border-black p-2 space-y-2 text-justify text-[11px] leading-relaxed">
+              <div className="flex items-start">
+                <span className="w-5 shrink-0 select-none">1.</span>
+                <div className="flex-1 space-y-1">
+                  <p>Jaminan pelaksanaan dan jaminan uang muka dalam pelaksanaan kontrak ini dapat berupa bank garansi atau surety bond dengan penggunaan sebagai berikut :</p>
+                  <div className="space-y-0.5">
+                    <div className="flex items-start pl-2">
+                      <span className="w-5 shrink-0 select-none">a.</span>
+                      <span className="flex-1">Bank Umum;</span>
+                    </div>
+                    <div className="flex items-start pl-2">
+                      <span className="w-5 shrink-0 select-none">b.</span>
+                      <span className="flex-1">Perusahaan Asuransi;</span>
+                    </div>
+                    <div className="flex items-start pl-2">
+                      <span className="w-5 shrink-0 select-none">c.</span>
+                      <span className="flex-1">Perusahaan Penjaminan; atau</span>
+                    </div>
+                    <div className="flex items-start pl-2">
+                      <span className="w-5 shrink-0 select-none">d.</span>
+                      <span className="flex-1 text-justify">Lembaga keuangan khusus yang menjalankan usaha di bidang pembiayaan, penjaminan, dan asuransi untuk mendorong ekspor Indonesia sesuai dengan ketentuan peraturan perundang-undangan di bidang lembaga pembiayaan ekspor Indonesia.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start pt-1">
+                <span className="w-5 shrink-0 select-none">2.</span>
+                <div className="flex-1 space-y-1">
+                  <p>Jaminan pemeliharaan dalam pelaksanaan kontrak ini berupa :</p>
+                  <div className="space-y-0.5">
+                    <div className="flex items-start pl-2">
+                      <span className="w-5 shrink-0 select-none">a.</span>
+                      <span className="flex-1 text-justify">Bank Garansi dengan dilampiri/disertai bukti slip setoran tunai senilai nilai jaminan dari pihak penjamin yang menerbitkan, atau;</span>
+                    </div>
+                    <div className="flex items-start pl-2">
+                      <span className="w-5 shrink-0 select-none">b.</span>
+                      <span className="flex-1 text-justify">Bank garansi dengan cara pemblokiran /penahanan dana oleh Bank atas SP2D pekerjaan sebesar 5% (lima perseratus) dari Harga Kontrak untuk keperluan Jaminan Pemeliharaan terhadap pembayaran pekerjaan;</span>
+                    </div>
+                    <div className="flex items-start pl-2">
+                      <span className="w-5 shrink-0 select-none">c.</span>
+                      <span className="flex-1 text-justify">Pemblokiran/penahanan dana sebagaimana point b. dapat dicairkan setelah Pejabat yang berwenang untuk menandatangani Kontrak menerbitkan Surat Pencairan Jaminan Pemeliharaan.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </td>
           </tr>
 
-          {/* 64 & 65.1.h */}
+          {/* 64 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">64 & 65.1.h</td>
-            <td className="border border-black p-2 font-bold">Fasilitas & Peristiwa Kompensasi</td>
-            <td className="border border-black p-2">
-              Fasilitas: Tidak Ada. Peristiwa Kompensasi: sesuai ketentuan SSUK.
+            <td className="border border-black p-2 font-bold text-center align-top">64</td>
+            <td className="border border-black p-2 font-bold align-top">Fasilitas</td>
+            <td className="border border-black p-2 align-top text-[11px] leading-relaxed">
+              Pejabat Penandatangan Kontrak akan memberikan fasilitas berupa : Tidak Ada
+            </td>
+          </tr>
+
+          {/* 65.1.h */}
+          <tr className="border border-black">
+            <td className="border border-black p-2 font-bold text-center align-top">65.1.h</td>
+            <td className="border border-black p-2 font-bold align-top">Peristiwa Kompensasi</td>
+            <td className="border border-black p-2 align-top text-[11px] leading-relaxed">
+              Termasuk Peristiwa Kompensasi yang dapat diberikan kepada Penyedia adalah sesuai SSUK
             </td>
           </tr>
 
           {/* 69.1.e */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">69.1.e</td>
-            <td className="border border-black p-2 font-bold">Besaran Uang Muka</td>
-            <td className="border border-black p-2">
-              <strong>{contract.sskkUangMukaKetentuan}</strong>
+            <td className="border border-black p-2 font-bold text-center align-top">69.1.e</td>
+            <td className="border border-black p-2 font-bold align-top">Besaran Uang Muka</td>
+            <td className="border border-black p-2 align-top text-[11px] leading-relaxed">
+              {contract.sskkUangMukaKetentuan || 'Tidak diberikan Uang muka'}
             </td>
           </tr>
 
           {/* 69.2.d */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">69.2.d</td>
-            <td className="border border-black p-2 font-bold">Pembayaran Prestasi Pekerjaan</td>
-            <td className="border border-black p-2 space-y-1.5 text-justify">
-              <p>Pembayaran prestasi pekerjaan dilakukan dengan cara <strong>{contract.sskkPembayaranCara}</strong> dengan ketentuan tahapan pembayaran sebagai berikut:</p>
-              <ol className="list-alpha pl-4 space-y-1">
-                <li>Pelaksanaan pembayaran termin ke I (satu) sebesar <strong>{contract.sskkTermin1Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>{contract.sskkTermin1Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;</li>
-                <li>Pelaksanaan pembayaran termin ke II (dua) sebesar <strong>{contract.sskkTermin2Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>{contract.sskkTermin2Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;</li>
-                <li>Pelaksanaan pembayaran termin ke III (tiga) sebesar <strong>{contract.sskkTermin3Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>{contract.sskkTermin3Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;</li>
-                <li>Pelaksanaan pembayaran termin ke IV (empat) dengan membayarkan keseluruhan sisa pembayaran dari Harga Kontrak setelah prestasi pekerjaan fisik mencapai <strong>{contract.sskkTermin4Fisik}%</strong> dengan ketentuan Penyedia harus menyerahkan Jaminan Pemeliharaan sebesar 5% (lima persen) dari Harga Kontrak atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui Pejabat Penandatangan Kontrak, serta dilampiri bukti pembayaran denda (apabila ada);</li>
-                <li>Apabila Penyedia tidak dapat menyelesaikan prestasi pekerjaan mencapai 100% sampai batas akhir masa pelaksanaan berakhir atau prestasi pekerjaan tidak disetujui 100%, maka nilai pembayaran yang berhak diterima pihak Penyedia Jasa adalah sebesar progres pekerjaan yang telah terpasang dan disetujui Pejabat Penandatangan Kontrak;</li>
-                <li>Dalam hal Penyedia tidak mengajukan pembayaran pada suatu tahapan termin, pembayaran dapat diakumulasikan pada termin berikutnya sepanjang prestasi pekerjaan yang menjadi dasar pembayaran telah diperiksa dan diterima;</li>
-                <li>Terhadap volume atau item pekerjaan yang sudah terpasang/dikerjakan tetapi tidak bisa dibayarkan menjadi milik Pemerintah Daerah Kabupaten Tegal;</li>
-                <li>Dokumen penunjang yang dipersyaratkan untuk pengajuan tagihan pembayaran prestasi pekerjaan sekurang-kurangnya meliputi:
-                  <ol className="list-decimal pl-4 pt-1 space-y-0.5">
-                    <li>Surat permohonan pembayaran / tagihan;</li>
-                    <li>Laporan kemajuan prestasi pekerjaan;</li>
-                    <li>Berita Acara Pemeriksaan Prestasi Pekerjaan;</li>
-                    <li>Rekapitulasi dan perhitungan volume/prestasi pekerjaan;</li>
-                    <li>Dokumen pendukung hasil pengukuran/opname pekerjaan;</li>
-                    <li>Foto/dokumentasi pelaksanaan pekerjaan;</li>
-                    <li>Addendum Kontrak, apabila ada;</li>
-                    <li>Jaminan Pemeliharaan untuk pembayaran 100%, apabila dipersyaratkan; dan</li>
-                    <li>Dokumen lainnya sesuai ketentuan penatausahaan keuangan Pemerintah Kabupaten Tegal.</li>
-                  </ol>
-                </li>
-              </ol>
+            <td className="border border-black p-2 font-bold text-center align-top">69.2.d</td>
+            <td className="border border-black p-2 font-bold align-top">Pembayaran Prestasi Pekerjaan</td>
+            <td className="border border-black p-2 space-y-1.5 text-justify text-[11px] leading-relaxed">
+              <div className="flex items-start">
+                <span className="w-5 shrink-0 select-none">1.</span>
+                <p className="flex-1">
+                  Pembayaran prestasi pekerjaan dilakukan dengan cara <strong>{contract.sskkPembayaranCara}</strong> dengan ketentuan tahapan pembayaran sebagai berikut :
+                </p>
+              </div>
+              <div className="pl-5 space-y-1">
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">a.</span>
+                  <p className="flex-1">Pelaksanaan pembayaran termin ke I (satu) sebesar <strong>{contract.sskkTermin1Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>{contract.sskkTermin1Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">b.</span>
+                  <p className="flex-1">Pelaksanaan pembayaran termin ke II (dua) sebesar <strong>{contract.sskkTermin2Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>{contract.sskkTermin2Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">c.</span>
+                  <p className="flex-1">Pelaksanaan pembayaran termin ke III (tiga) sebesar <strong>{contract.sskkTermin3Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>{contract.sskkTermin3Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">d.</span>
+                  <p className="flex-1">Pelaksanaan pembayaran termin ke IV (empat) dengan membayarkan keseluruhan sisa pembayaran dari Harga Kontrak setelah prestasi pekerjaan fisik mencapai <strong>{contract.sskkTermin4Fisik}%</strong> dengan ketentuan Penyedia harus menyerahkan Jaminan Pemeliharaan sebesar 5% (lima persen) dari Harga Kontrak atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui Pejabat Penandatangan Kontrak, serta dilampiri bukti pembayaran denda (apabila ada);</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">e.</span>
+                  <p className="flex-1">Apabila Penyedia tidak dapat menyelesaikan prestasi pekerjaan mencapai 100% sampai batas akhir masa pelaksanaan berakhir atau prestasi pekerjaan tidak disetujui 100%, maka nilai pembayaran yang berhak diterima pihak Penyedia Jasa adalah sebesar progres pekerjaan yang telah terpasang dan disetujui Pejabat Penandatangan Kontrak;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">f.</span>
+                  <p className="flex-1">Dalam hal Penyedia tidak mengajukan pembayaran pada suatu tahapan termin, pembayaran dapat diakumulasikan pada termin berikutnya sepanjang prestasi pekerjaan yang menjadi dasar pembayaran telah diperiksa dan diterima;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">g.</span>
+                  <p className="flex-1">Terhadap volume atau item pekerjaan yang sudah terpasang/dikerjakan tetapi tidak bisa dibayarkan menjadi milik Pemerintah Daerah Kabupaten Tegal;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">h.</span>
+                  <div className="flex-1 space-y-1">
+                    <p>Dokumen penunjang yang dipersyaratkan untuk pengajuan tagihan pembayaran prestasi pekerjaan sekurang-kurangnya meliputi:</p>
+                    <ol className="list-decimal pl-5 space-y-0.5">
+                      <li>Surat permohonan pembayaran / tagihan;</li>
+                      <li>Laporan kemajuan prestasi pekerjaan;</li>
+                      <li>Berita Acara Pemeriksaan Prestasi Pekerjaan;</li>
+                      <li>Rekapitulasi dan perhitungan volume/prestasi pekerjaan;</li>
+                      <li>Dokumen pendukung hasil pengukuran/opname pekerjaan;</li>
+                      <li>Foto/dokumentasi pelaksanaan pekerjaan;</li>
+                      <li>Addendum Kontrak, apabila ada;</li>
+                      <li>Jaminan Pemeliharaan untuk pembayaran 100%, apabila dipersyaratkan; dan</li>
+                      <li>Dokumen lainnya sesuai ketentuan penatausahaan keuangan Pemerintah Kabupaten Tegal.</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
             </td>
           </tr>
 

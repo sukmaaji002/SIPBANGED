@@ -656,26 +656,37 @@ export function generateContractWordDoc(contract: ProjectContract): void {
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">62</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Jaminan</td>
-            <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              Jaminan pelaksanaan dan jaminan uang muka dalam pelaksanaan kontrak ini dapat berupa bank garansi atau surety bond (Bank Umum, Perusahaan Asuransi, Perusahaan Penjaminan, Lembaga Pembiayaan Ekspor Indonesia).<br/><br/>
-              Jaminan pemeliharaan dalam pelaksanaan kontrak ini berupa:<br/>
-              a. Bank Garansi dengan dilampiri/disertai bukti slip setoran tunai senilai nilai jaminan dari pihak penjamin yang menerbitkan, atau;<br/>
-              b. Bank garansi dengan cara pemblokiran/penahanan dana oleh Bank atas SP2D pekerjaan sebesar 5% (lima perseratus) dari Harga Kontrak untuk keperluan Jaminan Pemeliharaan terhadap pembayaran pekerjaan;<br/>
-              c. Pemblokiran/penahanan dana sebagaimana point b. dapat dicairkan setelah Pejabat yang berwenang untuk menandatangani Kontrak menerbitkan Surat Pencairan Jaminan Pemeliharaan.
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top; font-size: 10pt; line-height: 1.35; text-align: justify;">
+              1. Jaminan pelaksanaan dan jaminan uang muka dalam pelaksanaan kontrak ini dapat berupa bank garansi atau surety bond dengan penggunaan sebagai berikut :<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;&nbsp;Bank Umum;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;&nbsp;Perusahaan Asuransi;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;&nbsp;Perusahaan Penjaminan; atau<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;d.&nbsp;&nbsp;Lembaga keuangan khusus yang menjalankan usaha di bidang pembiayaan, penjaminan, dan asuransi untuk mendorong ekspor Indonesia sesuai dengan ketentuan peraturan perundang-undangan di bidang lembaga pembiayaan ekspor Indonesia.<br/><br/>
+              2. Jaminan pemeliharaan dalam pelaksanaan kontrak ini berupa :<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;&nbsp;Bank Garansi dengan dilampiri/disertai bukti slip setoran tunai senilai nilai jaminan dari pihak penjamin yang menerbitkan, atau;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;&nbsp;Bank garansi dengan cara pemblokiran /penahanan dana oleh Bank atas SP2D pekerjaan sebesar 5% (lima perseratus) dari Harga Kontrak untuk keperluan Jaminan Pemeliharaan terhadap pembayaran pekerjaan;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;&nbsp;Pemblokiran/penahanan dana sebagaimana point b. dapat dicairkan setelah Pejabat yang berwenang untuk menandatangani Kontrak menerbitkan Surat Pencairan Jaminan Pemeliharaan.
             </td>
           </tr>
           <tr>
-            <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">64 & 65.1.h</td>
-            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Fasilitas & Kompensasi</td>
-            <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              Fasilitas: Tidak Ada. Peristiwa Kompensasi: sesuai ketentuan SSUK.
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">64</td>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Fasilitas</td>
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top; font-size: 10pt;">
+              Pejabat Penandatangan Kontrak akan memberikan fasilitas berupa : Tidak Ada
+            </td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">65.1.h</td>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Peristiwa Kompensasi</td>
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top; font-size: 10pt;">
+              Termasuk Peristiwa Kompensasi yang dapat diberikan kepada Penyedia adalah sesuai SSUK
             </td>
           </tr>
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">69.1.e</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Besaran Uang Muka</td>
-            <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              <strong>${contract.sskkUangMukaKetentuan}</strong>
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top; font-size: 10pt;">
+              ${contract.sskkUangMukaKetentuan || 'Tidak diberikan Uang muka'}
             </td>
           </tr>
           <tr>
