@@ -2,6 +2,7 @@ import React from 'react';
 import { SpkContract } from '../../types';
 import { KopSurat } from '../common/KopSurat';
 import { PrintDocWrapper } from './PrintDocWrapper';
+import { FormattedLegalText } from '../common/FormattedLegalText';
 import { formatTanggalIndo, formatRupiah } from '../../utils/formatters';
 
 interface SpkPrintViewProps {
@@ -264,42 +265,48 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
                 <p className="font-bold text-center text-xs uppercase mb-1">
                   Pasal {c.pasal}<br />{c.judul}
                 </p>
-                <div className="text-[11px] leading-relaxed whitespace-pre-line text-slate-800">
-                  {c.isi}
+                <div className="text-[11px] leading-relaxed text-slate-800">
+                  <FormattedLegalText text={c.isi} />
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Penutup & Tanda Tangan */}
-        <div className="mt-8 pt-4">
-          <p>
+        {/* Penutup & Tanda Tangan (Anti-Potong Halaman) */}
+        <div 
+          className="signature-section mt-6 pt-2 no-page-break"
+          style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+        >
+          <p className="text-xs text-justify leading-relaxed font-serif">
             Demikian Surat Perintah Kerja (SPK) ini dibuat dan ditandatangani oleh Para Pihak dengan penuh tanggung jawab dalam 2 (dua) rangkap asli bermaterai cukup dan memiliki kekuatan hukum yang sama.
           </p>
-        </div>
 
-        <div className="grid grid-cols-2 gap-8 text-center pt-8">
-          <div>
-            <p className="font-bold text-xs">Untuk dan atas nama</p>
-            <p className="font-bold text-xs mb-16">{spk.penyediaNamaBadanUsaha}</p>
-            <div className="border border-dashed border-slate-400 w-20 py-1 mx-auto mb-2 text-[9px] text-slate-500">
-              MATERAI<br />Rp 10.000,-
+          <div 
+            className="grid grid-cols-2 gap-8 text-center pt-6"
+            style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+          >
+            <div>
+              <p className="font-bold text-xs">Untuk dan atas nama</p>
+              <p className="font-bold text-xs mb-14">{spk.penyediaNamaBadanUsaha}</p>
+              <div className="border border-dashed border-slate-400 w-20 py-1 mx-auto mb-2 text-[9px] text-slate-500">
+                MATERAI<br />Rp 10.000,-
+              </div>
+              <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
+              <p className="text-[10px]">{spk.penyediaJabatanPimpinan}</p>
             </div>
-            <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
-            <p className="text-[10px]">{spk.penyediaJabatanPimpinan}</p>
-          </div>
 
-          <div>
-            <p className="font-bold text-xs">Untuk dan atas nama</p>
-            <p className="font-bold text-xs mb-16">
-              DINAS PEKERJAAN UMUM DAN PENATAAN RUANG<br />KABUPATEN TEGAL
-            </p>
-            <div className="border border-dashed border-slate-400 w-20 py-1 mx-auto mb-2 text-[9px] text-slate-500">
-              MATERAI<br />Rp 10.000,-
+            <div>
+              <p className="font-bold text-xs">Untuk dan atas nama</p>
+              <p className="font-bold text-xs mb-14">
+                DINAS PEKERJAAN UMUM DAN PENATAAN RUANG<br />KABUPATEN TEGAL
+              </p>
+              <div className="border border-dashed border-slate-400 w-20 py-1 mx-auto mb-2 text-[9px] text-slate-500">
+                MATERAI<br />Rp 10.000,-
+              </div>
+              <p className="font-bold underline text-xs">{spk.ppkNama}</p>
+              <p className="text-[10px]">NIP. {spk.ppkNip}</p>
             </div>
-            <p className="font-bold underline text-xs">{spk.ppkNama}</p>
-            <p className="text-[10px]">NIP. {spk.ppkNip}</p>
           </div>
         </div>
 

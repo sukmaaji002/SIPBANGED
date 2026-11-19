@@ -65,6 +65,26 @@
     break-inside: avoid !important;
   }
 
+  /* Anti-potong halaman untuk area tanda tangan dan penutup dokumen */
+  .signature-section,
+  .signature-table,
+  .tanda-tangan-block,
+  .no-page-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    break-inside: avoid-page !important;
+  }
+  .signature-section table,
+  .signature-table {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  .signature-section tr,
+  .signature-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
   th, td {
     color: black !important;
   }

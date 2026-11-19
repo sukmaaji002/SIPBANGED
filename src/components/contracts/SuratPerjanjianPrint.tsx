@@ -4,6 +4,7 @@ import { KopSurat } from '../common/KopSurat';
 import { parseKomponenTanggalKontrak, formatTanggalIndo, formatRupiah, angkaKeTerbilang, resolveContractPlaceholders } from '../../utils/formatters';
 import { parseRuangLingkup } from '../../utils/ruangLingkupParser';
 import { PrintDocWrapper } from './PrintDocWrapper';
+import { FormattedLegalText } from '../common/FormattedLegalText';
 
 interface Props {
   contract: ProjectContract;
@@ -132,12 +133,13 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
             <p className="font-bold">
               Dan dengan memperhatikan:
             </p>
-            <div className="pl-5 text-[11px] whitespace-pre-line leading-relaxed text-justify">
-              {resolveContractPlaceholders(
+            <FormattedLegalText
+              className="text-[11px] pt-0.5"
+              text={resolveContractPlaceholders(
                 konsideransClause.kontenCustom !== undefined ? konsideransClause.kontenCustom : konsideransClause.kontenDefault,
                 contract
               )}
-            </div>
+            />
           </div>
         )}
 
@@ -147,12 +149,13 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
             <p className="pb-1 font-bold text-center uppercase tracking-wide">
               PARA PIHAK MENERANGKAN TERLEBIH DAHULU BAHWA:
             </p>
-            <div className="space-y-1.5 text-[11px] text-justify leading-relaxed whitespace-pre-line">
-              {resolveContractPlaceholders(
+            <FormattedLegalText
+              className="text-[11px] pt-1"
+              text={resolveContractPlaceholders(
                 premisClause.kontenCustom !== undefined ? premisClause.kontenCustom : premisClause.kontenDefault,
                 contract
               )}
-            </div>
+            />
           </div>
         )}
 
@@ -221,8 +224,8 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
                 <div className="text-center font-bold uppercase text-xs">
                   Pasal {idx + 1}<br/>{clause.judul}
                 </div>
-                <div className="whitespace-pre-line leading-relaxed pl-2 pt-1 font-serif">
-                  {content}
+                <div className="pt-1 font-serif text-xs">
+                  <FormattedLegalText text={content} />
                 </div>
               </div>
             );
@@ -332,16 +335,22 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
         )}
       </div>
 
-      {/* Penutup Surat Perjanjian & Kolom Tanda Tangan Sesuai Word Asli */}
-      <div className="mt-8 space-y-6">
+      {/* Penutup Surat Perjanjian & Kolom Tanda Tangan Sesuai Word Asli (Anti-Potong Halaman) */}
+      <div 
+        className="signature-section mt-6 space-y-4 no-page-break"
+        style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+      >
         <p className="text-xs text-justify leading-relaxed font-serif indent-0">
           Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani Kontrak ini pada tanggal tersebut di atas dan melaksanakan Kontrak sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia dan dibuat dalam 2 (dua) rangkap, masing-masing dibubuhi dengan meterai, mempunyai kekuatan hukum yang sama dan mengikat bagi para pihak, rangkap yang lain dapat diperbanyak sesuai kebutuhan tanpa dibubuhi meterai.
         </p>
 
-        <table className="w-full text-xs text-center border-none border-collapse font-serif mt-6">
+        <table 
+          className="signature-table w-full text-xs text-center border-none border-collapse font-serif mt-4"
+          style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+        >
           <tbody>
             {/* Baris 1: Header Atas Nama (Sejajar Atas) */}
-            <tr className="align-top border-none">
+            <tr className="align-top border-none" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
               <td className="w-1/2 px-4 py-1 border-none">
                 <p className="font-serif">Untuk dan atas nama</p>
                 <p className="font-bold uppercase mt-0.5">{contract.penyediaNamaBadanUsaha}</p>
@@ -355,17 +364,17 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
             </tr>
 
             {/* Baris 2: Ruang Tanda Tangan & Materai Manual (Kosongan untuk basah & materai fisik) */}
-            <tr className="align-middle border-none">
-              <td className="w-1/2 px-4 h-28 border-none text-center">
+            <tr className="align-middle border-none" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+              <td className="w-1/2 px-4 h-24 border-none text-center">
                 {/* Ruang kosong tanda tangan & materai manual */}
               </td>
-              <td className="w-1/2 px-4 h-28 border-none text-center">
+              <td className="w-1/2 px-4 h-24 border-none text-center">
                 {/* Ruang kosong tanda tangan manual PPK */}
               </td>
             </tr>
 
             {/* Baris 3: Nama Pejabat & Direktur (Sejajar Sempurna Secara Horizontal) */}
-            <tr className="align-bottom border-none">
+            <tr className="align-bottom border-none" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
               <td className="w-1/2 px-4 py-1 border-none">
                 <p className="font-bold underline text-sm tracking-wide">{contract.penyediaNamaDirektur}</p>
                 <p className="text-[11px] mt-0.5 font-medium">{contract.penyediaJabatan}</p>
@@ -377,8 +386,6 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
             </tr>
           </tbody>
         </table>
-
-        {/* Kotak Paraf Koordinasi Footer (Pejabat Penandatangan Kontrak & Penyedia) */}
       </div>
     </PrintDocWrapper>
   );
