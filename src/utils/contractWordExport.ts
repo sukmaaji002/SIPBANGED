@@ -501,7 +501,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
 
       <table style="width: 100%; border: 1px solid black; border-collapse: collapse;">
         <thead>
-          <tr style="background-color: #f1f5f9;">
+          <tr style="background-color: #ffffff;">
             <th style="border: 1px solid black; padding: 6px; width: 15%; text-align: center;">Pasal dalam SSUK</th>
             <th style="border: 1px solid black; padding: 6px; width: 25%; text-align: center;">Ketentuan</th>
             <th style="border: 1px solid black; padding: 6px; width: 60%; text-align: center;">Data</th>
@@ -693,15 +693,24 @@ export function generateContractWordDoc(contract: ProjectContract): void {
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">69.2.d</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Pembayaran Prestasi Pekerjaan</td>
             <td style="border: 1px solid black; padding: 6px; vertical-align: top; text-align: justify;">
-              Pembayaran prestasi pekerjaan dilakukan dengan cara <strong>${contract.sskkPembayaranCara}</strong> dengan ketentuan tahapan pembayaran sebagai berikut:<br/>
-              a. Pelaksanaan pembayaran termin ke I (satu) sebesar <strong>${contract.sskkTermin1Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>${contract.sskkTermin1Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;<br/>
-              b. Pelaksanaan pembayaran termin ke II (dua) sebesar <strong>${contract.sskkTermin2Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>${contract.sskkTermin2Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;<br/>
-              c. Pelaksanaan pembayaran termin ke III (tiga) sebesar <strong>${contract.sskkTermin3Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>${contract.sskkTermin3Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;<br/>
-              d. Pelaksanaan pembayaran termin ke IV (empat) dengan membayarkan keseluruhan sisa pembayaran dari Harga Kontrak setelah prestasi pekerjaan fisik mencapai <strong>${contract.sskkTermin4Fisik}%</strong> dengan ketentuan Penyedia harus menyerahkan Jaminan Pemeliharaan sebesar 5% (lima persen) dari Harga Kontrak atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui Pejabat Penandatangan Kontrak, serta dilampiri bukti pembayaran denda (apabila ada);<br/>
-              e. Apabila Penyedia tidak dapat menyelesaikan prestasi pekerjaan mencapai 100% sampai batas akhir masa pelaksanaan berakhir atau prestasi pekerjaan tidak disetujui 100%, maka nilai pembayaran yang berhak diterima pihak Penyedia Jasa adalah sebesar progres pekerjaan yang telah terpasang dan disetujui Pejabat Penandatangan Kontrak;<br/>
-              f. Dalam hal Penyedia tidak mengajukan pembayaran pada suatu tahapan termin, pembayaran dapat diakumulasikan pada termin berikutnya sepanjang prestasi pekerjaan yang menjadi dasar pembayaran telah diperiksa dan diterima;<br/>
-              g. Terhadap volume atau item pekerjaan yang sudah terpasang/dikerjakan tetapi tidak bisa dibayarkan menjadi milik Pemerintah Daerah Kabupaten Tegal;<br/>
-              h. Dokumen penunjang yang dipersyaratkan untuk pengajuan tagihan pembayaran prestasi pekerjaan sekurang-kurangnya meliputi: Surat permohonan pembayaran/tagihan, Laporan kemajuan fisik, BAP Prestasi Pekerjaan, Rekapitulasi volume, Opname bersama, Dokumentasi/foto progres, Addendum Kontrak (apabila ada), dan Jaminan Pemeliharaan 5%.
+              1. Pembayaran prestasi pekerjaan dilakukan dengan cara <strong>${contract.sskkPembayaranCara}</strong> dengan ketentuan tahapan pembayaran sebagai berikut :<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;a. Pelaksanaan pembayaran termin ke I (satu) sebesar <strong>${contract.sskkTermin1Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>${contract.sskkTermin1Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;b. Pelaksanaan pembayaran termin ke II (dua) sebesar <strong>${contract.sskkTermin2Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>${contract.sskkTermin2Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;c. Pelaksanaan pembayaran termin ke III (tiga) sebesar <strong>${contract.sskkTermin3Bayar}%</strong> dari nilai kontrak setelah prestasi pekerjaan fisik mencapai <strong>${contract.sskkTermin3Fisik}%</strong> atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui oleh Pejabat Penandatangan Kontrak;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;d. Pelaksanaan pembayaran termin ke IV (empat) dengan membayarkan keseluruhan sisa pembayaran dari Harga Kontrak setelah prestasi pekerjaan fisik mencapai <strong>${contract.sskkTermin4Fisik}%</strong> dengan ketentuan Penyedia harus menyerahkan Jaminan Pemeliharaan sebesar 5% (lima persen) dari Harga Kontrak atas dasar berita acara pemeriksaan prestasi pekerjaan yang telah disetujui Pejabat Penandatangan Kontrak, serta dilampiri bukti pembayaran denda (apabila ada);<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;e. Apabila Penyedia tidak dapat menyelesaikan prestasi pekerjaan mencapai 100% sampai batas akhir masa pelaksanaan berakhir atau prestasi pekerjaan tidak disetujui 100%, maka nilai pembayaran yang berhak diterima pihak Penyedia Jasa adalah sebesar progres pekerjaan yang telah terpasang dan disetujui Pejabat Penandatangan Kontrak;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;f. Dalam hal Penyedia tidak mengajukan pembayaran pada suatu tahapan termin, pembayaran dapat diakumulasikan pada termin berikutnya sepanjang prestasi pekerjaan yang menjadi dasar pembayaran telah diperiksa dan diterima;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;g. Terhadap volume atau item pekerjaan yang sudah terpasang/dikerjakan tetapi tidak bisa dibayarkan menjadi milik Pemerintah Daerah Kabupaten Tegal;<br/>
+              2. Dokumen penunjang yang dipersyaratkan untuk pengajuan tagihan pembayaran prestasi pekerjaan sekurang-kurangnya meliputi:<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;a. Surat permohonan pembayaran / tagihan;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;b. Laporan kemajuan prestasi pekerjaan;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;c. Berita Acara Pemeriksaan Prestasi Pekerjaan;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;d. Rekapitulasi dan perhitungan volume/prestasi pekerjaan;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;e. Dokumen pendukung hasil pengukuran/opname pekerjaan;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;f. Foto/dokumentasi pelaksanaan pekerjaan;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;g. Addendum Kontrak, apabila ada;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;h. Jaminan Pemeliharaan untuk pembayaran 100%, apabila dipersyaratkan; dan<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;i. dokumen lainnya sesuai ketentuan penatausahaan keuangan Pemerintah Kabupaten Tegal.
             </td>
           </tr>
           <tr>
@@ -715,23 +724,23 @@ export function generateContractWordDoc(contract: ProjectContract): void {
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">69.4.c</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Denda Keterlambatan</td>
             <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              Untuk pekerjaan ini besar denda keterlambatan untuk setiap hari keterlambatan adalah <strong>${contract.sskkDendaKeterlambatan}</strong>.
+              Untuk pekerjaan ini besar denda keterlambatan untuk setiap hari keterlambatan adalah ${contract.sskkDendaKeterlambatan}
             </td>
           </tr>
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">77.2 & 77.3</td>
-            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Umur Konstruksi & Pertanggungan</td>
-            <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              Bangunan hasil pekerjaan memiliki Umur Konstruksi selama <strong>${contract.sskkUmurKonstruksiTahun} (lima puluh) tahun</strong> terhitung sejak Tanggal Penyerahan Akhir Pekerjaan (FHO).<br/>
-              Jangka waktu pertanggungjawaban Penyedia terhadap Kegagalan Bangunan ditetapkan selama <strong>${contract.sskkPertanggunganKegagalanTahun} (sepuluh) tahun</strong> terhitung sejak Tanggal Penyerahan Akhir Pekerjaan.<br/>
-              Pada saat penyerahan pekerjaan, Penyedia wajib menyerahkan surat penjaminan atas Kegagalan Bangunan Gedung yang disusun bersama Konsultan Pengawas.
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Umur Konstruksi dan Pertanggungan terhadap Kegagalan Bangunan</td>
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top; text-align: justify;">
+              a. Bangunan hasil pekerjaan memiliki Umur Konstruksi selama ${contract.sskkUmurKonstruksiTahun || 50} (lima puluh) tahun sesuai dengan rencana umur konstruksi yang ditetapkan dalam dokumen perancangan, terhitung sejak Tanggal Penyerahan Akhir Pekerjaan.<br/>
+              b. Jangka waktu pertanggungjawaban Penyedia terhadap Kegagalan Bangunan ditetapkan selama ${contract.sskkPertanggunganKegagalanTahun || 10} (sepuluh) tahun terhitung sejak Tanggal Penyerahan Akhir Pekerjaan.<br/>
+              c. Pada saat penyerahan pekerjaan, Penyedia wajib menyerahkan surat penjaminan atas Kegagalan Bangunan Gedung yang disusun bersama Penyedia Jasa Pengawasan Konstruksi atau Manajemen Konstruksi sesuai dengan ketentuan peraturan perundang-undangan.
             </td>
           </tr>
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">78.3</td>
-            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Penyelesaian Sengketa</td>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Penyelesaian Perselisihan / Sengketa</td>
             <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              Penyelesaian perselisihan/sengketa para pihak dilakukan melalui <strong>${contract.sskkPenyelesaianSengketa}</strong>.
+              Penyelesaian perselisihan/sengketa para pihak dilakukan melalui ${contract.sskkPenyelesaianSengketa}
             </td>
           </tr>
         </tbody>
@@ -752,7 +761,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
       <h3 style="font-size: 11pt; text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">DAFTAR HARGA SATUAN TIMPANG*)</h3>
       <table style="width: 100%; border: 1px solid black; border-collapse: collapse; margin-bottom: 16px;">
         <thead>
-          <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold;">
+          <tr style="background-color: #ffffff; text-align: center; font-weight: bold;">
             <th style="border: 1px solid black; padding: 4px; width: 5%;">No</th>
             <th style="border: 1px solid black; padding: 4px;">Mata Pembayaran</th>
             <th style="border: 1px solid black; padding: 4px;">Satuan Ukuran</th>
@@ -796,7 +805,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
       <p style="font-weight: bold; font-size: 10pt; margin: 4px 0;">Pekerjaan Utama</p>
       <table style="width: 100%; border: 1px solid black; border-collapse: collapse; margin-bottom: 8px;">
         <thead>
-          <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold;">
+          <tr style="background-color: #ffffff; text-align: center; font-weight: bold;">
             <th style="border: 1px solid black; padding: 4px; width: 5%;">No</th>
             <th style="border: 1px solid black; padding: 4px;">Bagian Pekerjaan yang Disubkontrakkan</th>
             <th style="border: 1px solid black; padding: 4px;">Nama Subkontraktor</th>
@@ -820,7 +829,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
       <h3 style="font-size: 11pt; text-transform: uppercase; font-weight: bold; margin-top: 12px; margin-bottom: 4px;">DAFTAR PERSONEL MANAJERIAL</h3>
       <table style="width: 100%; border: 1px solid black; border-collapse: collapse; margin-bottom: 16px;">
         <thead>
-          <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold;">
+          <tr style="background-color: #ffffff; text-align: center; font-weight: bold;">
             <th style="border: 1px solid black; padding: 4px; width: 5%;">No</th>
             <th style="border: 1px solid black; padding: 4px;">Nama Personel</th>
             <th style="border: 1px solid black; padding: 4px;">Jabatan</th>
@@ -838,7 +847,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
       <h3 style="font-size: 11pt; text-transform: uppercase; font-weight: bold; margin-top: 12px; margin-bottom: 4px;">DAFTAR PERALATAN UTAMA</h3>
       <table style="width: 100%; border: 1px solid black; border-collapse: collapse; margin-bottom: 16px;">
         <thead>
-          <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold;">
+          <tr style="background-color: #ffffff; text-align: center; font-weight: bold;">
             <th style="border: 1px solid black; padding: 4px; width: 5%;">No</th>
             <th style="border: 1px solid black; padding: 4px;">Nama Peralatan Utama</th>
             <th style="border: 1px solid black; padding: 4px;">Merek / Tipe</th>
@@ -867,7 +876,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
         <p style="margin: 2px 0; font-size: 11pt; font-weight: bold;">PAKET PEKERJAAN: ${contract.namaPaket.toUpperCase()}</p>
       </div>
 
-      <div style="border: 1px solid black; padding: 12px; margin-bottom: 16px; background-color: #f8fafc;">
+      <div style="border: 1px solid black; padding: 12px; margin-bottom: 16px; background-color: #ffffff;">
         <h4 style="margin: 0 0 8px 0; font-size: 11pt; text-transform: uppercase; font-weight: bold;">DAFTAR ISI RKK</h4>
         <p style="margin: 2px 0;"><strong>A. Kepemimpinan dan Partisipasi Pekerja dalam Keselamatan Konstruksi</strong></p>
         <p style="margin: 2px 0 2px 15px;">A.1. Kepedulian pimpinan terhadap Isu eksternal dan internal</p>
@@ -928,7 +937,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
       <h4 style="font-size: 11pt; text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">B.1. IDENTIFIKASI BAHAYA, PENILAIAN RISIKO & PELUANG (IBPRP)</h4>
       <table style="width: 100%; border: 1px solid black; border-collapse: collapse; margin-bottom: 16px; font-size: 9pt;">
         <thead>
-          <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold;">
+          <tr style="background-color: #ffffff; text-align: center; font-weight: bold;">
             <th style="border: 1px solid black; padding: 3px;" rowspan="2">No</th>
             <th style="border: 1px solid black; padding: 3px;" colspan="3">Deskripsi Risiko</th>
             <th style="border: 1px solid black; padding: 3px;" rowspan="2">Persyaratan</th>
@@ -938,7 +947,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
             <th style="border: 1px solid black; padding: 3px;" colspan="3">Penilaian Sisa</th>
             <th style="border: 1px solid black; padding: 3px;" rowspan="2">Ket</th>
           </tr>
-          <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold;">
+          <tr style="background-color: #ffffff; text-align: center; font-weight: bold;">
             <th style="border: 1px solid black; padding: 3px;">Uraian Pekerjaan</th>
             <th style="border: 1px solid black; padding: 3px;">Identifikasi Bahaya</th>
             <th style="border: 1px solid black; padding: 3px;">Jenis Bahaya</th>
@@ -958,7 +967,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
       <h4 style="font-size: 11pt; text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">OPERASI KESELAMATAN KONSTRUKSI (JSA & APD)</h4>
       <table style="width: 100%; border: 1px solid black; border-collapse: collapse; margin-bottom: 16px;">
         <thead>
-          <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold;">
+          <tr style="background-color: #ffffff; text-align: center; font-weight: bold;">
             <th style="border: 1px solid black; padding: 4px; width: 5%;">No</th>
             <th style="border: 1px solid black; padding: 4px;">Urutan Langkah Pekerjaan</th>
             <th style="border: 1px solid black; padding: 4px;">Identifikasi Bahaya</th>
@@ -987,13 +996,13 @@ export function generateContractWordDoc(contract: ProjectContract): void {
       <h4 style="font-size: 11pt; text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">E.1. JADWAL INSPEKSI DAN AUDIT K3</h4>
       <table style="width: 100%; border: 1px solid black; border-collapse: collapse; text-align: center; font-size: 9pt;">
         <thead>
-          <tr style="background-color: #f1f5f9; font-weight: bold;">
+          <tr style="background-color: #ffffff; font-weight: bold;">
             <th style="border: 1px solid black; padding: 3px; width: 5%;" rowspan="2">No</th>
             <th style="border: 1px solid black; padding: 3px; text-align: left;" rowspan="2">Kegiatan</th>
             <th style="border: 1px solid black; padding: 3px;" rowspan="2">PIC</th>
             <th style="border: 1px solid black; padding: 3px;" colspan="12">Bulan Ke-</th>
           </tr>
-          <tr style="background-color: #f1f5f9; font-weight: bold;">
+          <tr style="background-color: #ffffff; font-weight: bold;">
             <th style="border: 1px solid black; padding: 2px;">1</th>
             <th style="border: 1px solid black; padding: 2px;">2</th>
             <th style="border: 1px solid black; padding: 2px;">3</th>

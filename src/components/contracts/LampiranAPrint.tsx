@@ -25,7 +25,7 @@ export const LampiranAPrint: React.FC<Props> = ({ contract }) => {
         </h3>
         <table className="w-full text-[10px] border border-black border-collapse text-left font-serif">
           <thead>
-            <tr className="bg-slate-100 border border-black text-center font-bold">
+            <tr className="bg-white border border-black text-center font-bold">
               <th className="border border-black p-1.5 w-8">No</th>
               <th className="border border-black p-1.5">Mata Pembayaran</th>
               <th className="border border-black p-1.5">Satuan Ukuran</th>
@@ -75,7 +75,7 @@ export const LampiranAPrint: React.FC<Props> = ({ contract }) => {
         <p className="font-bold text-[11px] mt-2 mb-1">Pekerjaan Utama</p>
         <table className="w-full text-[10px] border border-black border-collapse text-left font-serif mb-3">
           <thead>
-            <tr className="bg-slate-100 border border-black text-center font-bold">
+            <tr className="bg-white border border-black text-center font-bold">
               <th className="border border-black p-1.5 w-8">No</th>
               <th className="border border-black p-1.5">Bagian Pekerjaan yang Disubkontrakkan</th>
               <th className="border border-black p-1.5">Nama Subkontraktor</th>
@@ -112,7 +112,7 @@ export const LampiranAPrint: React.FC<Props> = ({ contract }) => {
         <p className="font-bold text-[11px] mt-2 mb-1">Pekerjaan bukan Pekerjaan Utama</p>
         <table className="w-full text-[10px] border border-black border-collapse text-left font-serif">
           <thead>
-            <tr className="bg-slate-100 border border-black text-center font-bold">
+            <tr className="bg-white border border-black text-center font-bold">
               <th className="border border-black p-1.5 w-8">No</th>
               <th className="border border-black p-1.5">Bagian Pekerjaan yang Disubkontrakkan</th>
               <th className="border border-black p-1.5">Nama Subkontraktor</th>
@@ -154,7 +154,7 @@ export const LampiranAPrint: React.FC<Props> = ({ contract }) => {
         </h3>
         <table className="w-full text-[10px] border border-black border-collapse text-left font-serif">
           <thead>
-            <tr className="bg-slate-100 border border-black text-center font-bold">
+            <tr className="bg-white border border-black text-center font-bold">
               <th className="border border-black p-1.5 w-8">No</th>
               <th className="border border-black p-1.5">Nama Personel Manajerial</th>
               <th className="border border-black p-1.5">Jabatan dalam Pekerjaan ini</th>
@@ -187,7 +187,7 @@ export const LampiranAPrint: React.FC<Props> = ({ contract }) => {
         </h3>
         <table className="w-full text-[10px] border border-black border-collapse text-left font-serif">
           <thead>
-            <tr className="bg-slate-100 border border-black text-center font-bold">
+            <tr className="bg-white border border-black text-center font-bold">
               <th className="border border-black p-1.5 w-8">No</th>
               <th className="border border-black p-1.5">Nama Peralatan Utama</th>
               <th className="border border-black p-1.5">Merek dan Tipe</th>

@@ -23,7 +23,7 @@ export const LampiranBPrint: React.FC<Props> = ({ contract }) => {
       </div>
 
       {/* DAFTAR ISI RKK */}
-      <div className="border border-black p-4 mb-6 bg-slate-50/50">
+      <div className="border border-black p-4 mb-6 bg-white">
         <div className="flex items-center justify-between border-b border-black pb-2 mb-3">
           <span className="font-bold uppercase text-[11px]">{contract.penyediaNamaBadanUsaha}</span>
           <span className="font-bold uppercase text-[11px]">RENCANA KESELAMATAN KONSTRUKSI</span>
@@ -115,7 +115,7 @@ export const LampiranBPrint: React.FC<Props> = ({ contract }) => {
         <div className="overflow-x-auto">
           <table className="w-full text-[9.5px] border border-black border-collapse text-left font-serif">
             <thead>
-              <tr className="bg-slate-100 border border-black text-center font-bold">
+              <tr className="bg-white border border-black text-center font-bold">
                 <th className="border border-black p-1 w-6" rowSpan={2}>No</th>
                 <th className="border border-black p-1" colSpan={3}>Deskripsi Risiko</th>
                 <th className="border border-black p-1" rowSpan={2}>Persyaratan Pemenuhan</th>
@@ -125,7 +125,7 @@ export const LampiranBPrint: React.FC<Props> = ({ contract }) => {
                 <th className="border border-black p-1" colSpan={3}>Penilaian Sisa Risiko</th>
                 <th className="border border-black p-1" rowSpan={2}>Ket</th>
               </tr>
-              <tr className="bg-slate-100 border border-black text-center font-bold">
+              <tr className="bg-white border border-black text-center font-bold">
                 <th className="border border-black p-1">Uraian Pekerjaan</th>
                 <th className="border border-black p-1">Identifikasi Bahaya</th>
                 <th className="border border-black p-1">Jenis Bahaya</th>
@@ -168,13 +168,13 @@ export const LampiranBPrint: React.FC<Props> = ({ contract }) => {
         </h4>
         <table className="w-full text-[9.5px] border border-black border-collapse text-left font-serif">
           <thead>
-            <tr className="bg-slate-100 border border-black text-center font-bold">
+            <tr className="bg-white border border-black text-center font-bold">
               <th className="border border-black p-1 w-6" rowSpan={2}>No</th>
               <th className="border border-black p-1" rowSpan={2}>Pengendalian Risiko</th>
               <th className="border border-black p-1" colSpan={2}>Sasaran</th>
               <th className="border border-black p-1" colSpan={6}>Program</th>
             </tr>
-            <tr className="bg-slate-100 border border-black text-center font-bold">
+            <tr className="bg-white border border-black text-center font-bold">
               <th className="border border-black p-1">Uraian</th>
               <th className="border border-black p-1">Tolok Ukur</th>
               <th className="border border-black p-1">Uraian Kegiatan</th>
@@ -209,7 +209,7 @@ export const LampiranBPrint: React.FC<Props> = ({ contract }) => {
         </h4>
         <table className="w-full text-[10px] border border-black border-collapse text-left font-serif">
           <thead>
-            <tr className="bg-slate-100 border border-black text-center font-bold">
+            <tr className="bg-white border border-black text-center font-bold">
               <th className="border border-black p-1.5 w-8">No</th>
               <th className="border border-black p-1.5">Jenis Komunikasi K3</th>
               <th className="border border-black p-1.5">Penanggung Jawab (PIC)</th>
@@ -250,7 +250,7 @@ export const LampiranBPrint: React.FC<Props> = ({ contract }) => {
         <h4 className="font-bold text-xs uppercase mb-1">
           Operasi Keselamatan Konstruksi — Analisis Keselamatan Pekerjaan (Job Safety Analysis / JSA)
         </h4>
-        <div className="border border-black p-3 bg-slate-50/50 mb-2 text-[10px]">
+        <div className="border border-black p-3 bg-white mb-2 text-[10px]">
           <div className="grid grid-cols-2 gap-2 mb-2">
             <div>Nama Paket Pekerjaan: <strong>{contract.namaPaket}</strong></div>
             <div>Tanggal Pekerjaan: {formatTanggalIndo(contract.tanggal)} s/d Selesai</div>
@@ -268,7 +268,7 @@ export const LampiranBPrint: React.FC<Props> = ({ contract }) => {
 
         <table className="w-full text-[10px] border border-black border-collapse text-left font-serif">
           <thead>
-            <tr className="bg-slate-100 border border-black text-center font-bold">
+            <tr className="bg-white border border-black text-center font-bold">
               <th className="border border-black p-1.5 w-8">No</th>
               <th className="border border-black p-1.5">Urutan Langkah Pekerjaan</th>
               <th className="border border-black p-1.5">Identifikasi Bahaya</th>
@@ -302,13 +302,13 @@ export const LampiranBPrint: React.FC<Props> = ({ contract }) => {
         </h4>
         <table className="w-full text-[9px] border border-black border-collapse text-center font-serif">
           <thead>
-            <tr className="bg-slate-100 border border-black font-bold">
+            <tr className="bg-white border border-black font-bold">
               <th className="border border-black p-1 w-6" rowSpan={2}>No</th>
               <th className="border border-black p-1 text-left" rowSpan={2}>Kegiatan</th>
               <th className="border border-black p-1" rowSpan={2}>PIC</th>
               <th className="border border-black p-1" colSpan={12}>Bulan Ke-</th>
             </tr>
-            <tr className="bg-slate-100 border border-black font-bold">
+            <tr className="bg-white border border-black font-bold">
               <th className="border border-black p-0.5">1</th>
               <th className="border border-black p-0.5">2</th>
               <th className="border border-black p-0.5">3</th>

@@ -30,7 +30,7 @@ export const SSKKPrint: React.FC<Props> = ({ contract }) => {
 
       <table className="w-full text-[11px] border border-black border-collapse text-left font-serif">
         <thead>
-          <tr className="bg-slate-100 border border-black font-bold text-center">
+          <tr className="bg-white border border-black font-bold text-center">
             <th className="border border-black p-2 w-28 uppercase">Pasal dalam SSUK</th>
             <th className="border border-black p-2 w-48 uppercase">Ketentuan</th>
             <th className="border border-black p-2 uppercase">Data</th>
@@ -349,22 +349,50 @@ export const SSKKPrint: React.FC<Props> = ({ contract }) => {
                   <span className="w-5 shrink-0 select-none">g.</span>
                   <p className="flex-1">Terhadap volume atau item pekerjaan yang sudah terpasang/dikerjakan tetapi tidak bisa dibayarkan menjadi milik Pemerintah Daerah Kabupaten Tegal;</p>
                 </div>
+              </div>
+
+              <div className="flex items-start pt-1">
+                <span className="w-5 shrink-0 select-none">2.</span>
+                <p className="flex-1">
+                  Dokumen penunjang yang dipersyaratkan untuk pengajuan tagihan pembayaran prestasi pekerjaan sekurang-kurangnya meliputi:
+                </p>
+              </div>
+              <div className="pl-5 space-y-1">
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">a.</span>
+                  <p className="flex-1">Surat permohonan pembayaran / tagihan;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">b.</span>
+                  <p className="flex-1">Laporan kemajuan prestasi pekerjaan;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">c.</span>
+                  <p className="flex-1">Berita Acara Pemeriksaan Prestasi Pekerjaan;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">d.</span>
+                  <p className="flex-1">Rekapitulasi dan perhitungan volume/prestasi pekerjaan;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">e.</span>
+                  <p className="flex-1">Dokumen pendukung hasil pengukuran/opname pekerjaan;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">f.</span>
+                  <p className="flex-1">Foto/dokumentasi pelaksanaan pekerjaan;</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">g.</span>
+                  <p className="flex-1">Addendum Kontrak, apabila ada;</p>
+                </div>
                 <div className="flex items-start">
                   <span className="w-5 shrink-0 select-none">h.</span>
-                  <div className="flex-1 space-y-1">
-                    <p>Dokumen penunjang yang dipersyaratkan untuk pengajuan tagihan pembayaran prestasi pekerjaan sekurang-kurangnya meliputi:</p>
-                    <ol className="list-decimal pl-5 space-y-0.5">
-                      <li>Surat permohonan pembayaran / tagihan;</li>
-                      <li>Laporan kemajuan prestasi pekerjaan;</li>
-                      <li>Berita Acara Pemeriksaan Prestasi Pekerjaan;</li>
-                      <li>Rekapitulasi dan perhitungan volume/prestasi pekerjaan;</li>
-                      <li>Dokumen pendukung hasil pengukuran/opname pekerjaan;</li>
-                      <li>Foto/dokumentasi pelaksanaan pekerjaan;</li>
-                      <li>Addendum Kontrak, apabila ada;</li>
-                      <li>Jaminan Pemeliharaan untuk pembayaran 100%, apabila dipersyaratkan; dan</li>
-                      <li>Dokumen lainnya sesuai ketentuan penatausahaan keuangan Pemerintah Kabupaten Tegal.</li>
-                    </ol>
-                  </div>
+                  <p className="flex-1">Jaminan Pemeliharaan untuk pembayaran 100%, apabila dipersyaratkan; dan</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="w-5 shrink-0 select-none">i.</span>
+                  <p className="flex-1">dokumen lainnya sesuai ketentuan penatausahaan keuangan Pemerintah Kabupaten Tegal.</p>
                 </div>
               </div>
             </td>
@@ -384,7 +412,7 @@ export const SSKKPrint: React.FC<Props> = ({ contract }) => {
             <td className="border border-black p-2 font-bold text-center">69.4.c</td>
             <td className="border border-black p-2 font-bold">Denda akibat Keterlambatan</td>
             <td className="border border-black p-2">
-              Untuk pekerjaan ini besar denda keterlambatan untuk setiap hari keterlambatan adalah <strong>{contract.sskkDendaKeterlambatan}</strong>.
+              Untuk pekerjaan ini besar denda keterlambatan untuk setiap hari keterlambatan adalah {contract.sskkDendaKeterlambatan}
             </td>
           </tr>
 
@@ -393,9 +421,18 @@ export const SSKKPrint: React.FC<Props> = ({ contract }) => {
             <td className="border border-black p-2 font-bold text-center">77.2 & 77.3</td>
             <td className="border border-black p-2 font-bold">Umur Konstruksi dan Pertanggungan terhadap Kegagalan Bangunan</td>
             <td className="border border-black p-2 space-y-1">
-              <p>Bangunan hasil pekerjaan memiliki Umur Konstruksi selama <strong>{contract.sskkUmurKonstruksiTahun} (lima puluh) tahun</strong> sesuai dengan rencana umur konstruksi yang ditetapkan dalam dokumen perancangan, terhitung sejak Tanggal Penyerahan Akhir Pekerjaan (FHO).</p>
-              <p>Jangka waktu pertanggungjawaban Penyedia terhadap Kegagalan Bangunan ditetapkan selama <strong>{contract.sskkPertanggunganKegagalanTahun} (sepuluh) tahun</strong> terhitung sejak Tanggal Penyerahan Akhir Pekerjaan.</p>
-              <p>Pada saat penyerahan pekerjaan, Penyedia wajib menyerahkan surat penjaminan atas Kegagalan Bangunan Gedung yang disusun bersama Penyedia Jasa Pengawasan Konstruksi atau Manajemen Konstruksi sesuai dengan ketentuan peraturan perundang-undangan.</p>
+              <div className="flex items-start">
+                <span className="w-5 shrink-0 select-none">a.</span>
+                <p className="flex-1">Bangunan hasil pekerjaan memiliki Umur Konstruksi selama {contract.sskkUmurKonstruksiTahun || 50} (lima puluh) tahun sesuai dengan rencana umur konstruksi yang ditetapkan dalam dokumen perancangan, terhitung sejak Tanggal Penyerahan Akhir Pekerjaan.</p>
+              </div>
+              <div className="flex items-start">
+                <span className="w-5 shrink-0 select-none">b.</span>
+                <p className="flex-1">Jangka waktu pertanggungjawaban Penyedia terhadap Kegagalan Bangunan ditetapkan selama {contract.sskkPertanggunganKegagalanTahun || 10} (sepuluh) tahun terhitung sejak Tanggal Penyerahan Akhir Pekerjaan.</p>
+              </div>
+              <div className="flex items-start">
+                <span className="w-5 shrink-0 select-none">c.</span>
+                <p className="flex-1">Pada saat penyerahan pekerjaan, Penyedia wajib menyerahkan surat penjaminan atas Kegagalan Bangunan Gedung yang disusun bersama Penyedia Jasa Pengawasan Konstruksi atau Manajemen Konstruksi sesuai dengan ketentuan peraturan perundang-undangan.</p>
+              </div>
             </td>
           </tr>
 
@@ -404,7 +441,7 @@ export const SSKKPrint: React.FC<Props> = ({ contract }) => {
             <td className="border border-black p-2 font-bold text-center">78.3</td>
             <td className="border border-black p-2 font-bold">Penyelesaian Perselisihan / Sengketa</td>
             <td className="border border-black p-2">
-              Penyelesaian perselisihan/sengketa para pihak dilakukan melalui <strong>{contract.sskkPenyelesaianSengketa}</strong>.
+              Penyelesaian perselisihan/sengketa para pihak dilakukan melalui {contract.sskkPenyelesaianSengketa}
             </td>
           </tr>
         </tbody>
