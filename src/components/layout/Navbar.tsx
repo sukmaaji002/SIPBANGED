@@ -11,8 +11,10 @@ import {
   Layers, 
   RefreshCw,
   UserPlus,
-  Menu
+  Menu,
+  Edit3
 } from 'lucide-react';
+import { EditProfileModal } from '../auth/EditProfileModal';
 
 interface NavbarProps {
   onOpenRegister: () => void;
@@ -41,6 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   const selectedProj = projects.find(p => p.id === selectedProjectId);
   const currentRoleDetail = currentUser ? ROLE_DETAILS[currentUser.role] : null;
@@ -248,21 +251,32 @@ export const Navbar: React.FC<NavbarProps> = ({
               <RefreshCw className="w-4 h-4" />
             </button>
 
-            {/* User Logout or Info */}
+            {/* User Profile & Logout */}
             {currentUser && (
               <div className="flex items-center pl-1.5 sm:pl-2 border-l border-slate-200 gap-1.5 sm:gap-2">
-                <div className="text-right hidden xl:block">
-                  <div className="text-xs font-semibold text-slate-800 leading-tight">
-                    {currentUser.name}
+                <button
+                  type="button"
+                  onClick={() => setIsEditProfileOpen(true)}
+                  className="text-right hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors group cursor-pointer"
+                  title="Klik untuk mengubah nama, NIP, atau instansi akun aktif ini"
+                >
+                  <div className="text-right">
+                    <div className="text-xs font-bold text-slate-800 leading-tight group-hover:text-emerald-700 transition-colors">
+                      {currentUser.name}
+                    </div>
+                    <div className="text-[10px] text-slate-400 group-hover:text-slate-600 truncate max-w-[140px]">
+                      {currentUser.agency || 'DPUPR Kabupaten Tegal'}
+                    </div>
                   </div>
-                  <div className="text-[10px] text-slate-400 truncate max-w-[130px]">
-                    {currentUser.agency}
+                  <div className="w-6 h-6 rounded-md bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center text-slate-400 group-hover:text-emerald-700 transition-colors">
+                    <Edit3 className="w-3 h-3" />
                   </div>
-                </div>
+                </button>
+
                 <button
                   onClick={logout}
-                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                  title="Logout"
+                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                  title="Logout / Keluar"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -273,6 +287,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal 
+        isOpen={isEditProfileOpen} 
+        onClose={() => setIsEditProfileOpen(false)} 
+      />
     </header>
   );
 };
