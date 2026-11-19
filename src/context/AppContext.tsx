@@ -10,7 +10,10 @@ import {
   ProjectContract, 
   BeritaAcara, 
   PaymentTerm,
-  ScheduleAddendum 
+  ScheduleAddendum,
+  ContractDocType,
+  SpkType,
+  SpkContract
 } from '../types';
 import { 
   INITIAL_USERS, 
@@ -25,6 +28,7 @@ import {
   INITIAL_SCHEDULE_ADDENDUMS 
 } from '../data/initialData';
 import { DEFAULT_LKPP_CLAUSES } from '../data/lkppClauses';
+import { generateInitialSpkContracts, createDefaultSpkForProject } from '../data/spkData';
 
 interface AppContextType {
   currentUser: User | null;
@@ -75,6 +79,15 @@ interface AppContextType {
   updateContract: (c: ProjectContract) => void;
   getContractByProject: (projectId: string) => ProjectContract | undefined;
   
+  // SPK Modular
+  contractDocType: ContractDocType;
+  setContractDocType: (type: ContractDocType) => void;
+  spkDocType: SpkType;
+  setSpkDocType: (type: SpkType) => void;
+  spkContracts: SpkContract[];
+  updateSpkContract: (spk: SpkContract) => void;
+  getSpkContractByProjectAndType: (projectId: string, type: SpkType) => SpkContract | undefined;
+  
   beritaAcaraList: BeritaAcara[];
   addBeritaAcara: (ba: BeritaAcara) => void;
   updateBeritaAcara: (ba: BeritaAcara) => void;
@@ -101,6 +114,7 @@ const STORAGE_KEYS = {
   SUPERVISION: 'sipbanged_supervision',
   MAINTENANCE: 'sipbanged_maintenance',
   CONTRACTS: 'sipbanged_contracts',
+  SPK_CONTRACTS: 'sipbanged_spk_contracts',
   BA: 'sipbanged_berita_acara',
   PAYMENTS: 'sipbanged_payments',
   SCHEDULE_ADDENDUMS: 'sipbanged_schedule_addendums',
@@ -155,8 +169,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const parsed: ProjectContract[] = JSON.parse(saved);
       return parsed.map((c) => {
+        const hasKonsiderans = (c.clauses || []).some(cl => cl.id === 'sp-konsiderans');
+        const hasPremis = (c.clauses || []).some(cl => cl.id === 'sp-premis');
         const ssukCount = (c.clauses || []).filter(cl => cl.kategori === 'SSUK (Syarat Umum)').length;
-        if (ssukCount < 79) {
+        if (!hasKonsiderans || !hasPremis || ssukCount < 79) {
           const customMap = new Map((c.clauses || []).filter(cl => cl.kontenCustom).map(cl => [cl.id, cl.kontenCustom]));
           const activeMap = new Map((c.clauses || []).map(cl => [cl.id, cl.isActive]));
           const updatedClauses = DEFAULT_LKPP_CLAUSES.map(clause => ({
@@ -164,9 +180,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             kontenCustom: customMap.get(clause.id) ?? clause.kontenCustom,
             isActive: activeMap.has(clause.id) ? (activeMap.get(clause.id) ?? true) : true
           }));
-          return { ...c, clauses: updatedClauses };
+          return { ...c, clauses: updatedClauses, metodePemilihan: c.metodePemilihan || 'E-Purchasing' };
         }
-        return c;
+        return { ...c, metodePemilihan: c.metodePemilihan || 'E-Purchasing' };
       });
     } catch {
       return INITIAL_CONTRACTS;
@@ -186,6 +202,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [scheduleAddendums, setScheduleAddendums] = useState<ScheduleAddendum[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.SCHEDULE_ADDENDUMS);
     return saved ? JSON.parse(saved) : INITIAL_SCHEDULE_ADDENDUMS;
+  });
+
+  const [contractDocType, setContractDocType] = useState<ContractDocType>('perjanjian');
+  const [spkDocType, setSpkDocType] = useState<SpkType>('fisik');
+
+  const [spkContracts, setSpkContracts] = useState<SpkContract[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.SPK_CONTRACTS);
+    if (!saved) return generateInitialSpkContracts(INITIAL_PROJECTS);
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return generateInitialSpkContracts(INITIAL_PROJECTS);
+    }
   });
 
   // LocalStorage Sync
@@ -232,6 +261,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(contracts));
   }, [contracts]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.SPK_CONTRACTS, JSON.stringify(spkContracts));
+  }, [spkContracts]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.BA, JSON.stringify(beritaAcaraList));
@@ -409,6 +442,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return contracts.find(c => c.projectId === projectId);
   };
 
+  // SPK Modular
+  const updateSpkContract = (spk: SpkContract) => {
+    setSpkContracts(prev => {
+      const idx = prev.findIndex(s => s.projectId === spk.projectId && s.spkType === spk.spkType);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = spk;
+        return copy;
+      }
+      return [...prev, spk];
+    });
+  };
+
+  const getSpkContractByProjectAndType = (projectId: string, type: SpkType) => {
+    return spkContracts.find(s => s.projectId === projectId && s.spkType === type);
+  };
+
   // Berita Acara
   const addBeritaAcara = (ba: BeritaAcara) => {
     setBeritaAcaraList(prev => [ba, ...prev]);
@@ -446,6 +496,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSupervisionLogs(INITIAL_SUPERVISION_LOGS);
     setMaintenanceIssues(INITIAL_MAINTENANCE_ISSUES);
     setContracts(INITIAL_CONTRACTS);
+    setSpkContracts(generateInitialSpkContracts(INITIAL_PROJECTS));
+    setContractDocType('perjanjian');
+    setSpkDocType('fisik');
     setBeritaAcaraList(INITIAL_BERITA_ACARA);
     setPayments(INITIAL_PAYMENTS);
     setScheduleAddendums(INITIAL_SCHEDULE_ADDENDUMS);
@@ -488,6 +541,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       contracts,
       updateContract,
       getContractByProject,
+      contractDocType,
+      setContractDocType,
+      spkDocType,
+      setSpkDocType,
+      spkContracts,
+      updateSpkContract,
+      getSpkContractByProjectAndType,
       beritaAcaraList,
       addBeritaAcara,
       updateBeritaAcara,

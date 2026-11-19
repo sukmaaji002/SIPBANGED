@@ -480,6 +480,7 @@ export const INITIAL_CONTRACTS: ProjectContract[] = [
     tanggal: '2026-02-28',
     nomorSPPBJ: '600.1.1/038/SPPBJ/PBLTARU/2026',
     tanggalSPPBJ: '2026-02-20',
+    metodePemilihan: 'E-Purchasing',
     jenisKontrak: 'Harga Satuan',
     ppkNama: 'Ahmad Fauzi, S.T., M.Eng.',
     ppkNip: '19820719 200604 1 009',

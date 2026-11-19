@@ -10,7 +10,7 @@ import {
   IBPRPItem 
 } from '../../types';
 import { OFFICIAL_DPUPR_TEGAL_CLAUSES, OFFICIAL_SSUK_CLAUSES } from '../../data/lkppClauses';
-import { formatRupiah, formatRibuan, parseRibuanKeAngka, angkaKeTerbilang, formatTanggalIndo, parseKomponenTanggalKontrak } from '../../utils/formatters';
+import { formatRupiah, formatRibuan, parseRibuanKeAngka, angkaKeTerbilang, formatTanggalIndo, parseKomponenTanggalKontrak, resolveContractPlaceholders } from '../../utils/formatters';
 import { hasPermission } from '../../utils/permissions';
 import { KopSurat } from '../common/KopSurat';
 import { SuratPerjanjianPrint } from './SuratPerjanjianPrint';
@@ -42,7 +42,8 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
-  Filter
+  Filter,
+  Link2
 } from 'lucide-react';
 
 export const ContractBuilder: React.FC = () => {
@@ -69,6 +70,7 @@ export const ContractBuilder: React.FC = () => {
   const [tanggalBulanTahunAngka, setTanggalBulanTahunAngka] = useState('20-02-2026');
   const [nomorSPPBJ, setNomorSPPBJ] = useState('');
   const [tanggalSPPBJ, setTanggalSPPBJ] = useState('');
+  const [metodePemilihan, setMetodePemilihan] = useState('E-Purchasing');
   const [jenisKontrak, setJenisKontrak] = useState<ProjectContract['jenisKontrak']>('Harga Satuan');
 
   // Helper when user selects a date from calendar
@@ -177,6 +179,7 @@ export const ContractBuilder: React.FC = () => {
       setTanggalBulanTahunAngka(existingContract.tanggalBulanTahunAngka || comp.tanggalBulanTahunAngka);
       setNomorSPPBJ(existingContract.nomorSPPBJ || `600.1.1/038/SPPBJ/PBLTARU/${selectedProject.tahunAnggaran}`);
       setTanggalSPPBJ(existingContract.tanggalSPPBJ || '2026-02-20');
+      setMetodePemilihan(existingContract.metodePemilihan || 'E-Purchasing');
       setJenisKontrak(existingContract.jenisKontrak || 'Harga Satuan');
 
       setPpkNama(existingContract.ppkNama || selectedProject.ppkNama);
@@ -262,8 +265,10 @@ export const ContractBuilder: React.FC = () => {
       ]);
 
       const storedClauses = existingContract.clauses || [];
+      const hasKonsiderans = storedClauses.some(c => c.id === 'sp-konsiderans');
+      const hasPremis = storedClauses.some(c => c.id === 'sp-premis');
       const ssukCount = storedClauses.filter(c => c.kategori === 'SSUK (Syarat Umum)').length;
-      if (ssukCount < 79) {
+      if (!hasKonsiderans || !hasPremis || ssukCount < 79) {
         const customMap = new Map(storedClauses.filter(c => c.kontenCustom).map(c => [c.id, c.kontenCustom]));
         const activeMap = new Map(storedClauses.map(c => [c.id, c.isActive]));
         const mergedClauses = OFFICIAL_DPUPR_TEGAL_CLAUSES.map(clause => ({
@@ -289,6 +294,7 @@ export const ContractBuilder: React.FC = () => {
       setTanggalBulanTahunAngka(compInit.tanggalBulanTahunAngka);
       setNomorSPPBJ(`600.1.1/0${Math.floor(Math.random() * 80) + 10}/SPPBJ/PBLTARU/${selectedProject.tahunAnggaran}`);
       setTanggalSPPBJ('2026-02-20');
+      setMetodePemilihan('E-Purchasing');
       setJenisKontrak('Harga Satuan');
 
       setPpkNama(selectedProject.ppkNama);
@@ -522,6 +528,7 @@ export const ContractBuilder: React.FC = () => {
       tanggalBulanTahunAngka,
       nomorSPPBJ,
       tanggalSPPBJ,
+      metodePemilihan: metodePemilihan || 'E-Purchasing',
       jenisKontrak,
       ppkNama,
       ppkNip,
@@ -602,6 +609,7 @@ export const ContractBuilder: React.FC = () => {
     tanggalBulanTahunAngka,
     nomorSPPBJ,
     tanggalSPPBJ,
+    metodePemilihan: metodePemilihan || 'E-Purchasing',
     jenisKontrak,
     ppkNama,
     ppkNip,
@@ -961,10 +969,10 @@ export const ContractBuilder: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    6. ((tanggal bulan tahun dlm angka))
+                    6. ((tgl bln thn dlm angka))
                   </label>
                   <input
                     type="text"
@@ -973,6 +981,24 @@ export const ContractBuilder: React.FC = () => {
                     placeholder="20-02-2026"
                     className="w-full px-2.5 py-1.5 text-xs border border-slate-300 bg-white rounded-lg font-mono font-bold text-blue-900"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Metode Pemilihan Penyedia
+                  </label>
+                  <select
+                    value={metodePemilihan}
+                    onChange={e => setMetodePemilihan(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs border border-slate-300 bg-white rounded-lg font-semibold text-emerald-800"
+                  >
+                    <option value="E-Purchasing">E-Purchasing (Katalog)</option>
+                    <option value="Tender">Tender</option>
+                    <option value="Tender Cepat">Tender Cepat</option>
+                    <option value="Seleksi">Seleksi</option>
+                    <option value="Penunjukan Langsung">Penunjukan Langsung</option>
+                    <option value="Pengadaan Langsung">Pengadaan Langsung</option>
+                  </select>
                 </div>
 
                 <div>
@@ -2102,11 +2128,17 @@ export const ContractBuilder: React.FC = () => {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono">
-                            PASAL {clause.pasal}
+                            {typeof clause.pasal === 'number' ? `PASAL ${clause.pasal}` : clause.pasal}
                           </span>
                           <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
                             {clause.kategori}
                           </span>
+                          {(clause.id === 'sp-premis' || clause.id === 'sp-konsiderans' || clause.id === 'sp-pasal-3' || clause.id === 'sp-pasal-5') && (
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded flex items-center gap-1">
+                              <Sparkles className="w-3 h-3 text-emerald-600" />
+                              Auto-Link Data Kontrak & SSKK
+                            </span>
+                          )}
                           {hasCustom && (
                             <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
                               Telah Dimodifikasi
@@ -2165,18 +2197,68 @@ export const ContractBuilder: React.FC = () => {
 
                   <div className="mt-3 pl-8">
                     {isEditing ? (
-                      <textarea
-                        rows={Math.min(18, Math.max(7, tempClauseText.split('\n').length + 1))}
-                        value={tempClauseText}
-                        onChange={e => setTempClauseText(e.target.value)}
-                        className="w-full p-3 text-xs border border-blue-300 rounded-xl font-mono leading-relaxed focus:ring-2 focus:ring-blue-500 bg-white"
-                      />
+                      <div className="space-y-2">
+                        {/* Quick Variable Tag Helper */}
+                        <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
+                            <span className="flex items-center gap-1 text-emerald-700">
+                              <Sparkles className="w-3.5 h-3.5" /> Variabel Otomatis (Klik untuk menyisipkan ke teks):
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-normal">Data diambil dari Form Isian Kontrak & SSKK</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {[
+                              { label: 'Nama Paket', tag: '{{NAMA_PAKET}}' },
+                              { label: 'Metode Pemilihan', tag: '{{METODE_PEMILIHAN}}' },
+                              { label: 'Nomor SPPBJ', tag: '{{NOMOR_SPPBJ}}' },
+                              { label: 'Tanggal SPPBJ', tag: '{{TANGGAL_SPPBJ}}' },
+                              { label: 'Nama Penyedia', tag: '{{NAMA_PENYEDIA}}' },
+                              { label: 'Nama Direktur', tag: '{{NAMA_DIREKTUR}}' },
+                              { label: 'Nama PPK', tag: '{{NAMA_PPK}}' },
+                              { label: 'Nilai Kontrak', tag: '{{NILAI_KONTRAK}}' },
+                              { label: 'Nilai Terbilang', tag: '{{NILAI_TERBILANG}}' },
+                              { label: 'Sumber Dana', tag: '{{SUMBER_PEMBIAYAAN}}' },
+                              { label: 'Waktu Pelaksanaan', tag: '{{JANGKA_WAKTU_PELAKSANAAN}}' }
+                            ].map(v => (
+                              <button
+                                key={v.tag}
+                                type="button"
+                                onClick={() => setTempClauseText(prev => prev + ' ' + v.tag)}
+                                className="px-2 py-0.5 bg-white hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200 rounded text-[10px] font-mono font-medium transition-colors"
+                                title={`Sisipkan variabel ${v.tag}`}
+                              >
+                                + {v.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <textarea
+                          rows={Math.min(18, Math.max(7, tempClauseText.split('\n').length + 1))}
+                          value={tempClauseText}
+                          onChange={e => setTempClauseText(e.target.value)}
+                          className="w-full p-3 text-xs border border-blue-300 rounded-xl font-mono leading-relaxed focus:ring-2 focus:ring-blue-500 bg-white"
+                        />
+
+                        {/* Live Preview Box while editing */}
+                        <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl text-xs space-y-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1">
+                            <span>👁️</span> Pratinjau Teks dengan Data Terisi Nyata:
+                          </span>
+                          <p className="text-slate-800 whitespace-pre-line text-[11px] leading-relaxed">
+                            {resolveContractPlaceholders(tempClauseText, currentContractState)}
+                          </p>
+                        </div>
+                      </div>
                     ) : (
                       <div className="space-y-2">
                         <div className="text-xs text-slate-700 whitespace-pre-line leading-relaxed bg-slate-50/70 p-3.5 rounded-xl border border-slate-100 font-sans">
-                          {isExpanded || !isLongContent
-                            ? displayContent
-                            : `${displayContent.slice(0, 280)}...`}
+                          {(() => {
+                            const resolvedContent = resolveContractPlaceholders(displayContent, currentContractState);
+                            return isExpanded || !isLongContent
+                              ? resolvedContent
+                              : `${resolvedContent.slice(0, 280)}...`;
+                          })()}
                         </div>
                         {isLongContent && (
                           <button

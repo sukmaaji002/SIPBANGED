@@ -1,7 +1,7 @@
 import React from 'react';
 import { ProjectContract } from '../../types';
 import { KopSurat } from '../common/KopSurat';
-import { parseKomponenTanggalKontrak, formatTanggalIndo, formatRupiah, angkaKeTerbilang } from '../../utils/formatters';
+import { parseKomponenTanggalKontrak, formatTanggalIndo, formatRupiah, angkaKeTerbilang, resolveContractPlaceholders } from '../../utils/formatters';
 import { parseRuangLingkup } from '../../utils/ruangLingkupParser';
 import { PrintDocWrapper } from './PrintDocWrapper';
 
@@ -10,7 +10,11 @@ interface Props {
 }
 
 export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
-  const activeClauses = (contract.clauses || []).filter(c => c.isActive && c.kategori === 'Surat Perjanjian');
+  const konsideransClause = (contract.clauses || []).find(c => c.id === 'sp-konsiderans');
+  const premisClause = (contract.clauses || []).find(c => c.id === 'sp-premis');
+  const activePasalClauses = (contract.clauses || []).filter(
+    c => c.isActive && c.kategori === 'Surat Perjanjian' && c.id !== 'sp-konsiderans' && c.id !== 'sp-premis'
+  );
 
   const comp = parseKomponenTanggalKontrak(contract.tanggal);
   const hariSesuaiTanggal = contract.hari || comp.hari;
@@ -122,71 +126,35 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
           yang bertindak untuk dan atas nama <strong>{contract.penyediaNamaBadanUsaha}</strong> selanjutnya disebut <strong>“Penyedia”</strong>.
         </p>
 
-        <p className="pt-1 font-bold">
-          Dan dengan memperhatikan:
-        </p>
-        <ol className="list-decimal pl-5 space-y-1 text-[11px]">
-          <li>Kitab Undang-Undang Hukum Perdata (Buku III tentang Perikatan);</li>
-          <li>Undang-Undang Nomor 30 Tahun 2014 tentang Administrasi Pemerintahan sebagaimana telah diubah dengan Undang-Undang Nomor 6 Tahun 2023 Tentang Penetapan Peraturan Pemerintah Pengganti Undang-Undang Republik Indonesia Nomor 2 Tahun 2022 Tentang Cipta Kerja;</li>
-          <li>Undang-Undang Nomor 2 Tahun 2017 tentang Jasa Konstruksi sebagaimana telah diubah dengan Undang-Undang Nomor 6 Tahun 2023 tentang Penetapan Peraturan Pemerintah Pengganti Undang- Undang Republik Indonesia Nomor 2 Tahun 2022 Tentang Cipta Kerja;</li>
-          <li>Peraturan Pemerintah Nomor 22 Tahun 2020 tentang Peraturan Pelaksanaan Undang – Undang Nomor 2 tahun 2017 tentang Jasa Konstruksi sebagaimana telah diubah dengan Peraturan Pemerintah Nomor 14 Tahun 2021 tentang Perubahan Peraturan Pemerintah Nomor 22 Tahun 2020 tentang Peraturan Pelaksanaan Undang – Undang Nomor 2 tahun 2017 tentang Jasa Konstruksi;</li>
-          <li>Peraturan Presiden Nomor 16 Tahun 2018 tentang Pengadaan Barang/Jasa Pemerintah sebagaimana telah diubah terakhir dengan Peraturan Presiden Nomor 46 Tahun 2025 tentang Perubahan Kedua atas Peraturan Presiden Nomor 16 Tahun 2018 tentang Pengadaan Barang/Jasa Pemerintah;</li>
-          <li>Peraturan Presiden Nomor 108 Tahun 2025 tentang Pengadaan Barang/Jasa Pemerintah dalam Rangka Percepatan Pembangunan di Papua;</li>
-          <li>Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 2 Tahun 2026 tentang Katalog Elektronik dalam Pengadaan Barang/Jasa Pemerintah;</li>
-          <li>Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 12 Tahun 2021 tentang Pedoman Pelaksanaan Pengadaan Barang/Jasa Pemerintah Melalui Penyedia sebagaimana telah diubah dengan Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 4 Tahun 2024 Tentang Perubahan atas Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 12 Tahun 2021 Tentang Pedoman Pelaksanaan Pengadaan Barang/Jasa Pemerintah Melalui Penyedia;</li>
-          <li>Keputusan Kepala Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 93 Tahun 2025 tentang Pelaksanaan E-Purchasing Katalog Elektronik Melalui Metode Mini-Kompetisi.</li>
-        </ol>
-
-        <p className="pt-3 pb-1 font-bold text-center uppercase tracking-wide">
-          PARA PIHAK MENERANGKAN TERLEBIH DAHULU BAHWA:
-        </p>
-
-        <div className="space-y-1.5 text-[11px] text-justify leading-relaxed">
-          <div className="flex items-start gap-2">
-            <span className="font-serif shrink-0">(a)</span>
-            <p>telah dilakukan proses pemilihan Penyedia melalui metode pemilihan <em>E-Purchasing</em>;</p>
-          </div>
-
-          <div className="flex items-start gap-2">
-            <span className="font-serif shrink-0">(b)</span>
-            <p>Pejabat Penandatangan Kontrak telah menunjuk Penyedia menjadi pihak dalam Kontrak ini melalui Surat Penunjukan Penyediaan Barang/Jasa (SPPBJ) untuk melaksanakan Pekerjaan {contract.namaPaket} sebagaimana diterangkan dalam dokumen Kontrak ini selanjutnya disebut <strong>“Pekerjaan Konstruksi”</strong>;</p>
-          </div>
-
-          <div className="flex items-start gap-2">
-            <span className="font-serif shrink-0">(c)</span>
-            <p>Penyedia telah menyatakan kepada Pejabat Penandatangan Kontrak, memiliki keahlian profesional, tenaga kerja konstruksi, dan sumber daya teknis, serta telah menyetujui untuk melaksanakan Pekerjaan Konstruksi sesuai dengan persyaratan dan ketentuan dalam Kontrak ini;</p>
-          </div>
-
-          <div className="flex items-start gap-2">
-            <span className="font-serif shrink-0">(d)</span>
-            <p>Pejabat Penandatangan Kontrak dan Penyedia menyatakan memiliki kewenangan untuk menandatangani Kontrak ini, dan mengikat pihak yang diwakili;</p>
-          </div>
-
-          <div className="space-y-1">
-            <div className="flex items-start gap-2">
-              <span className="font-serif shrink-0">(e)</span>
-              <p>Pejabat Penandatangan Kontrak dan Penyedia mengakui dan menyatakan bahwa sehubungan dengan penandatanganan Kontrak ini masing-masing pihak :</p>
-            </div>
-            <div className="pl-6 space-y-1">
-              <div className="flex items-start gap-2">
-                <span className="shrink-0">1)</span>
-                <p>telah dan senantiasa diberikan kesempatan untuk didampingi oleh advokat;</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="shrink-0">2)</span>
-                <p>menandatangani Kontrak ini setelah meneliti secara patut;</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="shrink-0">3)</span>
-                <p>telah membaca dan memahami secara penuh ketentuan Kontrak ini;</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="shrink-0">4)</span>
-                <p>telah mendapatkan kesempatan yang memadai untuk memeriksa dan mengkonfirmasikan semua ketentuan dalam Kontrak ini beserta semua fakta dan kondisi yang terkait.</p>
-              </div>
+        {/* Konsiderans / Dasar Hukum (Dinamis dari Editor Klausul) */}
+        {konsideransClause && konsideransClause.isActive && (
+          <div className="pt-2 space-y-1">
+            <p className="font-bold">
+              Dan dengan memperhatikan:
+            </p>
+            <div className="pl-5 text-[11px] whitespace-pre-line leading-relaxed text-justify">
+              {resolveContractPlaceholders(
+                konsideransClause.kontenCustom !== undefined ? konsideransClause.kontenCustom : konsideransClause.kontenDefault,
+                contract
+              )}
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Premis / Keterangan Para Pihak (Dinamis dari Editor Klausul & Terhubung ke Data Proyek) */}
+        {premisClause && premisClause.isActive && (
+          <div className="pt-3 space-y-1">
+            <p className="pb-1 font-bold text-center uppercase tracking-wide">
+              PARA PIHAK MENERANGKAN TERLEBIH DAHULU BAHWA:
+            </p>
+            <div className="space-y-1.5 text-[11px] text-justify leading-relaxed whitespace-pre-line">
+              {resolveContractPlaceholders(
+                premisClause.kontenCustom !== undefined ? premisClause.kontenCustom : premisClause.kontenDefault,
+                contract
+              )}
+            </div>
+          </div>
+        )}
 
         <p className="pt-2">
           Maka oleh karena itu, Pejabat Penandatangan Kontrak dan Penyedia dengan ini bersepakat dan menyetujui untuk membuat perjanjian pelaksanaan paket Pekerjaan <strong>{contract.namaPaket}</strong> dengan syarat dan ketentuan sebagai berikut:
@@ -195,8 +163,8 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
 
       {/* Pasal-Pasal Surat Perjanjian (Dinamis Sesuai Isian & Pilihan Klausul Proyek) */}
       <div className="mt-6 space-y-5 text-justify">
-        {activeClauses.length > 0 ? (
-          activeClauses.map((clause, idx) => {
+        {activePasalClauses.length > 0 ? (
+          activePasalClauses.map((clause, idx) => {
             if (clause.id === 'sp-pasal-2') {
               const rawData = clause.kontenCustom !== undefined
                 ? clause.kontenCustom

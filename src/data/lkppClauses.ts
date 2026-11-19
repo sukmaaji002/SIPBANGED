@@ -1,8 +1,48 @@
 import { ContractClause } from '../types';
 import { OFFICIAL_SSUK_SECTIONS } from './ssukData';
 
-// Surat Perjanjian Clauses (Pasal 1 s.d. 5)
+export const DEFAULT_KONSIDERANS_CONTENT = `1. Kitab Undang-Undang Hukum Perdata (Buku III tentang Perikatan);
+2. Undang-Undang Nomor 30 Tahun 2014 tentang Administrasi Pemerintahan sebagaimana telah diubah dengan Undang-Undang Nomor 6 Tahun 2023 Tentang Penetapan Peraturan Pemerintah Pengganti Undang-Undang Republik Indonesia Nomor 2 Tahun 2022 Tentang Cipta Kerja;
+3. Undang-Undang Nomor 2 Tahun 2017 tentang Jasa Konstruksi sebagaimana telah diubah dengan Undang-Undang Nomor 6 Tahun 2023 tentang Penetapan Peraturan Pemerintah Pengganti Undang- Undang Republik Indonesia Nomor 2 Tahun 2022 Tentang Cipta Kerja;
+4. Peraturan Pemerintah Nomor 22 Tahun 2020 tentang Peraturan Pelaksanaan Undang - Undang Nomor 2 tahun 2017 tentang Jasa Konstruksi sebagaimana telah diubah dengan Peraturan Pemerintah Nomor 14 Tahun 2021 tentang Perubahan Peraturan Pemerintah Nomor 22 Tahun 2020 tentang Peraturan Pelaksanaan Undang - Undang Nomor 2 tahun 2017 tentang Jasa Konstruksi;
+5. Peraturan Presiden Nomor 16 Tahun 2018 tentang Pengadaan Barang/Jasa Pemerintah sebagaimana telah diubah terakhir dengan Peraturan Presiden Nomor 46 Tahun 2025 tentang Perubahan Kedua atas Peraturan Presiden Nomor 16 Tahun 2018 tentang Pengadaan Barang/Jasa Pemerintah;
+6. Peraturan Presiden Nomor 108 Tahun 2025 tentang Pengadaan Barang/Jasa Pemerintah dalam Rangka Percepatan Pembangunan di Papua;
+7. Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 2 Tahun 2026 tentang Katalog Elektronik dalam Pengadaan Barang/Jasa Pemerintah;
+8. Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 12 Tahun 2021 tentang Pedoman Pelaksanaan Pengadaan Barang/Jasa Pemerintah Melalui Penyedia sebagaimana telah diubah dengan Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 4 Tahun 2024 Tentang Perubahan atas Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 12 Tahun 2021 Tentang Pedoman Pelaksanaan Pengadaan Barang/Jasa Pemerintah Melalui Penyedia;
+9. Keputusan Kepala Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 93 Tahun 2025 tentang Pelaksanaan E-Purchasing Katalog Elektronik Melalui Metode Mini-Kompetisi.`;
+
+export const DEFAULT_PREMIS_CONTENT = `(a) telah dilakukan proses pemilihan Penyedia melalui metode pemilihan {{METODE_PEMILIHAN}};
+(b) Pejabat Penandatangan Kontrak telah menunjuk Penyedia menjadi pihak dalam Kontrak ini melalui Surat Penunjukan Penyediaan Barang/Jasa (SPPBJ) Nomor {{NOMOR_SPPBJ}} tanggal {{TANGGAL_SPPBJ}} untuk melaksanakan Pekerjaan {{NAMA_PAKET}} sebagaimana diterangkan dalam dokumen Kontrak ini selanjutnya disebut "Pekerjaan Konstruksi";
+(c) Penyedia telah menyatakan kepada Pejabat Penandatangan Kontrak, memiliki keahlian profesional, tenaga kerja konstruksi, dan sumber daya teknis, serta telah menyetujui untuk melaksanakan Pekerjaan Konstruksi sesuai dengan persyaratan dan ketentuan dalam Kontrak ini;
+(d) Pejabat Penandatangan Kontrak dan Penyedia menyatakan memiliki kewenangan untuk menandatangani Kontrak ini, dan mengikat pihak yang diwakili;
+(e) Pejabat Penandatangan Kontrak dan Penyedia mengakui dan menyatakan bahwa sehubungan dengan penandatanganan Kontrak ini masing-masing pihak :
+    1) telah dan senantiasa diberikan kesempatan untuk didampingi oleh advokat;
+    2) menandatangani Kontrak ini setelah meneliti secara patut;
+    3) telah membaca dan memahami secara penuh ketentuan Kontrak ini;
+    4) telah mendapatkan kesempatan yang memadai untuk memeriksa dan mengkonfirmasikan semua ketentuan dalam Kontrak ini beserta semua fakta dan kondisi yang terkait.`;
+
+// Surat Perjanjian Clauses (Konsiderans, Premis, dan Pasal 1 s.d. 5)
 export const SURAT_PERJANJIAN_CLAUSES: ContractClause[] = [
+  {
+    id: 'sp-konsiderans',
+    pasal: 'KONSIDERANS',
+    judul: 'DAN DENGAN MEMPERHATIKAN (DASAR HUKUM PERATURAN)',
+    kategori: 'Surat Perjanjian',
+    isActive: true,
+    isEditable: true,
+    keteranganPerlem: 'Konsiderans Dasar Hukum & Peraturan Perundang-Undangan Terkait Kontrak Kerja Konstruksi',
+    kontenDefault: DEFAULT_KONSIDERANS_CONTENT
+  },
+  {
+    id: 'sp-premis',
+    pasal: 'PREMIS',
+    judul: 'PARA PIHAK MENERANGKAN TERLEBIH DAHULU BAHWA (LATAR BELAKANG)',
+    kategori: 'Surat Perjanjian',
+    isActive: true,
+    isEditable: true,
+    keteranganPerlem: 'Premis Kesepakatan (Taut Otomatis ke Data Kontrak, SPPBJ, dan SSKK)',
+    kontenDefault: DEFAULT_PREMIS_CONTENT
+  },
   {
     id: 'sp-pasal-1',
     pasal: 1,

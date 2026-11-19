@@ -160,3 +160,41 @@ export const parseKomponenTanggalKontrak = (dateStr: string) => {
   };
 };
 
+/**
+ * Menggantikan variabel/placeholder {{VARIABEL}} dalam klausul kontrak secara dinamis
+ * dengan data rincian proyek, formulir kontrak, dan SSKK.
+ */
+export const resolveContractPlaceholders = (text: string, contract: any): string => {
+  if (!text) return '';
+  const replacers: [RegExp, string][] = [
+    [/\{\{\s*NAMA_PAKET\s*\}\}/gi, contract.namaPaket || ''],
+    [/\{\{\s*METODE_PEMILIHAN\s*\}\}/gi, contract.metodePemilihan || 'E-Purchasing'],
+    [/\{\{\s*NOMOR_SPPBJ\s*\}\}/gi, contract.nomorSPPBJ || ''],
+    [/\{\{\s*TANGGAL_SPPBJ\s*\}\}/gi, contract.tanggalSPPBJ ? formatTanggalIndo(contract.tanggalSPPBJ) : ''],
+    [/\{\{\s*NOMOR_SURAT\s*\}\}/gi, contract.nomorSurat || ''],
+    [/\{\{\s*JENIS_KONTRAK\s*\}\}/gi, contract.jenisKontrak || 'Harga Satuan'],
+    [/\{\{\s*NAMA_PENYEDIA\s*\}\}/gi, contract.penyediaNamaBadanUsaha || ''],
+    [/\{\{\s*NAMA_DIREKTUR\s*\}\}/gi, contract.penyediaNamaDirektur || ''],
+    [/\{\{\s*JABATAN_DIREKTUR\s*\}\}/gi, contract.penyediaJabatan || 'Direktur Utama'],
+    [/\{\{\s*ALAMAT_PENYEDIA\s*\}\}/gi, contract.penyediaKedudukan || ''],
+    [/\{\{\s*NAMA_PPK\s*\}\}/gi, contract.ppkNama || ''],
+    [/\{\{\s*NIP_PPK\s*\}\}/gi, contract.ppkNip || ''],
+    [/\{\{\s*JABATAN_PPK\s*\}\}/gi, contract.ppkJabatan || 'Pejabat Pembuat Komitmen'],
+    [/\{\{\s*NILAI_KONTRAK\s*\}\}/gi, typeof contract.nilaiKontrakAngka === 'number' ? formatRupiah(contract.nilaiKontrakAngka) : ''],
+    [/\{\{\s*NILAI_TERBILANG\s*\}\}/gi, typeof contract.nilaiKontrakAngka === 'number' ? angkaKeTerbilang(contract.nilaiKontrakAngka) : ''],
+    [/\{\{\s*SUMBER_PEMBIAYAAN\s*\}\}/gi, contract.sumberPembiayaan || ''],
+    [/\{\{\s*KODE_AKUN_KEGIATAN\s*\}\}/gi, contract.kodeAkunKegiatan || ''],
+    [/\{\{\s*BANK_PENYEDIA\s*\}\}/gi, contract.bankNamaDanCabang || ''],
+    [/\{\{\s*NOMOR_REKENING_PENYEDIA\s*\}\}/gi, contract.nomorRekeningPenyedia || ''],
+    [/\{\{\s*NAMA_REKENING_PENYEDIA\s*\}\}/gi, contract.namaRekeningPenyedia || ''],
+    [/\{\{\s*JANGKA_WAKTU_PELAKSANAAN\s*\}\}/gi, contract.jangkaWaktuPelaksanaanHari ? `${contract.jangkaWaktuPelaksanaanHari} (${contract.jangkaWaktuPelaksanaanHuruf || ''}) hari kalender` : ''],
+    [/\{\{\s*JANGKA_WAKTU_PEMELIHARAAN\s*\}\}/gi, contract.jangkaWaktuPemeliharaanHari ? `${contract.jangkaWaktuPemeliharaanHari} (${contract.jangkaWaktuPemeliharaanHuruf || ''}) hari kalender` : '']
+  ];
+
+  let result = text;
+  for (const [pattern, val] of replacers) {
+    result = result.replace(pattern, val);
+  }
+  return result;
+};
+

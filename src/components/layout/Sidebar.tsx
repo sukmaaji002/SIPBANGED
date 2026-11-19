@@ -13,8 +13,10 @@ import {
   ShieldAlert,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   X,
-  Layers
+  Layers,
+  FileCheck2
 } from 'lucide-react';
 
 export type ActiveTab = 
@@ -50,7 +52,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const isCollapsed = controlledCollapsed !== undefined ? controlledCollapsed : internalCollapsed;
   const toggleCollapse = onToggleCollapse || (() => setInternalCollapsed(prev => !prev));
 
-  const { selectedProject, projects, setSelectedProjectId } = useApp();
+  const { 
+    selectedProject, 
+    projects, 
+    setSelectedProjectId,
+    contractDocType,
+    setContractDocType,
+    spkDocType,
+    setSpkDocType
+  } = useApp();
+
+  const [isKontrakExpanded, setIsKontrakExpanded] = useState(true);
+  const [isSpkSubExpanded, setIsSpkSubExpanded] = useState(true);
 
   const navItems: {
     id: ActiveTab;
@@ -224,6 +237,109 @@ export const Sidebar: React.FC<SidebarProps> = ({
             const isActive = activeTab === item.id;
 
             if (isCollapsed) {
+              if (item.id === 'kontrak') {
+                return (
+                  <React.Fragment key={item.id}>
+                    {showCategory && <div className="my-2 border-t border-slate-100" />}
+                    <div className="relative group">
+                      <button
+                        onClick={() => {
+                          setActiveTab('kontrak');
+                        }}
+                        className={`w-full flex items-center justify-center p-2.5 rounded-lg transition-all relative ${
+                          isActive
+                            ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                        }`}
+                      >
+                        <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
+                        {item.badge && !isActive && (
+                          <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        )}
+                      </button>
+
+                      {/* Floating Flyout Menu for Kontrak Modular */}
+                      <div className="absolute left-full top-0 ml-2 p-2 bg-slate-900 text-white text-xs rounded-xl shadow-2xl whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 min-w-[210px] space-y-1">
+                        <div className="px-2 py-1 font-bold text-[10px] text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                          Kontrak Modular LKPP
+                        </div>
+                        <button
+                          onClick={() => {
+                            setActiveTab('kontrak');
+                            setContractDocType('perjanjian');
+                          }}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between text-[11px] ${
+                            isActive && contractDocType === 'perjanjian'
+                              ? 'bg-emerald-600 text-white font-bold'
+                              : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <FileText className="w-3.5 h-3.5 text-blue-400" />
+                            <span>Surat Perjanjian</span>
+                          </div>
+                          <span className="text-[9px] bg-slate-800 text-slate-400 px-1 rounded">Perlem</span>
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setActiveTab('kontrak');
+                            setContractDocType('spk');
+                            setSpkDocType('fisik');
+                          }}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between text-[11px] ${
+                            isActive && contractDocType === 'spk' && spkDocType === 'fisik'
+                              ? 'bg-emerald-600 text-white font-bold'
+                              : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <FileCheck2 className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>SPK Fisik / Konstruksi</span>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setActiveTab('kontrak');
+                            setContractDocType('spk');
+                            setSpkDocType('pengawas');
+                          }}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between text-[11px] ${
+                            isActive && contractDocType === 'spk' && spkDocType === 'pengawas'
+                              ? 'bg-teal-600 text-white font-bold'
+                              : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-teal-400" />
+                            <span>SPK Pengawas Teknis</span>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setActiveTab('kontrak');
+                            setContractDocType('spk');
+                            setSpkDocType('perencana');
+                          }}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between text-[11px] ${
+                            isActive && contractDocType === 'spk' && spkDocType === 'perencana'
+                              ? 'bg-indigo-600 text-white font-bold'
+                              : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-indigo-400" />
+                            <span>SPK Konsultan Perencana</span>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </React.Fragment>
+                );
+              }
+
               return (
                 <React.Fragment key={item.id}>
                   {showCategory && <div className="my-2 border-t border-slate-100" />}
@@ -252,6 +368,157 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </div>
                     </div>
                   </button>
+                </React.Fragment>
+              );
+            }
+
+            if (item.id === 'kontrak') {
+              return (
+                <React.Fragment key={item.id}>
+                  {showCategory && (
+                    <div className="pt-3 pb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      {item.category}
+                    </div>
+                  )}
+                  <div>
+                    <button
+                      onClick={() => {
+                        if (!isActive) {
+                          setActiveTab('kontrak');
+                          setIsKontrakExpanded(true);
+                        } else {
+                          setIsKontrakExpanded(prev => !prev);
+                        }
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 font-bold'
+                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 truncate">
+                        <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {item.badge && (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
+                            isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}>
+                            {item.badge}
+                          </span>
+                        )}
+                        {isKontrakExpanded ? (
+                          <ChevronDown className="w-3.5 h-3.5 opacity-80" />
+                        ) : (
+                          <ChevronRight className="w-3.5 h-3.5 opacity-80" />
+                        )}
+                      </div>
+                    </button>
+
+                    {/* Submenu Pilihan: Surat Perjanjian & SPK */}
+                    {isKontrakExpanded && (
+                      <div className="ml-4 pl-2.5 border-l-2 border-emerald-300 space-y-1 mt-1 mb-2 animate-fade-in">
+                        {/* 1. Surat Perjanjian */}
+                        <button
+                          onClick={() => {
+                            setActiveTab('kontrak');
+                            setContractDocType('perjanjian');
+                          }}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${
+                            isActive && contractDocType === 'perjanjian'
+                              ? 'bg-emerald-50 text-emerald-800 font-bold border border-emerald-300 shadow-2xs'
+                              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <FileText className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                            <span className="truncate">Surat Perjanjian</span>
+                          </div>
+                          <span className="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded font-mono">
+                            Perlem
+                          </span>
+                        </button>
+
+                        {/* 2. Surat Perintah Kerja (SPK) */}
+                        <div className="space-y-0.5">
+                          <button
+                            onClick={() => {
+                              setActiveTab('kontrak');
+                              setContractDocType('spk');
+                              setIsSpkSubExpanded(prev => !prev);
+                            }}
+                            className={`w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${
+                              isActive && contractDocType === 'spk'
+                                ? 'bg-blue-50 text-blue-800 font-bold border border-blue-300 shadow-2xs'
+                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 truncate">
+                              <FileCheck2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                              <span className="truncate">Surat Perintah Kerja (SPK)</span>
+                            </div>
+                            <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-mono">
+                              3 Jenis
+                            </span>
+                          </button>
+
+                          {/* 3 Sub-types of SPK */}
+                          {isSpkSubExpanded && (
+                            <div className="ml-3 pl-2 border-l border-slate-200 space-y-0.5 pt-0.5">
+                              <button
+                                onClick={() => {
+                                  setActiveTab('kontrak');
+                                  setContractDocType('spk');
+                                  setSpkDocType('fisik');
+                                }}
+                                className={`w-full text-left px-2 py-1 text-[10.5px] rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                                  isActive && contractDocType === 'spk' && spkDocType === 'fisik'
+                                    ? 'text-emerald-800 font-bold bg-emerald-100/70 border border-emerald-200'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                              >
+                                <span className={`w-1.5 h-1.5 rounded-full ${isActive && contractDocType === 'spk' && spkDocType === 'fisik' ? 'bg-emerald-600' : 'bg-slate-300'}`} />
+                                <span className="truncate">1. SPK Fisik / Konstruksi</span>
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  setActiveTab('kontrak');
+                                  setContractDocType('spk');
+                                  setSpkDocType('pengawas');
+                                }}
+                                className={`w-full text-left px-2 py-1 text-[10.5px] rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                                  isActive && contractDocType === 'spk' && spkDocType === 'pengawas'
+                                    ? 'text-teal-800 font-bold bg-teal-100/70 border border-teal-200'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                              >
+                                <span className={`w-1.5 h-1.5 rounded-full ${isActive && contractDocType === 'spk' && spkDocType === 'pengawas' ? 'bg-teal-600' : 'bg-slate-300'}`} />
+                                <span className="truncate">2. Konsultan Pengawas</span>
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  setActiveTab('kontrak');
+                                  setContractDocType('spk');
+                                  setSpkDocType('perencana');
+                                }}
+                                className={`w-full text-left px-2 py-1 text-[10.5px] rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                                  isActive && contractDocType === 'spk' && spkDocType === 'perencana'
+                                    ? 'text-indigo-800 font-bold bg-indigo-100/70 border border-indigo-200'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                              >
+                                <span className={`w-1.5 h-1.5 rounded-full ${isActive && contractDocType === 'spk' && spkDocType === 'perencana' ? 'bg-indigo-600' : 'bg-slate-300'}`} />
+                                <span className="truncate">3. Konsultan Perencana</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </React.Fragment>
               );
             }
@@ -411,6 +678,154 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }
 
                 const isActive = activeTab === item.id;
+
+                if (item.id === 'kontrak') {
+                  return (
+                    <React.Fragment key={item.id}>
+                      {showCategory && (
+                        <div className="pt-3 pb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          {item.category}
+                        </div>
+                      )}
+                      <div>
+                        <button
+                          onClick={() => {
+                            if (!isActive) {
+                              setActiveTab('kontrak');
+                              setIsKontrakExpanded(true);
+                            } else {
+                              setIsKontrakExpanded(prev => !prev);
+                            }
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-xl transition-all ${
+                            isActive
+                              ? 'bg-emerald-600 text-white shadow-sm font-bold'
+                              : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 truncate">
+                            <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
+                            <span className="truncate">{item.label}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {item.badge && (
+                              <span className={`text-[10px] px-2 py-0.5 rounded-md font-mono ${
+                                isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                              }`}>
+                                {item.badge}
+                              </span>
+                            )}
+                            {isKontrakExpanded ? (
+                              <ChevronDown className="w-4 h-4 opacity-75" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 opacity-75" />
+                            )}
+                          </div>
+                        </button>
+
+                        {/* Submenu for Mobile */}
+                        {isKontrakExpanded && (
+                          <div className="ml-5 pl-2.5 border-l-2 border-emerald-300 space-y-1 mt-1 mb-2">
+                            <button
+                              onClick={() => {
+                                handleMobileNavClick('kontrak');
+                                setContractDocType('perjanjian');
+                              }}
+                              className={`w-full flex items-center justify-between px-2.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+                                isActive && contractDocType === 'perjanjian'
+                                  ? 'bg-emerald-50 text-emerald-800 font-bold border border-emerald-300'
+                                  : 'text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <FileText className="w-3.5 h-3.5 text-blue-600" />
+                                <span>Surat Perjanjian</span>
+                              </div>
+                              <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded font-mono">
+                                Perlem
+                              </span>
+                            </button>
+
+                            <div className="space-y-0.5">
+                              <button
+                                onClick={() => {
+                                  setActiveTab('kontrak');
+                                  setContractDocType('spk');
+                                  setIsSpkSubExpanded(prev => !prev);
+                                }}
+                                className={`w-full flex items-center justify-between px-2.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+                                  isActive && contractDocType === 'spk'
+                                    ? 'bg-blue-50 text-blue-800 font-bold border border-blue-300'
+                                    : 'text-slate-600 hover:bg-slate-100'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <FileCheck2 className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span>Surat Perintah Kerja (SPK)</span>
+                                </div>
+                                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-mono">
+                                  3 Jenis
+                                </span>
+                              </button>
+
+                              {isSpkSubExpanded && (
+                                <div className="ml-4 pl-2 border-l border-slate-200 space-y-1 pt-1">
+                                  <button
+                                    onClick={() => {
+                                      handleMobileNavClick('kontrak');
+                                      setContractDocType('spk');
+                                      setSpkDocType('fisik');
+                                    }}
+                                    className={`w-full text-left px-2 py-1.5 text-xs rounded-md transition-all flex items-center gap-2 ${
+                                      isActive && contractDocType === 'spk' && spkDocType === 'fisik'
+                                        ? 'text-emerald-800 font-bold bg-emerald-100/70 border border-emerald-200'
+                                        : 'text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                  >
+                                    <span className={`w-1.5 h-1.5 rounded-full ${isActive && contractDocType === 'spk' && spkDocType === 'fisik' ? 'bg-emerald-600' : 'bg-slate-300'}`} />
+                                    <span>1. SPK Fisik / Konstruksi</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      handleMobileNavClick('kontrak');
+                                      setContractDocType('spk');
+                                      setSpkDocType('pengawas');
+                                    }}
+                                    className={`w-full text-left px-2 py-1.5 text-xs rounded-md transition-all flex items-center gap-2 ${
+                                      isActive && contractDocType === 'spk' && spkDocType === 'pengawas'
+                                        ? 'text-teal-800 font-bold bg-teal-100/70 border border-teal-200'
+                                        : 'text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                  >
+                                    <span className={`w-1.5 h-1.5 rounded-full ${isActive && contractDocType === 'spk' && spkDocType === 'pengawas' ? 'bg-teal-600' : 'bg-slate-300'}`} />
+                                    <span>2. Konsultan Pengawas</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      handleMobileNavClick('kontrak');
+                                      setContractDocType('spk');
+                                      setSpkDocType('perencana');
+                                    }}
+                                    className={`w-full text-left px-2 py-1.5 text-xs rounded-md transition-all flex items-center gap-2 ${
+                                      isActive && contractDocType === 'spk' && spkDocType === 'perencana'
+                                        ? 'text-indigo-800 font-bold bg-indigo-100/70 border border-indigo-200'
+                                        : 'text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                  >
+                                    <span className={`w-1.5 h-1.5 rounded-full ${isActive && contractDocType === 'spk' && spkDocType === 'perencana' ? 'bg-indigo-600' : 'bg-slate-300'}`} />
+                                    <span>3. Konsultan Perencana</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </React.Fragment>
+                  );
+                }
 
                 return (
                   <React.Fragment key={item.id}>

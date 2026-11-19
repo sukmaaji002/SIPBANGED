@@ -1,11 +1,15 @@
 import { ProjectContract } from '../types';
 import { OFFICIAL_SSUK_SECTIONS } from '../data/ssukData';
-import { formatTanggalIndo, formatRupiah, angkaKeTerbilang, parseKomponenTanggalKontrak } from './formatters';
+import { formatTanggalIndo, formatRupiah, angkaKeTerbilang, parseKomponenTanggalKontrak, resolveContractPlaceholders } from './formatters';
 import { parseRuangLingkup } from './ruangLingkupParser';
 import { LOGO_KAB_TEGAL_BASE64 } from './logoBase64';
 
 export function generateContractWordDoc(contract: ProjectContract): void {
-  const activeClauses = (contract.clauses || []).filter(c => c.isActive && c.kategori === 'Surat Perjanjian');
+  const konsideransClause = (contract.clauses || []).find(c => c.id === 'sp-konsiderans');
+  const premisClause = (contract.clauses || []).find(c => c.id === 'sp-premis');
+  const activePasalClauses = (contract.clauses || []).filter(
+    c => c.isActive && c.kategori === 'Surat Perjanjian' && c.id !== 'sp-konsiderans' && c.id !== 'sp-premis'
+  );
 
   const comp = parseKomponenTanggalKontrak(contract.tanggal);
   const hariSesuaiTanggal = contract.hari || comp.hari;
@@ -16,10 +20,10 @@ export function generateContractWordDoc(contract: ProjectContract): void {
 
   const tanggalSPPBJFormatted = contract.tanggalSPPBJ ? formatTanggalIndo(contract.tanggalSPPBJ) : '-';
 
-  // Generate Clauses for Surat Perjanjian
+  // Generate Clauses for Surat Perjanjian (Pasal-Pasal Pokok)
   let pasalHtml = '';
-  if (activeClauses.length > 0) {
-    activeClauses.forEach((clause, idx) => {
+  if (activePasalClauses.length > 0) {
+    activePasalClauses.forEach((clause, idx) => {
       let content = clause.kontenCustom !== undefined ? clause.kontenCustom : clause.kontenDefault;
 
       if (clause.id === 'sp-pasal-2') {
@@ -383,31 +387,29 @@ export function generateContractWordDoc(contract: ProjectContract): void {
 
         <p>yang bertindak untuk dan atas nama <strong>${contract.penyediaNamaBadanUsaha}</strong> selanjutnya disebut <strong>“Penyedia”</strong>.</p>
 
-        <p style="font-weight: bold; margin-top: 10pt; margin-bottom: 4pt;">Dan dengan memperhatikan:</p>
-        <ol style="margin-top: 0; padding-left: 20pt;">
-          <li>Kitab Undang-Undang Hukum Perdata (Buku III tentang Perikatan);</li>
-          <li>Undang-Undang Nomor 30 Tahun 2014 tentang Administrasi Pemerintahan sebagaimana telah diubah dengan Undang-Undang Nomor 6 Tahun 2023 Tentang Penetapan Peraturan Pemerintah Pengganti Undang-Undang Republik Indonesia Nomor 2 Tahun 2022 Tentang Cipta Kerja;</li>
-          <li>Undang-Undang Nomor 2 Tahun 2017 tentang Jasa Konstruksi sebagaimana telah diubah dengan Undang-Undang Nomor 6 Tahun 2023 tentang Penetapan Peraturan Pemerintah Pengganti Undang- Undang Republik Indonesia Nomor 2 Tahun 2022 Tentang Cipta Kerja;</li>
-          <li>Peraturan Pemerintah Nomor 22 Tahun 2020 tentang Peraturan Pelaksanaan Undang – Undang Nomor 2 tahun 2017 tentang Jasa Konstruksi sebagaimana telah diubah dengan Peraturan Pemerintah Nomor 14 Tahun 2021 tentang Perubahan Peraturan Pemerintah Nomor 22 Tahun 2020 tentang Peraturan Pelaksanaan Undang – Undang Nomor 2 tahun 2017 tentang Jasa Konstruksi;</li>
-          <li>Peraturan Presiden Nomor 16 Tahun 2018 tentang Pengadaan Barang/Jasa Pemerintah sebagaimana telah diubah terakhir dengan Peraturan Presiden Nomor 46 Tahun 2025 tentang Perubahan Kedua atas Peraturan Presiden Nomor 16 Tahun 2018 tentang Pengadaan Barang/Jasa Pemerintah;</li>
-          <li>Peraturan Presiden Nomor 108 Tahun 2025 tentang Pengadaan Barang/Jasa Pemerintah dalam Rangka Percepatan Pembangunan di Papua;</li>
-          <li>Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 2 Tahun 2026 tentang Katalog Elektronik dalam Pengadaan Barang/Jasa Pemerintah;</li>
-          <li>Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 12 Tahun 2021 tentang Pedoman Pelaksanaan Pengadaan Barang/Jasa Pemerintah Melalui Penyedia sebagaimana telah diubah dengan Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 4 Tahun 2024 Tentang Perubahan atas Peraturan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 12 Tahun 2021 Tentang Pedoman Pelaksanaan Pengadaan Barang/Jasa Pemerintah Melalui Penyedia;</li>
-          <li>Keputusan Kepala Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah Nomor 93 Tahun 2025 tentang Pelaksanaan E-Purchasing Katalog Elektronik Melalui Metode Mini-Kompetisi.</li>
-        </ol>
+        ${konsideransClause && konsideransClause.isActive ? `
+          <p style="font-weight: bold; margin-top: 10pt; margin-bottom: 4pt;">Dan dengan memperhatikan:</p>
+          <div style="font-size: 11pt; line-height: 1.35; text-align: justify; padding-left: 6pt;">
+            ${resolveContractPlaceholders(
+              konsideransClause.kontenCustom !== undefined ? konsideransClause.kontenCustom : konsideransClause.kontenDefault,
+              contract
+            ).split('\n').filter(Boolean).map(line => `<p style="margin: 0 0 3pt 20pt; text-indent: -16pt;">${line}</p>`).join('')}
+          </div>
+        ` : ''}
 
-        <p style="font-weight: bold; text-align: center; margin-top: 14pt; margin-bottom: 6pt; text-transform: uppercase;">PARA PIHAK MENERANGKAN TERLEBIH DAHULU BAHWA:</p>
-        <div style="font-size: 11pt; line-height: 1.35; text-align: justify;">
-          <p style="margin: 0 0 3pt 24pt; text-indent: -20pt;">(a)&nbsp;&nbsp;telah dilakukan proses pemilihan Penyedia melalui metode pemilihan <em>E-Purchasing</em>;</p>
-          <p style="margin: 0 0 3pt 24pt; text-indent: -20pt;">(b)&nbsp;&nbsp;Pejabat Penandatangan Kontrak telah menunjuk Penyedia menjadi pihak dalam Kontrak ini melalui Surat Penunjukan Penyediaan Barang/Jasa (SPPBJ) untuk melaksanakan Pekerjaan ${contract.namaPaket} sebagaimana diterangkan dalam dokumen Kontrak ini selanjutnya disebut <strong>“Pekerjaan Konstruksi”</strong>;</p>
-          <p style="margin: 0 0 3pt 24pt; text-indent: -20pt;">(c)&nbsp;&nbsp;Penyedia telah menyatakan kepada Pejabat Penandatangan Kontrak, memiliki keahlian profesional, tenaga kerja konstruksi, dan sumber daya teknis, serta telah menyetujui untuk melaksanakan Pekerjaan Konstruksi sesuai dengan persyaratan dan ketentuan dalam Kontrak ini;</p>
-          <p style="margin: 0 0 3pt 24pt; text-indent: -20pt;">(d)&nbsp;&nbsp;Pejabat Penandatangan Kontrak dan Penyedia menyatakan memiliki kewenangan untuk menandatangani Kontrak ini, dan mengikat pihak yang diwakili;</p>
-          <p style="margin: 0 0 3pt 24pt; text-indent: -20pt;">(e)&nbsp;&nbsp;Pejabat Penandatangan Kontrak dan Penyedia mengakui dan menyatakan bahwa sehubungan dengan penandatanganan Kontrak ini masing-masing pihak :</p>
-          <p style="margin: 0 0 2pt 44pt; text-indent: -18pt;">1)&nbsp;&nbsp;telah dan senantiasa diberikan kesempatan untuk didampingi oleh advokat;</p>
-          <p style="margin: 0 0 2pt 44pt; text-indent: -18pt;">2)&nbsp;&nbsp;menandatangani Kontrak ini setelah meneliti secara patut;</p>
-          <p style="margin: 0 0 2pt 44pt; text-indent: -18pt;">3)&nbsp;&nbsp;telah membaca dan memahami secara penuh ketentuan Kontrak ini;</p>
-          <p style="margin: 0 0 2pt 44pt; text-indent: -18pt;">4)&nbsp;&nbsp;telah mendapatkan kesempatan yang memadai untuk memeriksa dan mengkonfirmasikan semua ketentuan dalam Kontrak ini beserta semua fakta dan kondisi yang terkait.</p>
-        </div>
+        ${premisClause && premisClause.isActive ? `
+          <p style="font-weight: bold; text-align: center; margin-top: 14pt; margin-bottom: 6pt; text-transform: uppercase;">PARA PIHAK MENERANGKAN TERLEBIH DAHULU BAHWA:</p>
+          <div style="font-size: 11pt; line-height: 1.35; text-align: justify;">
+            ${resolveContractPlaceholders(
+              premisClause.kontenCustom !== undefined ? premisClause.kontenCustom : premisClause.kontenDefault,
+              contract
+            ).split('\n').filter(Boolean).map(line => {
+              const trimmed = line.trim();
+              const isSub = /^\d+\)/.test(trimmed);
+              return `<p style="margin: 0 0 3pt ${isSub ? '44pt' : '24pt'}; text-indent: -${isSub ? '18pt' : '20pt'};">${trimmed}</p>`;
+            }).join('')}
+          </div>
+        ` : ''}
 
         <p style="margin-top: 10pt;">Maka oleh karena itu, Pejabat Penandatangan Kontrak dan Penyedia dengan ini bersepakat dan menyetujui untuk membuat perjanjian pelaksanaan paket Pekerjaan <strong>${contract.namaPaket}</strong> dengan syarat dan ketentuan sebagai berikut:</p>
 

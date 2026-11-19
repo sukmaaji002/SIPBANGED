@@ -8,7 +8,7 @@ import { PlanningPhase } from './components/phases/PlanningPhase';
 import { ExecutionPhase } from './components/phases/ExecutionPhase';
 import { SupervisionPhase } from './components/phases/SupervisionPhase';
 import { MaintenancePhase } from './components/phases/MaintenancePhase';
-import { ContractBuilder } from './components/contracts/ContractBuilder';
+import { KontrakModularContainer } from './components/contracts/KontrakModularContainer';
 import { BeritaAcaraList } from './components/beritaAcara/BeritaAcaraList';
 import { FinanceOverview } from './components/finance/FinanceOverview';
 import { RbacMatrix } from './components/auth/RbacMatrix';
@@ -58,7 +58,7 @@ const MainApp: React.FC = () => {
       case 'pemeliharaan':
         return <MaintenancePhase />;
       case 'kontrak':
-        return <ContractBuilder />;
+        return <KontrakModularContainer />;
       case 'berita-acara':
         return <BeritaAcaraList />;
       case 'keuangan':

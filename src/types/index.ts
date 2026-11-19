@@ -253,6 +253,7 @@ export interface ProjectContract {
   tanggalBulanTahunAngka?: string; // misal "20-02-2026"
   nomorSPPBJ: string;
   tanggalSPPBJ: string;
+  metodePemilihan?: string;
   jenisKontrak: 'Harga Satuan' | 'Lumsum' | 'Gabungan Lumsum dan Harga Satuan';
   
   // Pejabat Penandatangan Kontrak (PPK)
@@ -410,3 +411,99 @@ export interface PaymentTerm {
   status: 'Pengajuan' | 'Verifikasi Dokumen' | 'SPM Terbit' | 'SP2D Cair';
   keterangan: string;
 }
+
+// SPK (SURAT PERINTAH KERJA) MODULAR
+export type ContractDocType = 'perjanjian' | 'spk';
+export type SpkType = 'fisik' | 'pengawas' | 'perencana';
+
+export interface SpkPersonelItem {
+  id: string;
+  nama: string;
+  posisi: string;
+  kualifikasi: string;
+  sertifikat?: string;
+}
+
+export interface SpkClauseItem {
+  id: string;
+  pasal: number | string;
+  judul: string;
+  isi: string;
+  isActive: boolean;
+}
+
+export interface SpkContract {
+  id: string;
+  projectId: string;
+  spkType: SpkType;
+  
+  // Header SPK
+  nomorSpk: string;
+  tanggalSpk: string; // YYYY-MM-DD
+  hariSpk?: string;
+  tanggalTeksSpk?: string;
+  bulanTeksSpk?: string;
+  tahunSpk?: number | string;
+  
+  // Dasar Pengadaan
+  nomorSppbj?: string;
+  tanggalSppbj?: string;
+  metodePengadaan: 'Pengadaan Langsung' | 'E-Purchasing' | 'Tender / Seleksi' | 'Penunjukan Langsung';
+  
+  // PPK
+  ppkNama: string;
+  ppkNip: string;
+  ppkJabatan: string;
+  ppkAlamat: string;
+  ppkNomorSk?: string;
+  ppkTahunAnggaran: number;
+  
+  // Penyedia / Konsultan
+  penyediaNamaBadanUsaha: string;
+  penyediaBentukUsaha: 'PT' | 'CV' | 'Perseorangan' | 'Koperasi';
+  penyediaNamaPimpinan: string;
+  penyediaJabatanPimpinan: string;
+  penyediaAlamat: string;
+  penyediaNpwp: string;
+  penyediaBank: string;
+  penyediaNomorRekening: string;
+  penyediaNamaRekening: string;
+  
+  // Paket Pengadaan
+  namaPaket: string;
+  lokasiPekerjaan: string;
+  tahunAnggaran: number;
+  sumberDana: string;
+  kodeRekeningKegiatan: string;
+  
+  // Nilai & Waktu
+  nilaiKontrak: number;
+  nilaiKontrakTerbilang: string;
+  termasukPpn: boolean;
+  jangkaWaktuHari: number;
+  jangkaWaktuHuruf?: string;
+  tanggalMulai: string;
+  tanggalSelesai: string;
+  masaPemeliharaanHari?: number; // Terutama untuk Fisik
+  masaPemeliharaanHuruf?: string;
+  
+  // Sistem Pembayaran & Sanksi
+  sistemPembayaran: 'Sekaligus (100% setelah selesai & PHO)' | 'Termin / Prestasi Kerja' | 'Bulanan (Monthly Certificate)';
+  keteranganPembayaran: string;
+  dendaKeterlambatan: string;
+  
+  // Ruang Lingkup
+  ruangLingkup: string[];
+  
+  // Personel / Tenaga Ahli
+  personelList: SpkPersonelItem[];
+  
+  // Dokumen Keluaran / Laporan (Khusus Pengawas & Perencana)
+  keluaranHasil?: string[];
+  
+  // Klausul Syarat-Syarat SPK
+  clauses: SpkClauseItem[];
+  
+  status: 'Draft' | 'Review Legal' | 'Ditandatangani PPK & Penyedia';
+}
+
