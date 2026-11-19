@@ -131,3 +131,37 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authentic
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
 
+-- KEBIJAKAN AKSES PENUH (POLICIES) UNTUK SEMUA TABEL
+DROP POLICY IF EXISTS "Akses Penuh Anon Users" ON public.sipbanged_users;
+CREATE POLICY "Akses Penuh Anon Users" ON public.sipbanged_users FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Akses Penuh Anon Projects" ON public.sipbanged_projects;
+CREATE POLICY "Akses Penuh Anon Projects" ON public.sipbanged_projects FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Akses Penuh Anon Contracts" ON public.sipbanged_contracts;
+CREATE POLICY "Akses Penuh Anon Contracts" ON public.sipbanged_contracts FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Akses Penuh Anon SPK" ON public.sipbanged_spk_contracts;
+CREATE POLICY "Akses Penuh Anon SPK" ON public.sipbanged_spk_contracts FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Akses Penuh Anon Planning" ON public.sipbanged_planning_docs;
+CREATE POLICY "Akses Penuh Anon Planning" ON public.sipbanged_planning_docs FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Akses Penuh Anon Progress" ON public.sipbanged_weekly_progress;
+CREATE POLICY "Akses Penuh Anon Progress" ON public.sipbanged_weekly_progress FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Akses Penuh Anon Supervision" ON public.sipbanged_supervision;
+CREATE POLICY "Akses Penuh Anon Supervision" ON public.sipbanged_supervision FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Akses Penuh Anon Maintenance" ON public.sipbanged_maintenance;
+CREATE POLICY "Akses Penuh Anon Maintenance" ON public.sipbanged_maintenance FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Akses Penuh Anon BA" ON public.sipbanged_berita_acara;
+CREATE POLICY "Akses Penuh Anon BA" ON public.sipbanged_berita_acara FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Akses Penuh Anon Payments" ON public.sipbanged_payments;
+CREATE POLICY "Akses Penuh Anon Payments" ON public.sipbanged_payments FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Akses Penuh Anon Addendums" ON public.sipbanged_schedule_addendums;
+CREATE POLICY "Akses Penuh Anon Addendums" ON public.sipbanged_schedule_addendums FOR ALL TO public USING (true) WITH CHECK (true);
+
