@@ -11,6 +11,7 @@ export interface SSUKParagraph {
 export interface SSUKClause {
   id: string;
   pasal: number;
+  subBab?: string;
   judul: string;
   nomorDanJudul: string;
   paragraphs: SSUKParagraph[];
@@ -631,17 +632,13 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
           {
             "text": "Kontrak ini berlaku efektif sejak penandatangananan Surat Perjanjian oleh Para Pihak sampai dengan Tanggal Penyerahan Akhir Pekerjaan dan hak dan kewajiban Para Pihak yang terdapat dalam Kontrak sudah terpenuhi.",
             "fullText": "Kontrak ini berlaku efektif sejak penandatangananan Surat Perjanjian oleh Para Pihak sampai dengan Tanggal Penyerahan Akhir Pekerjaan dan hak dan kewajiban Para Pihak yang terdapat dalam Kontrak sudah terpenuhi."
-          },
-          {
-            "prefix": "A.1",
-            "text": "Pelaksanaan Pekerjaan",
-            "fullText": "A.1 Pelaksanaan Pekerjaan"
           }
         ]
       },
       {
         "id": "ssuk-18",
         "pasal": 18,
+        "subBab": "B.1 Pelaksanaan Pekerjaan",
         "judul": "Penyerahan Lokasi Kerja dan Personel",
         "nomorDanJudul": "18. Penyerahan Lokasi Kerja dan Personel",
         "paragraphs": [
@@ -1029,16 +1026,13 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "prefix": "25.3",
             "text": "Apabila dalam pelaksanaan pekerjaan ditemukan ketidaksesuaian dengan dokumen pada Pasal 25.2, maka akan dikenakan sanksi sesuai peraturan perundangan yang berlaku.",
             "fullText": "25.3 Apabila dalam pelaksanaan pekerjaan ditemukan ketidaksesuaian dengan dokumen pada Pasal 25.2, maka akan dikenakan sanksi sesuai peraturan perundangan yang berlaku."
-          },
-          {
-            "text": "B.2Pengendalian Waktu",
-            "fullText": "B.2Pengendalian Waktu"
           }
         ]
       },
       {
         "id": "ssuk-26",
         "pasal": 26,
+        "subBab": "B.2 Pengendalian Waktu",
         "judul": "Masa Pelaksanaan",
         "nomorDanJudul": "26. Masa Pelaksanaan",
         "paragraphs": [
@@ -1285,16 +1279,13 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "prefix": "d.",
             "text": "sumber dana untuk membiayai penyelesaian sisa pekerjaan yang akan dilanjutkan ke Tahun Anggaran berikutnya dari DIPA Tahun Anggaran berikutnya, apabila pemberian kesempatan melampaui Tahun Anggaran.",
             "fullText": "d. sumber dana untuk membiayai penyelesaian sisa pekerjaan yang akan dilanjutkan ke Tahun Anggaran berikutnya dari DIPA Tahun Anggaran berikutnya, apabila pemberian kesempatan melampaui Tahun Anggaran."
-          },
-          {
-            "text": "B.3  Penyelesaian Kontrak",
-            "fullText": "B.3  Penyelesaian Kontrak"
           }
         ]
       },
       {
         "id": "ssuk-32",
         "pasal": 32,
+        "subBab": "B.3 Penyelesaian Kontrak",
         "judul": "Serah Terima Pekerjaan",
         "nomorDanJudul": "32. Serah Terima Pekerjaan",
         "paragraphs": [
@@ -1427,16 +1418,13 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "prefix": "34.2",
             "text": "Apabila Penyedia tidak memberikan pedoman pengoperasian dan perawatan/pemeliharaan, Pejabat Penandatangan Kontrak berhak menahan uang retensi atau Jaminan Pemeliharaan.",
             "fullText": "34.2 Apabila Penyedia tidak memberikan pedoman pengoperasian dan perawatan/pemeliharaan, Pejabat Penandatangan Kontrak berhak menahan uang retensi atau Jaminan Pemeliharaan."
-          },
-          {
-            "text": "B.4  Adendum",
-            "fullText": "B.4  Adendum"
           }
         ]
       },
       {
         "id": "ssuk-35",
         "pasal": 35,
+        "subBab": "B.4 Adendum",
         "judul": "Perubahan Kontrak",
         "nomorDanJudul": "35. Perubahan Kontrak",
         "paragraphs": [
@@ -1809,16 +1797,13 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "prefix": "39.6",
             "text": "Biaya mobilisasi/demobilisasi yang timbul akibat perubahan Personel Manajerial dan/atau Peralatan Utama menjadi tanggung jawab Penyedia.",
             "fullText": "39.6 Biaya mobilisasi/demobilisasi yang timbul akibat perubahan Personel Manajerial dan/atau Peralatan Utama menjadi tanggung jawab Penyedia."
-          },
-          {
-            "text": "B.5  Keadaan Kahar",
-            "fullText": "B.5  Keadaan Kahar"
           }
         ]
       },
       {
         "id": "ssuk-40",
         "pasal": 40,
+        "subBab": "B.5 Keadaan Kahar",
         "judul": "Keadaan Kahar",
         "nomorDanJudul": "40. Keadaan Kahar",
         "paragraphs": [
@@ -1961,16 +1946,13 @@ export const OFFICIAL_SSUK_SECTIONS: SSUKSection[] = [
             "prefix": "40.14",
             "text": "Dalam hal pelaksanaan Kontrak dihentikan permanen, para pihak melakukan pengakhiran kontrak dan menyelesaikan hak dan kewajiban sesuai Kontrak. Penyedia berhak untuk menerima pembayaran sesuai dengan prestasi atau kemajuan hasil pekerjaan yang telah dicapai setelah dilakukan pengukuran/pemeriksaan bersama atau berdasarkan hasil audit.",
             "fullText": "40.14 Dalam hal pelaksanaan Kontrak dihentikan permanen, para pihak melakukan pengakhiran kontrak dan menyelesaikan hak dan kewajiban sesuai Kontrak. Penyedia berhak untuk menerima pembayaran sesuai dengan prestasi atau kemajuan hasil pekerjaan yang telah dicapai setelah dilakukan pengukuran/pemeriksaan bersama atau berdasarkan hasil audit."
-          },
-          {
-            "text": "B.6  Penghentian, Pemutusan, dan Berakhirnya Kontrak",
-            "fullText": "B.6  Penghentian, Pemutusan, dan Berakhirnya Kontrak"
           }
         ]
       },
       {
         "id": "ssuk-41",
         "pasal": 41,
+        "subBab": "B.6 Penghentian, Pemutusan, dan Berakhirnya Kontrak",
         "judul": "Penghentian Kontrak",
         "nomorDanJudul": "41. Penghentian Kontrak",
         "paragraphs": [

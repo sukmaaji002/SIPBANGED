@@ -107,7 +107,18 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
                         >
                           {/* Kolom 1: Nomor dan Judul Pasal hanya pada baris pertama pasal */}
                           <td className={`w-[26%] pr-3 ${cIdx > 0 && isFirst ? 'pt-3' : 'py-1'} font-bold text-slate-900 border-none select-none align-top`}>
-                            {isFirst ? clause.nomorDanJudul : ''}
+                            {isFirst ? (
+                              <div>
+                                {clause.subBab && (
+                                  <div className="font-bold text-[11px] font-serif mb-1 leading-snug text-slate-900">
+                                    {clause.subBab}
+                                  </div>
+                                )}
+                                <div className={clause.subBab ? "pl-3 text-[11px] font-serif leading-snug" : "text-[11px] font-serif leading-snug"}>
+                                  {clause.nomorDanJudul}
+                                </div>
+                              </div>
+                            ) : ''}
                           </td>
 
                           {/* Kolom 2: Uraian Isi Paragraf Sub-Pasal dengan Indent Numbering Rapi */}

@@ -152,7 +152,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
       rowsHtml += `
         <tr>
           <td style="width: 28%; vertical-align: top; padding: 4pt 8pt 4pt 0; font-weight: bold; font-size: 10pt; border: none;">
-            ${clause.nomorDanJudul}
+            ${clause.subBab ? `<div style="font-weight: bold; margin-bottom: 3pt;">${clause.subBab}</div><div style="padding-left: 10pt;">${clause.nomorDanJudul}</div>` : clause.nomorDanJudul}
           </td>
           <td style="width: 72%; vertical-align: top; padding: 4pt 0; text-align: justify; border: none;">
             ${parasHtml}
@@ -491,30 +491,39 @@ export function generateContractWordDoc(contract: ProjectContract): void {
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">4.1 & 4.2</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Korespondensi</td>
-            <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              <strong>Alamat Para Pihak sebagai berikut:</strong><br/>
-              <strong>Satuan Kerja Pejabat Penandatangan Kontrak:</strong><br/>
-              Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal<br/>
-              Nama: <strong>${contract.ppkNama}</strong><br/>
-              Alamat: Jl. Cut Nyak Dien, Kalisapu, Slawi, Kabupaten Tegal<br/>
-              E-mail: ${contract.sskkEmailPPK}<br/>
-              Faksimili: -<br/><br/>
-              <strong>Penyedia:</strong><br/>
-              Badan Usaha: <strong>${contract.penyediaNamaBadanUsaha}</strong><br/>
-              Nama Direktur: <strong>${contract.penyediaNamaDirektur}</strong><br/>
-              Alamat: ${contract.penyediaKedudukan}<br/>
-              E-mail: ${contract.sskkEmailPenyedia}<br/>
-              No. Whatsapp: ${contract.sskkWhatsappPenyedia}<br/>
-              Faksimili: ${contract.sskkFaksimiliPenyedia}
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top; font-size: 10pt; line-height: 1.35;">
+              <p style="margin: 0 0 4pt 0;">Alamat Para Pihak sebagai berikut:</p>
+              <p style="margin: 0 0 2pt 0;">Satuan Kerja Pejabat Penandatangan Kontrak :</p>
+              <p style="margin: 0 0 4pt 0;">Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal</p>
+              <table style="width: 100%; border: none; border-collapse: collapse; margin-bottom: 8pt; font-size: 10pt;">
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Nama</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.ppkNama}</strong></td></tr>
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Alamat</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">Jl. Cut Nyak Dien, Kalisapu, Slawi, Kabupaten Tegal</td></tr>
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">E-mail</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">${contract.sskkEmailPPK || 'dpupr@tegalkab.go.id'}</td></tr>
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Faksimili</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">-</td></tr>
+              </table>
+              <table style="width: 100%; border: none; border-collapse: collapse; font-size: 10pt;">
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;"><strong>Penyedia</strong></td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.penyediaNamaBadanUsaha}</strong></td></tr>
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Nama</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.penyediaNamaDirektur}</strong></td></tr>
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Alamat</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">${contract.penyediaKedudukan}</td></tr>
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">E-mail</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">${contract.sskkEmailPenyedia}</td></tr>
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">No. Whatsapp</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.sskkWhatsappPenyedia}</strong></td></tr>
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Faksimili</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">${contract.sskkFaksimiliPenyedia || '-'}</td></tr>
+              </table>
             </td>
           </tr>
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">4.2 & 5.1</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Wakil Sah Para Pihak</td>
-            <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              Wakil Sah Para Pihak sebagai berikut:<br/>
-              Untuk Pejabat Penandatangan Kontrak: <strong>${contract.sskkWakilSahPPK}</strong><br/>
-              Untuk Penyedia: <strong>${contract.sskkWakilSahPenyedia}</strong>
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top; font-size: 10pt; line-height: 1.35;">
+              <p style="margin: 0 0 4pt 0;">Wakil Sah Para Pihak sebagai berikut:</p>
+              <p style="margin: 0 0 2pt 0;">Untuk Pejabat Penandatangan Kontrak:</p>
+              <table style="width: 100%; border: none; border-collapse: collapse; margin-bottom: 6pt; font-size: 10pt;">
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Nama</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.sskkWakilSahPPK || '- tidak ada -'}</strong></td></tr>
+              </table>
+              <p style="margin: 0 0 2pt 0;">Untuk Penyedia:</p>
+              <table style="width: 100%; border: none; border-collapse: collapse; font-size: 10pt;">
+                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Nama</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.sskkWakilSahPenyedia || '- tidak ada -'}</strong></td></tr>
+              </table>
             </td>
           </tr>
           <tr>
@@ -527,10 +536,12 @@ export function generateContractWordDoc(contract: ProjectContract): void {
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">7.2</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Asal Material / Bahan</td>
-            <td style="border: 1px solid black; padding: 6px; vertical-align: top; text-align: justify;">
-              Material/bahan yang digunakan harus berasal dari sumber, produsen, pabrik, pemasok, dan/atau lokasi pengambilan material yang sah serta memenuhi ketentuan perizinan berusaha yang dipersyaratkan sesuai jenis material dan ketentuan peraturan perundang-undangan. Penyedia wajib menunjukkan bukti asal dan/atau legalitas material apabila diminta oleh Pejabat Penandatangan Kontrak/Pengawas Pekerjaan.<br/><br/>
-              Setiap material/bahan yang digunakan wajib memenuhi spesifikasi teknis dan persyaratan mutu dalam Kontrak. Ketidaksesuaian penggunaan material/bahan menjadi tanggung jawab Penyedia dan wajib diperbaiki, diganti, dan/atau ditindaklanjuti sesuai perintah Pengawas Pekerjaan tanpa menimbulkan tambahan biaya bagi Pejabat Penandatangan Kontrak.<br/><br/>
-              Perjanjian pengadaan material/bahan antara Penyedia dengan produsen, pabrik, pemasok, dan/atau pemilik sumber material sepenuhnya menjadi tanggung jawab Penyedia. Setiap sengketa atau tuntutan yang timbul dari hubungan hukum tersebut menjadi tanggung jawab Penyedia dan tidak menimbulkan hubungan kontraktual maupun kewajiban pembayaran bagi Pejabat Penandatangan Kontrak dan/atau Pemerintah Kabupaten Tegal.
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top; text-align: justify; font-size: 10pt; line-height: 1.35;">
+              <table style="width: 100%; border: none; border-collapse: collapse; font-size: 10pt; line-height: 1.35;">
+                <tr><td style="width: 16pt; vertical-align: top; border: none; padding: 0 0 4pt 0; font-weight: bold;">a.</td><td style="vertical-align: top; border: none; padding: 0 0 4pt 0; text-align: justify;">Material/bahan yang digunakan harus berasal dari sumber, produsen, pabrik, pemasok, dan/atau lokasi pengambilan material yang sah serta memenuhi ketentuan perizinan berusaha yang dipersyaratkan sesuai jenis material dan ketentuan peraturan perundang-undangan. Penyedia wajib menunjukkan bukti asal dan/atau legalitas material apabila diminta oleh Pejabat Penandatangan Kontrak/Pengawas Pekerjaan.</td></tr>
+                <tr><td style="width: 16pt; vertical-align: top; border: none; padding: 0 0 4pt 0; font-weight: bold;">b.</td><td style="vertical-align: top; border: none; padding: 0 0 4pt 0; text-align: justify;">Setiap material/bahan yang digunakan wajib memenuhi spesifikasi teknis dan persyaratan mutu dalam Kontrak. Ketidaksesuaian penggunaan material/bahan menjadi tanggung jawab Penyedia dan wajib diperbaiki, diganti, dan/atau ditindaklanjuti sesuai perintah Pengawas Pekerjaan tanpa menimbulkan tambahan biaya bagi Pejabat Penandatangan Kontrak.</td></tr>
+                <tr><td style="width: 16pt; vertical-align: top; border: none; padding: 0 0 4pt 0; font-weight: bold;">c.</td><td style="vertical-align: top; border: none; padding: 0 0 4pt 0; text-align: justify;">Perjanjian pengadaan material/bahan antara Penyedia dengan produsen, pabrik, pemasok, dan/atau pemilik sumber material sepenuhnya menjadi tanggung jawab Penyedia. Setiap sengketa atau tuntutan yang timbul dari hubungan hukum tersebut menjadi tanggung jawab Penyedia dan tidak menimbulkan hubungan kontraktual maupun kewajiban pembayaran bagi Pejabat Penandatangan Kontrak dan/atau Pemerintah Kabupaten Tegal.</td></tr>
+              </table>
             </td>
           </tr>
           <tr>
