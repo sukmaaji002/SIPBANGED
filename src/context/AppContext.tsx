@@ -127,14 +127,36 @@ export const STORAGE_KEYS = {
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<User[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.USERS);
-    return saved ? JSON.parse(saved) : INITIAL_USERS;
+    if (!saved) return INITIAL_USERS;
+    try {
+      const parsed: User[] = JSON.parse(saved);
+      // Pastikan semua peran bawaan (terutama master_admin) ada di list akun
+      const missingUsers = INITIAL_USERS.filter(
+        initUser => !parsed.some(p => p.role === initUser.role)
+      );
+      if (missingUsers.length > 0) {
+        const merged = [...missingUsers, ...parsed];
+        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(merged));
+        return merged;
+      }
+      return parsed;
+    } catch {
+      return INITIAL_USERS;
+    }
   });
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-    if (saved) return JSON.parse(saved);
-    // Default logged in as PPK (can switch anytime)
-    return INITIAL_USERS.find(u => u.role === 'ppk') || INITIAL_USERS[0];
+    if (saved) {
+      try {
+        const parsed: User = JSON.parse(saved);
+        if (parsed && parsed.role) return parsed;
+      } catch {
+        // ignore
+      }
+    }
+    // Default aktif ke Master Admin (Super Admin)
+    return INITIAL_USERS.find(u => u.role === 'master_admin') || INITIAL_USERS[0];
   });
 
   const [projects, setProjects] = useState<Project[]>(() => {
@@ -318,7 +340,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const quickLogin = (role: UserRole) => {
-    const user = users.find(u => u.role === role);
+    let user = users.find(u => u.role === role);
+    if (!user) {
+      const fallback = INITIAL_USERS.find(u => u.role === role);
+      if (fallback) {
+        user = fallback;
+        setUsers(prev => [fallback, ...prev.filter(u => u.id !== fallback.id)]);
+      }
+    }
     if (user) {
       setCurrentUser(user);
     }

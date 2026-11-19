@@ -55,3 +55,4 @@ export function isSupabaseConnected(): boolean {
   const config = getSupabaseConfig();
   return Boolean(config.url && config.anonKey);
 }
+

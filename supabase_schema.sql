@@ -120,3 +120,4 @@ ALTER TABLE public.sipbanged_spk_contracts DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipbanged_berita_acara DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipbanged_payments DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipbanged_schedule_addendums DISABLE ROW LEVEL SECURITY;
+
