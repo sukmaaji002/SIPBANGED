@@ -1002,7 +1002,7 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
             </button>
           </div>
 
-          <div className="bg-white p-2 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+          <div className="bg-white p-0 rounded-none shadow-none border-0">
             <SpkPrintView spk={spkData} />
           </div>
         </div>

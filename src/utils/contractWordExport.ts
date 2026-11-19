@@ -256,7 +256,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
       <![endif]-->
       <style>
         @page Section1 {
-          size: 21.0cm 29.7cm;
+          size: 21.5cm 33.0cm; /* Ukuran Kertas Folio / F4 */
           margin: 2.0cm 2.0cm 2.2cm 2.0cm;
           mso-page-orientation: portrait;
           mso-footer-margin: 36.0pt;
