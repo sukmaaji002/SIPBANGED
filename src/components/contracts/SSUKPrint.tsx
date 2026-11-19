@@ -74,10 +74,10 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
                           className="align-top"
                           style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
                         >
-                          <td className={`w-[28%] pr-4 ${cIdx > 0 ? 'pt-3' : 'pt-1'} pb-1 font-bold text-slate-900 border-none select-none align-top`}>
+                          <td className={`w-[26%] pr-3 ${cIdx > 0 ? 'pt-3' : 'pt-1'} pb-1 font-bold text-slate-900 border-none select-none align-top`}>
                             {clause.nomorDanJudul}
                           </td>
-                          <td className={`w-[72%] ${cIdx > 0 ? 'pt-3' : 'pt-1'} pb-1 text-justify border-none align-top`} />
+                          <td className={`w-[74%] ${cIdx > 0 ? 'pt-3' : 'pt-1'} pb-1 text-justify border-none align-top`} />
                         </tr>
                       );
                     }
@@ -91,25 +91,46 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
                           style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
                         >
                           {/* Kolom 1: Nomor dan Judul Pasal hanya pada baris pertama pasal */}
-                          <td className={`w-[28%] pr-4 ${cIdx > 0 && isFirst ? 'pt-3' : 'py-1'} font-bold text-slate-900 border-none select-none align-top`}>
+                          <td className={`w-[26%] pr-3 ${cIdx > 0 && isFirst ? 'pt-3' : 'py-1'} font-bold text-slate-900 border-none select-none align-top`}>
                             {isFirst ? clause.nomorDanJudul : ''}
                           </td>
 
-                          {/* Kolom 2: Uraian Isi Paragraf Sub-Pasal */}
-                          <td className={`w-[72%] ${cIdx > 0 && isFirst ? 'pt-3' : 'py-1'} text-justify border-none align-top`}>
-                            <div
-                              className={`leading-relaxed text-[11px] ${
-                                p.isLetter ? 'pl-6 -indent-4' : ''
-                              }`}
-                            >
-                              {p.prefix && !p.isLetter && (
-                                <strong className="font-bold mr-1.5">{p.prefix}</strong>
-                              )}
-                              {p.isLetter && (
-                                <span className="font-semibold mr-1.5">{p.prefix}</span>
-                              )}
-                              <span>{p.text}</span>
-                            </div>
+                          {/* Kolom 2: Uraian Isi Paragraf Sub-Pasal dengan Indent Numbering Rapi */}
+                          <td className={`w-[74%] ${cIdx > 0 && isFirst ? 'pt-3' : 'py-1'} text-justify border-none align-top`}>
+                            {p.prefix ? (
+                              <div 
+                                className={`flex items-start ${p.isLetter ? 'pl-5 sm:pl-6' : ''}`}
+                                style={{ display: 'flex', alignItems: 'flex-start' }}
+                              >
+                                <span 
+                                  className={`shrink-0 select-none font-serif ${
+                                    p.isLetter 
+                                      ? 'w-5 font-semibold text-left' 
+                                      : 'w-9 sm:w-10 font-bold text-left'
+                                  }`}
+                                  style={{
+                                    flexShrink: 0,
+                                    width: p.isLetter ? '20px' : '38px',
+                                    textAlign: 'left'
+                                  }}
+                                >
+                                  {p.prefix}
+                                </span>
+                                <div 
+                                  className="flex-1 text-justify leading-relaxed text-[11px] font-serif"
+                                  style={{ flex: 1, textAlign: 'justify' }}
+                                >
+                                  <span className={isCustom ? 'whitespace-pre-line' : ''}>{p.text}</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div 
+                                className="leading-relaxed text-[11px] text-justify font-serif"
+                                style={{ textAlign: 'justify' }}
+                              >
+                                <span className={isCustom ? 'whitespace-pre-line' : ''}>{p.text}</span>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       );
