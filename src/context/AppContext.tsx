@@ -29,6 +29,8 @@ import {
 } from '../data/initialData';
 import { DEFAULT_LKPP_CLAUSES } from '../data/lkppClauses';
 import { generateInitialSpkContracts, createDefaultSpkForProject } from '../data/spkData';
+import { supabaseSync } from '../lib/supabaseSync';
+import { isSupabaseConnected } from '../lib/supabase';
 
 interface AppContextType {
   currentUser: User | null;
@@ -280,6 +282,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem(STORAGE_KEYS.SCHEDULE_ADDENDUMS, JSON.stringify(scheduleAddendums));
   }, [scheduleAddendums]);
 
+  // Supabase Cloud Initial Sync
+  useEffect(() => {
+    if (!isSupabaseConnected()) return;
+
+    const syncFromSupabase = async () => {
+      try {
+        const [cloudUsers, cloudProjects, cloudContracts, cloudSpk] = await Promise.all([
+          supabaseSync.fetchUsers(),
+          supabaseSync.fetchProjects(),
+          supabaseSync.fetchContracts(),
+          supabaseSync.fetchSpkContracts()
+        ]);
+
+        if (cloudUsers && cloudUsers.length > 0) setUsers(cloudUsers);
+        if (cloudProjects && cloudProjects.length > 0) setProjects(cloudProjects);
+        if (cloudContracts && cloudContracts.length > 0) setContracts(cloudContracts);
+        if (cloudSpk && cloudSpk.length > 0) setSpkContracts(cloudSpk);
+      } catch (err) {
+        console.warn('Initial Supabase sync notice:', err);
+      }
+    };
+
+    syncFromSupabase();
+  }, []);
+
   // Auth Functions
   const login = (email: string): boolean => {
     const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
@@ -318,6 +345,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (currentUser?.id === updated.id) {
       setCurrentUser(updated);
     }
+    supabaseSync.upsertUser(updated);
   };
 
   const addUser = (newUser: Omit<User, 'id'>): User => {
@@ -327,11 +355,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id
     };
     setUsers(prev => [...prev, created]);
+    supabaseSync.upsertUser(created);
     return created;
   };
 
   const deleteUser = (id: string) => {
     setUsers(prev => prev.filter(u => u.id !== id));
+    supabaseSync.deleteUser(id);
   };
 
   // Projects
@@ -340,10 +370,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addProject = (p: Project) => {
     setProjects(prev => [p, ...prev]);
     setSelectedProjectId(p.id);
+    supabaseSync.upsertProject(p);
   };
 
   const updateProject = (p: Project) => {
     setProjects(prev => prev.map(item => item.id === p.id ? p : item));
+    supabaseSync.upsertProject(p);
   };
 
   const deleteProject = (id: string) => {
@@ -352,6 +384,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const remaining = projects.filter(p => p.id !== id);
       setSelectedProjectId(remaining[0].id);
     }
+    supabaseSync.deleteProject(id);
   };
 
   // Phase 1: Planning
@@ -377,6 +410,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
       return p;
     }));
+    supabaseSync.upsertWeeklyProgress(prog);
   };
 
   const updateWeeklyProgress = (prog: WeeklyProgress) => {
@@ -391,6 +425,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
       return p;
     }));
+    supabaseSync.upsertWeeklyProgress(prog);
   };
 
   const deleteWeeklyProgress = (id: string) => {
@@ -452,6 +487,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
       return [c, ...prev];
     });
+    supabaseSync.upsertContract(c);
   };
 
   const getContractByProject = (projectId: string) => {
@@ -469,6 +505,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
       return [...prev, spk];
     });
+    supabaseSync.upsertSpkContract(spk);
   };
 
   const getSpkContractByProjectAndType = (projectId: string, type: SpkType) => {

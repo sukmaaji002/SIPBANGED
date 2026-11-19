@@ -22,8 +22,14 @@ import {
   Database,
   Download,
   Upload,
-  Cloud
+  Cloud,
+  Settings,
+  Copy,
+  ExternalLink,
+  RefreshCw
 } from 'lucide-react';
+import { getSupabaseConfig, saveSupabaseConfig, isSupabaseConnected } from '../../lib/supabase';
+import { supabaseSync } from '../../lib/supabaseSync';
 
 export const UserAccountsPage: React.FC = () => {
   const { 
@@ -32,7 +38,17 @@ export const UserAccountsPage: React.FC = () => {
     addUser, 
     deleteUser, 
     currentUser, 
-    resetToDefault 
+    resetToDefault,
+    projects,
+    planningDocs,
+    weeklyProgressList,
+    supervisionLogs,
+    maintenanceIssues,
+    contracts,
+    spkContracts,
+    beritaAcaraList,
+    payments,
+    scheduleAddendums
   } = useApp();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,6 +59,15 @@ export const UserAccountsPage: React.FC = () => {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [alertSuccess, setAlertSuccess] = useState<string | null>(null);
+
+  // Supabase Cloud State
+  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
+  const [supabaseUrlInput, setSupabaseUrlInput] = useState(() => getSupabaseConfig().url);
+  const [supabaseKeyInput, setSupabaseKeyInput] = useState(() => getSupabaseConfig().anonKey);
+  const [supabaseTestStatus, setSupabaseTestStatus] = useState<{ success?: boolean; message?: string } | null>(null);
+  const [isTestingSb, setIsTestingSb] = useState(false);
+  const [copiedSql, setCopiedSql] = useState(false);
+  const [isSyncingToCloud, setIsSyncingToCloud] = useState(false);
 
   // New User Form State
   const [newUserData, setNewUserData] = useState<{
@@ -223,6 +248,111 @@ export const UserAccountsPage: React.FC = () => {
     reader.readAsText(file);
   };
 
+  const isCloudConnected = isSupabaseConnected();
+
+  const SQL_SCHEMA_SCRIPT = `-- SKEMA DATABASE RESMI SIPBANGED - DPUPR KABUPATEN TEGAL
+-- Jalankan skrip ini di SQL Editor Supabase (Dashboard -> SQL Editor -> New Query -> Paste & Run)
+
+CREATE TABLE IF NOT EXISTS public.sipbanged_users (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  role TEXT NOT NULL,
+  agency TEXT,
+  nip TEXT,
+  phone TEXT,
+  status TEXT DEFAULT 'active',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.sipbanged_projects (
+  id TEXT PRIMARY KEY,
+  kode_paket TEXT,
+  nama TEXT NOT NULL,
+  tahun_anggaran INT DEFAULT 2026,
+  sumber_dana TEXT,
+  lokasi TEXT,
+  stage TEXT DEFAULT 'perencanaan',
+  data JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.sipbanged_planning_docs (id TEXT PRIMARY KEY, project_id TEXT, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.sipbanged_weekly_progress (id TEXT PRIMARY KEY, project_id TEXT, minggu_ke INT, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.sipbanged_supervision (id TEXT PRIMARY KEY, project_id TEXT, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.sipbanged_maintenance (id TEXT PRIMARY KEY, project_id TEXT, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.sipbanged_contracts (id TEXT PRIMARY KEY, project_id TEXT, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.sipbanged_spk_contracts (id TEXT PRIMARY KEY, project_id TEXT, spk_type TEXT, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.sipbanged_berita_acara (id TEXT PRIMARY KEY, project_id TEXT, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.sipbanged_payments (id TEXT PRIMARY KEY, project_id TEXT, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.sipbanged_schedule_addendums (id TEXT PRIMARY KEY, project_id TEXT, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+
+ALTER TABLE public.sipbanged_users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipbanged_projects DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipbanged_planning_docs DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipbanged_weekly_progress DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipbanged_supervision DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipbanged_maintenance DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipbanged_contracts DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipbanged_spk_contracts DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipbanged_berita_acara DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipbanged_payments DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipbanged_schedule_addendums DISABLE ROW LEVEL SECURITY;`;
+
+  const handleCopySql = () => {
+    navigator.clipboard.writeText(SQL_SCHEMA_SCRIPT);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 2500);
+  };
+
+  const handleSaveSupabase = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsTestingSb(true);
+    setSupabaseTestStatus(null);
+    saveSupabaseConfig(supabaseUrlInput, supabaseKeyInput);
+    const res = await supabaseSync.testConnection();
+    setIsTestingSb(false);
+    setSupabaseTestStatus(res);
+    if (res.success) {
+      showAlert('Koneksi Supabase Cloud Database berhasil dihubungkan & disimpan!');
+    }
+  };
+
+  const handleDisconnectSupabase = () => {
+    if (window.confirm('Putuskan koneksi ke Supabase dan kembali ke mode Local Storage?')) {
+      saveSupabaseConfig('', '');
+      setSupabaseUrlInput('');
+      setSupabaseKeyInput('');
+      setSupabaseTestStatus(null);
+      showAlert('Koneksi Supabase diputuskan. Sistem kembali ke mode lokal.');
+    }
+  };
+
+  const handleSyncAllToCloud = async () => {
+    if (!isCloudConnected) {
+      alert('Hubungkan ke Supabase terlebih dahulu sebelum menyinkronkan data.');
+      return;
+    }
+    setIsSyncingToCloud(true);
+    const res = await supabaseSync.syncAllLocalToCloud({
+      users,
+      projects,
+      planningDocs,
+      weeklyProgress: weeklyProgressList,
+      supervisionLogs,
+      maintenanceIssues,
+      contracts,
+      spkContracts,
+      beritaAcara: beritaAcaraList,
+      payments,
+      scheduleAddendums
+    });
+    setIsSyncingToCloud(false);
+    showAlert(res.message);
+  };
+
   return (
     <div className="space-y-6">
       
@@ -309,27 +439,49 @@ export const UserAccountsPage: React.FC = () => {
 
       {/* Database Storage & Backup Control Card */}
       <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-200">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+              isCloudConnected 
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                : 'bg-blue-50 text-blue-700 border-blue-200'
+            }`}>
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-bold text-sm text-slate-900">
-                  Status Database & Cadangan Sistem
+                  Status Database & Sinkronisasi Cloud
                 </h3>
-                <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  Tersimpan Otomatis
-                </span>
+                {isCloudConnected ? (
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Supabase Cloud Terhubung (Aktif)
+                  </span>
+                ) : (
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-full font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-300">
+                    Mode Lokal (LocalStorage Browser)
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Data disimpan otomatis di Local Storage browser domain ini. Anda dapat mengunduh file cadangan (*backup*) untuk mengamankan data atau memindahkannya ke komputer lain.
+                {isCloudConnected 
+                  ? 'Data tersimpan di PostgreSQL Supabase Cloud secara permanen dan real-time. Setiap update langsung terpusat.' 
+                  : 'Data saat ini tersimpan otomatis di browser laptop Anda. Hubungkan ke Supabase Cloud agar seluruh dinas dan rekanan dapat berbagi database online.'}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 flex-wrap shrink-0">
+            <button
+              onClick={() => setIsSupabaseModalOpen(true)}
+              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              title="Konfigurasi URL & Kunci API Supabase"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span>{isCloudConnected ? 'Pengaturan Supabase' : 'Hubungkan Supabase Cloud'}</span>
+            </button>
+
             <button
               onClick={handleExportBackup}
               className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
@@ -352,12 +504,22 @@ export const UserAccountsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-900">
-          <Cloud className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div className="leading-relaxed">
-            <strong className="font-bold">Informasi Database Terpusat (Online Cloud):</strong> Saat ini aplikasi menyimpan perubahan data secara otomatis di penyimpanan browser laptop Anda. Agar data yang diinput oleh rekanan (Kontraktor, Pengawas) dan pihak dinas di berbagai komputer berbeda dapat tersinkronisasi secara bersamaan (*real-time multi-user*), sistem dapat dihubungkan ke server cloud database seperti <strong>Supabase (PostgreSQL Cloud)</strong> atau <strong>Firebase</strong>.
+        {!isCloudConnected && (
+          <div className="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 flex items-start justify-between gap-3 text-xs text-amber-900">
+            <div className="flex items-start gap-2.5">
+              <Cloud className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="leading-relaxed">
+                <strong className="font-bold">Siap Terhubung ke Supabase:</strong> Anda dapat memasukkan <em>Project URL</em> dan <em>Anon Key</em> dari akun Supabase Anda dengan mengklik tombol <strong>Hubungkan Supabase Cloud</strong> di atas agar database menjadi permanen secara online.
+              </div>
+            </div>
+            <button
+              onClick={() => setIsSupabaseModalOpen(true)}
+              className="text-xs font-bold text-amber-900 underline hover:text-amber-950 shrink-0 cursor-pointer"
+            >
+              Hubungkan Sekarang →
+            </button>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Filter & Search Card */}
@@ -852,6 +1014,195 @@ export const UserAccountsPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL: SUPABASE CLOUD DATABASE CONFIGURATION
+          ========================================================================= */}
+      {isSupabaseModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+            {/* Header */}
+            <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                  <Database className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm leading-tight">Konfigurasi Cloud Database (Supabase PostgreSQL)</h3>
+                  <p className="text-[11px] text-slate-400">Sinkronisasi permanen terpusat untuk seluruh pengguna & dinas</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsSupabaseModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-5 text-xs">
+              
+              {/* Status Banner */}
+              <div className={`p-4 rounded-xl border flex items-center justify-between gap-3 ${
+                isCloudConnected 
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
+                  : 'bg-slate-50 border-slate-200 text-slate-700'
+              }`}>
+                <div className="flex items-center gap-2.5">
+                  <span className={`w-3 h-3 rounded-full ${isCloudConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                  <div>
+                    <div className="font-bold">
+                      {isCloudConnected ? 'Status: Terkoneksi ke Supabase Cloud' : 'Status: Belum Terhubung (Mode Penyimpanan Lokal)'}
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">
+                      {isCloudConnected 
+                        ? `Target URL: ${supabaseUrlInput}` 
+                        : 'Masukkan URL dan Anon Key di bawah untuk menghubungkan database.'}
+                    </div>
+                  </div>
+                </div>
+
+                {isCloudConnected && (
+                  <button
+                    onClick={handleDisconnectSupabase}
+                    className="px-2.5 py-1 text-[11px] font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors cursor-pointer"
+                  >
+                    Putuskan
+                  </button>
+                )}
+              </div>
+
+              {/* Step 1: SQL Schema */}
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                    <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">1</span>
+                    <span>Jalankan Skrip Tabel di SQL Editor Supabase</span>
+                  </div>
+                  <button
+                    onClick={handleCopySql}
+                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer text-[11px]"
+                  >
+                    {copiedSql ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedSql ? 'Tersalin!' : 'Salin Skrip SQL'}</span>
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Buka akun Supabase Anda di <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="text-emerald-700 underline font-semibold">Supabase Dashboard</a>, pilih proyek Anda, masuk ke menu <strong>SQL Editor</strong> &gt; <strong>New Query</strong>, lalu tempel (<em>paste</em>) dan klik <strong>Run</strong>.
+                </p>
+              </div>
+
+              {/* Step 2: Credentials Form */}
+              <form onSubmit={handleSaveSupabase} className="space-y-4">
+                <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                  <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">2</span>
+                  <span>Masukkan Kredensial API Proyek Supabase</span>
+                </div>
+                <p className="text-[11px] text-slate-500 -mt-2">
+                  Dapat Anda lihat di Supabase Dashboard pada menu <strong>Project Settings &gt; API</strong>:
+                </p>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Project URL <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://abcdefghijklm.supabase.co"
+                    value={supabaseUrlInput}
+                    onChange={(e) => setSupabaseUrlInput(e.target.value)}
+                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Anon / Public Key (API Key) <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    required
+                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    value={supabaseKeyInput}
+                    onChange={(e) => setSupabaseKeyInput(e.target.value)}
+                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-mono resize-none"
+                  />
+                </div>
+
+                {supabaseTestStatus && (
+                  <div className={`p-3 rounded-xl border text-xs font-semibold ${
+                    supabaseTestStatus.success 
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
+                      : 'bg-rose-50 border-rose-300 text-rose-900'
+                  }`}>
+                    {supabaseTestStatus.message}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsSupabaseModalOpen(false)}
+                    className="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                  >
+                    Tutup
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isTestingSb}
+                    className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    {isTestingSb ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        Menguji Koneksi...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-3.5 h-3.5" />
+                        Tes &amp; Simpan Koneksi
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+
+              {/* Step 3: Migration Button */}
+              {isCloudConnected && (
+                <div className="pt-4 border-t border-slate-200 p-4 bg-emerald-50/50 rounded-xl border border-emerald-200 space-y-2">
+                  <div className="flex items-center gap-1.5 font-bold text-emerald-950">
+                    <span className="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[10px]">3</span>
+                    <span>Sinkronisasi Data Lokal Saat Ini ke Supabase Cloud</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                    Klik tombol di bawah jika Anda ingin mengunggah seluruh data proyek, SPK, kontrak, dan akun pengguna yang ada di laptop ini ke database Supabase agar langsung tersedia untuk semua orang:
+                  </p>
+                  <button
+                    onClick={handleSyncAllToCloud}
+                    disabled={isSyncingToCloud}
+                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  >
+                    {isSyncingToCloud ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        Mengunggah Data ke Cloud...
+                      </>
+                    ) : (
+                      <>
+                        <Cloud className="w-3.5 h-3.5" />
+                        Kirim Seluruh Data Lokal ke Supabase Sekarang
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+            </div>
           </div>
         </div>
       )}
