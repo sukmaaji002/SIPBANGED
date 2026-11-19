@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp, STORAGE_KEYS } from '../../context/AppContext';
 import { User, UserRole } from '../../types';
 import { ROLE_DETAILS } from '../../utils/permissions';
 import { 
@@ -18,7 +18,11 @@ import {
   Building2,
   X,
   Save,
-  Check
+  Check,
+  Database,
+  Download,
+  Upload,
+  Cloud
 } from 'lucide-react';
 
 export const UserAccountsPage: React.FC = () => {
@@ -147,6 +151,78 @@ export const UserAccountsPage: React.FC = () => {
     });
   };
 
+  const handleExportBackup = () => {
+    try {
+      const backupData = {
+        version: '1.0',
+        exportedAt: new Date().toISOString(),
+        appName: 'SIPBANGED DPUPR Kab. Tegal',
+        data: {
+          users: JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]'),
+          projects: JSON.parse(localStorage.getItem(STORAGE_KEYS.PROJECTS) || '[]'),
+          selectedProject: localStorage.getItem(STORAGE_KEYS.SELECTED_PROJ) || 'proj-1',
+          planningDocs: JSON.parse(localStorage.getItem(STORAGE_KEYS.PLANNING) || '[]'),
+          weeklyProgressList: JSON.parse(localStorage.getItem(STORAGE_KEYS.PROGRESS) || '[]'),
+          supervisionLogs: JSON.parse(localStorage.getItem(STORAGE_KEYS.SUPERVISION) || '[]'),
+          maintenanceIssues: JSON.parse(localStorage.getItem(STORAGE_KEYS.MAINTENANCE) || '[]'),
+          contracts: JSON.parse(localStorage.getItem(STORAGE_KEYS.CONTRACTS) || '[]'),
+          spkContracts: JSON.parse(localStorage.getItem(STORAGE_KEYS.SPK_CONTRACTS) || '[]'),
+          beritaAcara: JSON.parse(localStorage.getItem(STORAGE_KEYS.BA) || '[]'),
+          payments: JSON.parse(localStorage.getItem(STORAGE_KEYS.PAYMENTS) || '[]'),
+          scheduleAddendums: JSON.parse(localStorage.getItem(STORAGE_KEYS.SCHEDULE_ADDENDUMS) || '[]'),
+        }
+      };
+
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `backup-sipbanged-dpupr-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showAlert('Cadangan database berhasil diunduh dalam file .json!');
+    } catch (err) {
+      alert('Gagal mengekspor data: ' + err);
+    }
+  };
+
+  const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        if (!json.data) {
+          alert('Format file cadangan tidak valid. Pastikan memilih file backup SIPBANGED yang sah.');
+          return;
+        }
+        if (window.confirm('Pulihkan seluruh database dari file cadangan ini? Seluruh data proyek, progres, kontrak, dan akun akan diperbarui. Halaman akan otomatis dimuat ulang.')) {
+          if (json.data.users) localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(json.data.users));
+          if (json.data.projects) localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(json.data.projects));
+          if (json.data.selectedProject) localStorage.setItem(STORAGE_KEYS.SELECTED_PROJ, json.data.selectedProject);
+          if (json.data.planningDocs) localStorage.setItem(STORAGE_KEYS.PLANNING, JSON.stringify(json.data.planningDocs));
+          if (json.data.weeklyProgressList) localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(json.data.weeklyProgressList));
+          if (json.data.supervisionLogs) localStorage.setItem(STORAGE_KEYS.SUPERVISION, JSON.stringify(json.data.supervisionLogs));
+          if (json.data.maintenanceIssues) localStorage.setItem(STORAGE_KEYS.MAINTENANCE, JSON.stringify(json.data.maintenanceIssues));
+          if (json.data.contracts) localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(json.data.contracts));
+          if (json.data.spkContracts) localStorage.setItem(STORAGE_KEYS.SPK_CONTRACTS, JSON.stringify(json.data.spkContracts));
+          if (json.data.beritaAcara) localStorage.setItem(STORAGE_KEYS.BA, JSON.stringify(json.data.beritaAcara));
+          if (json.data.payments) localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(json.data.payments));
+          if (json.data.scheduleAddendums) localStorage.setItem(STORAGE_KEYS.SCHEDULE_ADDENDUMS, JSON.stringify(json.data.scheduleAddendums));
+          
+          window.location.reload();
+        }
+      } catch (err) {
+        alert('Gagal membaca file cadangan: ' + err);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="space-y-6">
       
@@ -228,6 +304,59 @@ export const UserAccountsPage: React.FC = () => {
           <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Master Admin</div>
           <div className="text-2xl font-black text-amber-600 mt-1">{totalSuperAdmin}</div>
           <div className="text-[10px] text-amber-700/80 mt-0.5">Superuser berkuasa penuh</div>
+        </div>
+      </div>
+
+      {/* Database Storage & Backup Control Card */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-200">
+              <Database className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-sm text-slate-900">
+                  Status Database & Cadangan Sistem
+                </h3>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  Tersimpan Otomatis
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Data disimpan otomatis di Local Storage browser domain ini. Anda dapat mengunduh file cadangan (*backup*) untuk mengamankan data atau memindahkannya ke komputer lain.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleExportBackup}
+              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              title="Unduh seluruh data database dalam file .json"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Unduh Cadangan (.json)</span>
+            </button>
+
+            <label className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+              <Upload className="w-3.5 h-3.5" />
+              <span>Pulihkan Data (.json)</span>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportBackup}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+
+        <div className="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-900">
+          <Cloud className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <div className="leading-relaxed">
+            <strong className="font-bold">Informasi Database Terpusat (Online Cloud):</strong> Saat ini aplikasi menyimpan perubahan data secara otomatis di penyimpanan browser laptop Anda. Agar data yang diinput oleh rekanan (Kontraktor, Pengawas) dan pihak dinas di berbagai komputer berbeda dapat tersinkronisasi secara bersamaan (*real-time multi-user*), sistem dapat dihubungkan ke server cloud database seperti <strong>Supabase (PostgreSQL Cloud)</strong> atau <strong>Firebase</strong>.
+          </div>
         </div>
       </div>
 
@@ -730,3 +859,4 @@ export const UserAccountsPage: React.FC = () => {
     </div>
   );
 };
+

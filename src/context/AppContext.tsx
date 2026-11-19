@@ -106,7 +106,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   CURRENT_USER: 'sipbanged_current_user',
   USERS: 'sipbanged_users',
   PROJECTS: 'sipbanged_projects',
