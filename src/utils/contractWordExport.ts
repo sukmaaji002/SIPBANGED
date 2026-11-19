@@ -1,8 +1,17 @@
 import { ProjectContract } from '../types';
 import { OFFICIAL_SSUK_SECTIONS } from '../data/ssukData';
-import { formatTanggalIndo, formatRupiah, angkaKeTerbilang, parseKomponenTanggalKontrak, resolveContractPlaceholders } from './formatters';
+import { formatTanggalIndo, formatRupiah, angkaKeTerbilang, angkaKeTerbilangHari, parseKomponenTanggalKontrak, resolveContractPlaceholders } from './formatters';
 import { parseRuangLingkup } from './ruangLingkupParser';
 import { LOGO_KAB_TEGAL_BASE64 } from './logoBase64';
+
+const getPelaksanaanHuruf = (hari: number, huruf?: string) => {
+  const terbilangAuto = angkaKeTerbilangHari(hari);
+  if (!huruf) return terbilangAuto;
+  if (huruf.toLowerCase() === 'seratus delapan puluh' && hari !== 180 && terbilangAuto) {
+    return terbilangAuto;
+  }
+  return huruf;
+};
 
 export function generateContractWordDoc(contract: ProjectContract): void {
   const konsideransClause = (contract.clauses || []).find(c => c.id === 'sp-konsiderans');
@@ -43,7 +52,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
       } else if (clause.id === 'sp-pasal-3') {
         content = `1. Harga Kontrak termasuk Pajak Pertambahan Nilai (PPN) yang diperoleh berdasarkan total harga penawaran sebagaimana tercantum dalam Daftar Kuantitas dan Harga adalah sebesar <strong>${formatRupiah(contract.nilaiKontrakAngka)}</strong> (<em>${angkaKeTerbilang(contract.nilaiKontrakAngka)}</em>) dengan kode akun kegiatan <strong>${contract.kodeAkunKegiatan}</strong>;<br/>2. Kontrak ini dibiayai dari ${contract.sumberPembiayaan};<br/>3. Pembayaran untuk kontrak ini dilakukan ke ${contract.bankNamaDanCabang} rekening nomor <strong>${contract.nomorRekeningPenyedia}</strong> atas nama Penyedia <strong>${contract.namaRekeningPenyedia}</strong>.`;
       } else if (clause.id === 'sp-pasal-5') {
-        content = `1. Masa Kontrak adalah jangka waktu berlakunya Kontrak ini terhitung sejak tanggal penandatanganan Kontrak sampai dengan Tanggal Penyerahan Akhir Pekerjaan (FHO);<br/>2. Masa Pelaksanaan ditentukan dalam Syarat-Syarat Khusus Kontrak, dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan selama <strong>${contract.jangkaWaktuPelaksanaanHari} (${contract.jangkaWaktuPelaksanaanHuruf})</strong> hari kalender;<br/>3. Masa Pemeliharaan ditentukan dalam Syarat-Syarat Khusus Kontrak dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan selama <strong>${contract.jangkaWaktuPemeliharaanHari} (${contract.jangkaWaktuPemeliharaanHuruf})</strong> hari kalender.`;
+        content = `1. Masa Kontrak adalah jangka waktu berlakunya Kontrak ini terhitung sejak tanggal penandatanganan Kontrak sampai dengan Tanggal Penyerahan Akhir Pekerjaan (FHO);<br/>2. Masa Pelaksanaan ditentukan dalam Syarat-Syarat Khusus Kontrak, dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan selama <strong>${contract.jangkaWaktuPelaksanaanHari} (${getPelaksanaanHuruf(contract.jangkaWaktuPelaksanaanHari, contract.jangkaWaktuPelaksanaanHuruf)})</strong> hari kalender;<br/>3. Masa Pemeliharaan ditentukan dalam Syarat-Syarat Khusus Kontrak dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan selama <strong>${contract.jangkaWaktuPemeliharaanHari} (${getPelaksanaanHuruf(contract.jangkaWaktuPemeliharaanHari, contract.jangkaWaktuPemeliharaanHuruf)})</strong> hari kalender.`;
       } else {
         content = content.replace(/\n/g, '<br/>');
       }
@@ -109,8 +118,8 @@ export function generateContractWordDoc(contract: ProjectContract): void {
         <p style="text-align: center; font-weight: bold; text-transform: uppercase; margin: 0;">Pasal 5<br/>MASA KONTRAK</p>
         <ol style="margin-top: 4pt; padding-left: 20pt; text-align: justify;">
           <li>Masa Kontrak adalah jangka waktu berlakunya Kontrak ini terhitung sejak tanggal penandatanganan Kontrak sampai dengan Tanggal Penyerahan Akhir Pekerjaan (FHO);</li>
-          <li>Masa Pelaksanaan ditentukan dalam Syarat-Syarat Khusus Kontrak, dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan selama <strong>${contract.jangkaWaktuPelaksanaanHari} (${contract.jangkaWaktuPelaksanaanHuruf})</strong> hari kalender;</li>
-          <li>Masa Pemeliharaan ditentukan dalam Syarat-Syarat Khusus Kontrak dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan selama <strong>${contract.jangkaWaktuPemeliharaanHari} (${contract.jangkaWaktuPemeliharaanHuruf})</strong> hari kalender.</li>
+          <li>Masa Pelaksanaan ditentukan dalam Syarat-Syarat Khusus Kontrak, dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan selama <strong>${contract.jangkaWaktuPelaksanaanHari} (${getPelaksanaanHuruf(contract.jangkaWaktuPelaksanaanHari, contract.jangkaWaktuPelaksanaanHuruf)})</strong> hari kalender;</li>
+          <li>Masa Pemeliharaan ditentukan dalam Syarat-Syarat Khusus Kontrak dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan selama <strong>${contract.jangkaWaktuPemeliharaanHari} (${getPelaksanaanHuruf(contract.jangkaWaktuPemeliharaanHari, contract.jangkaWaktuPemeliharaanHuruf)})</strong> hari kalender.</li>
         </ol>
       </div>
     `;
@@ -149,10 +158,21 @@ export function generateContractWordDoc(contract: ProjectContract): void {
         });
       }
 
+      if (clause.subBab) {
+        rowsHtml += `
+          <tr>
+            <td style="width: 28%; vertical-align: top; padding: 6pt 8pt 2pt 0; font-weight: bold; font-size: 10pt; border: none;">
+              ${clause.subBab}
+            </td>
+            <td style="width: 72%; vertical-align: top; padding: 6pt 0 2pt 0; border: none;"></td>
+          </tr>
+        `;
+      }
+
       rowsHtml += `
         <tr>
           <td style="width: 28%; vertical-align: top; padding: 4pt 8pt 4pt 0; font-weight: bold; font-size: 10pt; border: none;">
-            ${clause.subBab ? `<div style="font-weight: bold; margin-bottom: 3pt;">${clause.subBab}</div><div style="padding-left: 10pt;">${clause.nomorDanJudul}</div>` : clause.nomorDanJudul}
+            <div style="${clause.subBab ? 'padding-left: 10pt;' : ''}">${clause.nomorDanJudul}</div>
           </td>
           <td style="width: 72%; vertical-align: top; padding: 4pt 0; text-align: justify; border: none;">
             ${parasHtml}
@@ -491,39 +511,30 @@ export function generateContractWordDoc(contract: ProjectContract): void {
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">4.1 & 4.2</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Korespondensi</td>
-            <td style="border: 1px solid black; padding: 6px; vertical-align: top; font-size: 10pt; line-height: 1.35;">
-              <p style="margin: 0 0 4pt 0;">Alamat Para Pihak sebagai berikut:</p>
-              <p style="margin: 0 0 2pt 0;">Satuan Kerja Pejabat Penandatangan Kontrak :</p>
-              <p style="margin: 0 0 4pt 0;">Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal</p>
-              <table style="width: 100%; border: none; border-collapse: collapse; margin-bottom: 8pt; font-size: 10pt;">
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Nama</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.ppkNama}</strong></td></tr>
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Alamat</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">Jl. Cut Nyak Dien, Kalisapu, Slawi, Kabupaten Tegal</td></tr>
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">E-mail</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">${contract.sskkEmailPPK || 'dpupr@tegalkab.go.id'}</td></tr>
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Faksimili</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">-</td></tr>
-              </table>
-              <table style="width: 100%; border: none; border-collapse: collapse; font-size: 10pt;">
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;"><strong>Penyedia</strong></td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.penyediaNamaBadanUsaha}</strong></td></tr>
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Nama</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.penyediaNamaDirektur}</strong></td></tr>
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Alamat</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">${contract.penyediaKedudukan}</td></tr>
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">E-mail</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">${contract.sskkEmailPenyedia}</td></tr>
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">No. Whatsapp</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.sskkWhatsappPenyedia}</strong></td></tr>
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Faksimili</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;">${contract.sskkFaksimiliPenyedia || '-'}</td></tr>
-              </table>
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
+              <strong>Alamat Para Pihak sebagai berikut:</strong><br/>
+              <strong>Satuan Kerja Pejabat Penandatangan Kontrak:</strong><br/>
+              Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal<br/>
+              Nama: <strong>${contract.ppkNama}</strong><br/>
+              Alamat: Jl. Cut Nyak Dien, Kalisapu, Slawi, Kabupaten Tegal<br/>
+              E-mail: ${contract.sskkEmailPPK}<br/>
+              Faksimili: -<br/><br/>
+              <strong>Penyedia:</strong><br/>
+              Badan Usaha: <strong>${contract.penyediaNamaBadanUsaha}</strong><br/>
+              Nama Direktur: <strong>${contract.penyediaNamaDirektur}</strong><br/>
+              Alamat: ${contract.penyediaKedudukan}<br/>
+              E-mail: ${contract.sskkEmailPenyedia}<br/>
+              No. Whatsapp: ${contract.sskkWhatsappPenyedia}<br/>
+              Faksimili: ${contract.sskkFaksimiliPenyedia}
             </td>
           </tr>
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">4.2 & 5.1</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Wakil Sah Para Pihak</td>
-            <td style="border: 1px solid black; padding: 6px; vertical-align: top; font-size: 10pt; line-height: 1.35;">
-              <p style="margin: 0 0 4pt 0;">Wakil Sah Para Pihak sebagai berikut:</p>
-              <p style="margin: 0 0 2pt 0;">Untuk Pejabat Penandatangan Kontrak:</p>
-              <table style="width: 100%; border: none; border-collapse: collapse; margin-bottom: 6pt; font-size: 10pt;">
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Nama</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.sskkWakilSahPPK || '- tidak ada -'}</strong></td></tr>
-              </table>
-              <p style="margin: 0 0 2pt 0;">Untuk Penyedia:</p>
-              <table style="width: 100%; border: none; border-collapse: collapse; font-size: 10pt;">
-                <tr><td style="width: 90pt; vertical-align: top; border: none; padding: 1pt 0;">Nama</td><td style="width: 12pt; vertical-align: top; border: none; padding: 1pt 0; text-align: center;">:</td><td style="vertical-align: top; border: none; padding: 1pt 0;"><strong>${contract.sskkWakilSahPenyedia || '- tidak ada -'}</strong></td></tr>
-              </table>
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
+              Wakil Sah Para Pihak sebagai berikut:<br/>
+              Untuk Pejabat Penandatangan Kontrak: <strong>${contract.sskkWakilSahPPK}</strong><br/>
+              Untuk Penyedia: <strong>${contract.sskkWakilSahPenyedia}</strong>
             </td>
           </tr>
           <tr>
@@ -536,12 +547,10 @@ export function generateContractWordDoc(contract: ProjectContract): void {
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">7.2</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Asal Material / Bahan</td>
-            <td style="border: 1px solid black; padding: 6px; vertical-align: top; text-align: justify; font-size: 10pt; line-height: 1.35;">
-              <table style="width: 100%; border: none; border-collapse: collapse; font-size: 10pt; line-height: 1.35;">
-                <tr><td style="width: 16pt; vertical-align: top; border: none; padding: 0 0 4pt 0; font-weight: bold;">a.</td><td style="vertical-align: top; border: none; padding: 0 0 4pt 0; text-align: justify;">Material/bahan yang digunakan harus berasal dari sumber, produsen, pabrik, pemasok, dan/atau lokasi pengambilan material yang sah serta memenuhi ketentuan perizinan berusaha yang dipersyaratkan sesuai jenis material dan ketentuan peraturan perundang-undangan. Penyedia wajib menunjukkan bukti asal dan/atau legalitas material apabila diminta oleh Pejabat Penandatangan Kontrak/Pengawas Pekerjaan.</td></tr>
-                <tr><td style="width: 16pt; vertical-align: top; border: none; padding: 0 0 4pt 0; font-weight: bold;">b.</td><td style="vertical-align: top; border: none; padding: 0 0 4pt 0; text-align: justify;">Setiap material/bahan yang digunakan wajib memenuhi spesifikasi teknis dan persyaratan mutu dalam Kontrak. Ketidaksesuaian penggunaan material/bahan menjadi tanggung jawab Penyedia dan wajib diperbaiki, diganti, dan/atau ditindaklanjuti sesuai perintah Pengawas Pekerjaan tanpa menimbulkan tambahan biaya bagi Pejabat Penandatangan Kontrak.</td></tr>
-                <tr><td style="width: 16pt; vertical-align: top; border: none; padding: 0 0 4pt 0; font-weight: bold;">c.</td><td style="vertical-align: top; border: none; padding: 0 0 4pt 0; text-align: justify;">Perjanjian pengadaan material/bahan antara Penyedia dengan produsen, pabrik, pemasok, dan/atau pemilik sumber material sepenuhnya menjadi tanggung jawab Penyedia. Setiap sengketa atau tuntutan yang timbul dari hubungan hukum tersebut menjadi tanggung jawab Penyedia dan tidak menimbulkan hubungan kontraktual maupun kewajiban pembayaran bagi Pejabat Penandatangan Kontrak dan/atau Pemerintah Kabupaten Tegal.</td></tr>
-              </table>
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top; text-align: justify;">
+              Material/bahan yang digunakan harus berasal dari sumber, produsen, pabrik, pemasok, dan/atau lokasi pengambilan material yang sah serta memenuhi ketentuan perizinan berusaha yang dipersyaratkan sesuai jenis material dan ketentuan peraturan perundang-undangan. Penyedia wajib menunjukkan bukti asal dan/atau legalitas material apabila diminta oleh Pejabat Penandatangan Kontrak/Pengawas Pekerjaan.<br/><br/>
+              Setiap material/bahan yang digunakan wajib memenuhi spesifikasi teknis dan persyaratan mutu dalam Kontrak. Ketidaksesuaian penggunaan material/bahan menjadi tanggung jawab Penyedia dan wajib diperbaiki, diganti, dan/atau ditindaklanjuti sesuai perintah Pengawas Pekerjaan tanpa menimbulkan tambahan biaya bagi Pejabat Penandatangan Kontrak.<br/><br/>
+              Perjanjian pengadaan material/bahan antara Penyedia dengan produsen, pabrik, pemasok, dan/atau pemilik sumber material sepenuhnya menjadi tanggung jawab Penyedia. Setiap sengketa atau tuntutan yang timbul dari hubungan hukum tersebut menjadi tanggung jawab Penyedia dan tidak menimbulkan hubungan kontraktual maupun kewajiban pembayaran bagi Pejabat Penandatangan Kontrak dan/atau Pemerintah Kabupaten Tegal.
             </td>
           </tr>
           <tr>
@@ -555,24 +564,29 @@ export function generateContractWordDoc(contract: ProjectContract): void {
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">26.1</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Masa Pelaksanaan</td>
             <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              Masa Pelaksanaan selama <strong>${contract.jangkaWaktuPelaksanaanHari} (${contract.jangkaWaktuPelaksanaanHuruf})</strong> hari kalender terhitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK.
+              Masa Pelaksanaan selama <strong>${contract.jangkaWaktuPelaksanaanHari} (${getPelaksanaanHuruf(contract.jangkaWaktuPelaksanaanHari, contract.jangkaWaktuPelaksanaanHuruf)})</strong> hari kalender terhitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK.
             </td>
           </tr>
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">26.4</td>
-            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Masa Pelaksanaan Serah Terima Sebagian</td>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Masa Pelaksanaan untuk Serah Terima Sebagian Pekerjaan (Bagian Kontrak)</td>
             <td style="border: 1px solid black; padding: 6px; vertical-align: top;">Tidak Ada</td>
           </tr>
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">32.8</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Masa Pemeliharaan</td>
             <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              Masa Pemeliharaan berlaku selama <strong>${contract.jangkaWaktuPemeliharaanHari} (${contract.jangkaWaktuPemeliharaanHuruf})</strong> hari kalender terhitung sejak Tanggal Penyerahan Pertama Pekerjaan (PHO).
+              Masa Pemeliharaan berlaku selama <strong>${contract.jangkaWaktuPemeliharaanHari} (${getPelaksanaanHuruf(contract.jangkaWaktuPemeliharaanHari, contract.jangkaWaktuPemeliharaanHuruf)})</strong> hari kalender terhitung sejak Tanggal Penyerahan Pertama Pekerjaan (PHO).
             </td>
           </tr>
           <tr>
-            <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">32.14 & 32.17</td>
-            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Serah Terima Sebagian Pekerjaan</td>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">32.14</td>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Serah Terima Sebagian Pekerjaan (Bagian Kontrak)</td>
+            <td style="border: 1px solid black; padding: 6px; vertical-align: top;">Tidak Ada</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">32.17</td>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Masa Pemeliharaan untuk Serah Terima Sebagian Pekerjaan (Bagian Kontrak)</td>
             <td style="border: 1px solid black; padding: 6px; vertical-align: top;">Tidak Ada</td>
           </tr>
           <tr>

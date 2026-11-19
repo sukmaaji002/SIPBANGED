@@ -1,7 +1,7 @@
 import React from 'react';
 import { ProjectContract } from '../../types';
 import { KopSurat } from '../common/KopSurat';
-import { parseKomponenTanggalKontrak, formatTanggalIndo, formatRupiah, angkaKeTerbilang, resolveContractPlaceholders } from '../../utils/formatters';
+import { parseKomponenTanggalKontrak, formatTanggalIndo, formatRupiah, angkaKeTerbilang, angkaKeTerbilangHari, resolveContractPlaceholders } from '../../utils/formatters';
 import { parseRuangLingkup } from '../../utils/ruangLingkupParser';
 import { PrintDocWrapper } from './PrintDocWrapper';
 import { FormattedLegalText } from '../common/FormattedLegalText';
@@ -9,6 +9,15 @@ import { FormattedLegalText } from '../common/FormattedLegalText';
 interface Props {
   contract: ProjectContract;
 }
+
+const getPelaksanaanHuruf = (hari: number, huruf?: string) => {
+  const terbilangAuto = angkaKeTerbilangHari(hari);
+  if (!huruf) return terbilangAuto;
+  if (huruf.toLowerCase() === 'seratus delapan puluh' && hari !== 180 && terbilangAuto) {
+    return terbilangAuto;
+  }
+  return huruf;
+};
 
 export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
   const konsideransClause = (contract.clauses || []).find(c => c.id === 'sp-konsiderans');
@@ -216,7 +225,7 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
             if (clause.id === 'sp-pasal-3') {
               content = `1. Harga Kontrak termasuk Pajak Pertambahan Nilai (PPN) yang diperoleh berdasarkan total harga penawaran sebagaimana tercantum dalam Daftar Kuantitas dan Harga adalah sebesar ${formatRupiah(contract.nilaiKontrakAngka)} (${angkaKeTerbilang(contract.nilaiKontrakAngka)}) dengan kode akun kegiatan ${contract.kodeAkunKegiatan};\n2. Kontrak ini dibiayai dari ${contract.sumberPembiayaan};\n3. Pembayaran untuk kontrak ini dilakukan ke ${contract.bankNamaDanCabang} rekening nomor ${contract.nomorRekeningPenyedia} atas nama Penyedia ${contract.namaRekeningPenyedia}.`;
             } else if (clause.id === 'sp-pasal-5') {
-              content = `1. Masa Kontrak adalah jangka waktu berlakunya Kontrak ini terhitung sejak tanggal penandatanganan Kontrak sampai dengan Tanggal Penyerahan Akhir Pekerjaan (FHO);\n2. Masa Pelaksanaan ditentukan dalam Syarat-Syarat Khusus Kontrak, dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan selama ${contract.jangkaWaktuPelaksanaanHari} (${contract.jangkaWaktuPelaksanaanHuruf}) hari kalender;\n3. Masa Pemeliharaan ditentukan dalam Syarat-Syarat Khusus Kontrak dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan selama ${contract.jangkaWaktuPemeliharaanHari} (${contract.jangkaWaktuPemeliharaanHuruf}) hari kalender.`;
+              content = `1. Masa Kontrak adalah jangka waktu berlakunya Kontrak ini terhitung sejak tanggal penandatanganan Kontrak sampai dengan Tanggal Penyerahan Akhir Pekerjaan (FHO);\n2. Masa Pelaksanaan ditentukan dalam Syarat-Syarat Khusus Kontrak, dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan selama ${contract.jangkaWaktuPelaksanaanHari} (${getPelaksanaanHuruf(contract.jangkaWaktuPelaksanaanHari, contract.jangkaWaktuPelaksanaanHuruf)}) hari kalender;\n3. Masa Pemeliharaan ditentukan dalam Syarat-Syarat Khusus Kontrak dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan selama ${contract.jangkaWaktuPemeliharaanHari} (${getPelaksanaanHuruf(contract.jangkaWaktuPemeliharaanHari, contract.jangkaWaktuPemeliharaanHuruf)}) hari kalender.`;
             }
 
             return (
@@ -324,10 +333,10 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
                   Masa Kontrak adalah jangka waktu berlakunya Kontrak ini terhitung sejak tanggal penandatanganan Kontrak sampai dengan Tanggal Penyerahan Akhir Pekerjaan;
                 </li>
                 <li>
-                  Masa Pelaksanaan ditentukan dalam Syarat-Syarat Khusus Kontrak, dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan selama <strong>{contract.jangkaWaktuPelaksanaanHari} ({contract.jangkaWaktuPelaksanaanHuruf})</strong> hari kalender;
+                  Masa Pelaksanaan ditentukan dalam Syarat-Syarat Khusus Kontrak, dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan selama <strong>{contract.jangkaWaktuPelaksanaanHari} ({getPelaksanaanHuruf(contract.jangkaWaktuPelaksanaanHari, contract.jangkaWaktuPelaksanaanHuruf)})</strong> hari kalender;
                 </li>
                 <li>
-                  Masa Pemeliharaan ditentukan dalam Syarat-Syarat Khusus Kontrak dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan selama <strong>{contract.jangkaWaktuPemeliharaanHari} ({contract.jangkaWaktuPemeliharaanHuruf})</strong> hari kalender.
+                  Masa Pemeliharaan ditentukan dalam Syarat-Syarat Khusus Kontrak dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan selama <strong>{contract.jangkaWaktuPemeliharaanHari} ({getPelaksanaanHuruf(contract.jangkaWaktuPemeliharaanHari, contract.jangkaWaktuPemeliharaanHuruf)})</strong> hari kalender.
                 </li>
               </ol>
             </div>

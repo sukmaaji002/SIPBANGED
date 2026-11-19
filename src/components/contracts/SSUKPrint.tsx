@@ -82,47 +82,59 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
                           };
                         });
 
+                    const rows: React.ReactNode[] = [];
+
+                    // Baris Sub-Bab tersendiri di atas pasal jika pasal ini mengawali sub-bab (B.1, B.2, B.3, dst.)
+                    if (clause.subBab) {
+                      rows.push(
+                        <tr 
+                          key={`${clause.id}-subbab`}
+                          className="align-top"
+                          style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+                        >
+                          <td className="w-[26%] pr-3 pt-3 pb-1 font-bold text-slate-900 border-none select-none align-top text-[11px] font-serif leading-snug">
+                            {clause.subBab}
+                          </td>
+                          <td className="w-[74%] pt-3 pb-1 border-none align-top" />
+                        </tr>
+                      );
+                    }
+
                     if (paras.length === 0) {
-                      return (
+                      rows.push(
                         <tr 
                           key={clause.id} 
                           className="align-top"
                           style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
                         >
-                          <td className={`w-[26%] pr-3 ${cIdx > 0 ? 'pt-3' : 'pt-1'} pb-1 font-bold text-slate-900 border-none select-none align-top`}>
+                          <td className={`w-[26%] pr-3 ${clause.subBab ? 'pl-3 pt-1 pb-1' : (cIdx > 0 ? 'pt-3' : 'pt-1')} pb-1 font-bold text-slate-900 border-none select-none align-top text-[11px] font-serif leading-snug`}>
                             {clause.nomorDanJudul}
                           </td>
-                          <td className={`w-[74%] ${cIdx > 0 ? 'pt-3' : 'pt-1'} pb-1 text-justify border-none align-top`} />
+                          <td className={`w-[74%] ${clause.subBab ? 'pt-1 pb-1' : (cIdx > 0 ? 'pt-3' : 'pt-1')} pb-1 text-justify border-none align-top`} />
                         </tr>
                       );
+                      return rows;
                     }
 
-                    return paras.map((p, pIdx) => {
+                    paras.forEach((p, pIdx) => {
                       const isFirst = pIdx === 0;
-                      return (
+                      rows.push(
                         <tr 
                           key={`${clause.id}-${pIdx}`} 
                           className="align-top"
                           style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
                         >
-                          {/* Kolom 1: Nomor dan Judul Pasal hanya pada baris pertama pasal */}
-                          <td className={`w-[26%] pr-3 ${cIdx > 0 && isFirst ? 'pt-3' : 'py-1'} font-bold text-slate-900 border-none select-none align-top`}>
+                          {/* Kolom 1: Nomor dan Judul Pasal hanya pada baris pertama pasal (sebaris dengan sub-pasal pertama) */}
+                          <td className={`w-[26%] pr-3 ${clause.subBab ? (isFirst ? 'pl-3 pt-1' : 'py-1') : (cIdx > 0 && isFirst ? 'pt-3' : 'py-1')} font-bold text-slate-900 border-none select-none align-top`}>
                             {isFirst ? (
-                              <div>
-                                {clause.subBab && (
-                                  <div className="font-bold text-[11px] font-serif mb-1 leading-snug text-slate-900">
-                                    {clause.subBab}
-                                  </div>
-                                )}
-                                <div className={clause.subBab ? "pl-3 text-[11px] font-serif leading-snug" : "text-[11px] font-serif leading-snug"}>
-                                  {clause.nomorDanJudul}
-                                </div>
+                              <div className="text-[11px] font-serif leading-snug">
+                                {clause.nomorDanJudul}
                               </div>
                             ) : ''}
                           </td>
 
                           {/* Kolom 2: Uraian Isi Paragraf Sub-Pasal dengan Indent Numbering Rapi */}
-                          <td className={`w-[74%] ${cIdx > 0 && isFirst ? 'pt-3' : 'py-1'} text-justify border-none align-top`}>
+                          <td className={`w-[74%] ${clause.subBab ? (isFirst ? 'pt-1' : 'py-1') : (cIdx > 0 && isFirst ? 'pt-3' : 'py-1')} text-justify border-none align-top`}>
                             {p.level === 1 ? (
                               // Level 1: Indent Angka (1.1, 14.3, 22.2)
                               <div 
@@ -205,6 +217,8 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
                         </tr>
                       );
                     });
+
+                    return rows;
                   })}
                 </tbody>
               </table>

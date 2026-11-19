@@ -87,6 +87,15 @@ export const angkaKeTerbilang = (angka: number): string => {
   return result + ' Rupiah';
 };
 
+/**
+ * Mengonversi jumlah hari ke teks terbilang (tanpa kata Rupiah)
+ * Contoh: 150 -> "Seratus Lima Puluh", 180 -> "Seratus Delapan Puluh"
+ */
+export const angkaKeTerbilangHari = (angka: number): string => {
+  if (!angka || isNaN(angka) || angka <= 0) return '';
+  return angkaKeTerbilang(angka).replace(/\s*rupiah/gi, '').trim();
+};
+
 const NAMA_HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const NAMA_BULAN = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -187,8 +196,8 @@ export const resolveContractPlaceholders = (text: string, contract: any): string
     [/\{\{\s*BANK_PENYEDIA\s*\}\}/gi, contract.bankNamaDanCabang || ''],
     [/\{\{\s*NOMOR_REKENING_PENYEDIA\s*\}\}/gi, contract.nomorRekeningPenyedia || ''],
     [/\{\{\s*NAMA_REKENING_PENYEDIA\s*\}\}/gi, contract.namaRekeningPenyedia || ''],
-    [/\{\{\s*JANGKA_WAKTU_PELAKSANAAN\s*\}\}/gi, contract.jangkaWaktuPelaksanaanHari ? `${contract.jangkaWaktuPelaksanaanHari} (${contract.jangkaWaktuPelaksanaanHuruf || ''}) hari kalender` : ''],
-    [/\{\{\s*JANGKA_WAKTU_PEMELIHARAAN\s*\}\}/gi, contract.jangkaWaktuPemeliharaanHari ? `${contract.jangkaWaktuPemeliharaanHari} (${contract.jangkaWaktuPemeliharaanHuruf || ''}) hari kalender` : '']
+    [/\{\{\s*JANGKA_WAKTU_PELAKSANAAN\s*\}\}/gi, contract.jangkaWaktuPelaksanaanHari ? `${contract.jangkaWaktuPelaksanaanHari} (${(contract.jangkaWaktuPelaksanaanHuruf && (contract.jangkaWaktuPelaksanaanHari === 180 || contract.jangkaWaktuPelaksanaanHuruf.toLowerCase() !== 'seratus delapan puluh')) ? contract.jangkaWaktuPelaksanaanHuruf : (angkaKeTerbilangHari(contract.jangkaWaktuPelaksanaanHari) || contract.jangkaWaktuPelaksanaanHuruf || '')}) hari kalender` : ''],
+    [/\{\{\s*JANGKA_WAKTU_PEMELIHARAAN\s*\}\}/gi, contract.jangkaWaktuPemeliharaanHari ? `${contract.jangkaWaktuPemeliharaanHari} (${(contract.jangkaWaktuPemeliharaanHuruf && (contract.jangkaWaktuPemeliharaanHari === 180 || contract.jangkaWaktuPemeliharaanHuruf.toLowerCase() !== 'seratus delapan puluh')) ? contract.jangkaWaktuPemeliharaanHuruf : (angkaKeTerbilangHari(contract.jangkaWaktuPemeliharaanHari) || contract.jangkaWaktuPemeliharaanHuruf || '')}) hari kalender` : '']
   ];
 
   let result = text;

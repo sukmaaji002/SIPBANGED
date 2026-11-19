@@ -1,6 +1,16 @@
 import React from 'react';
 import { ProjectContract } from '../../types';
 import { PrintDocWrapper } from './PrintDocWrapper';
+import { angkaKeTerbilangHari } from '../../utils/formatters';
+
+const getPelaksanaanHuruf = (hari: number, huruf?: string) => {
+  const terbilangAuto = angkaKeTerbilangHari(hari);
+  if (!huruf) return terbilangAuto;
+  if (huruf.toLowerCase() === 'seratus delapan puluh' && hari !== 180 && terbilangAuto) {
+    return terbilangAuto;
+  }
+  return huruf;
+};
 
 interface Props {
   contract: ProjectContract;
@@ -29,133 +39,61 @@ export const SSKKPrint: React.FC<Props> = ({ contract }) => {
         <tbody className="align-top divide-y divide-black">
           {/* 4.1 & 4.2 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center align-top">4.1 & 4.2</td>
-            <td className="border border-black p-2 font-bold align-top">Korespondensi</td>
-            <td className="border border-black p-2 text-[11px] leading-relaxed">
-              <p className="mb-2">Alamat Para Pihak sebagai berikut:</p>
-              
-              <p className="mb-0.5">Satuan Kerja Pejabat Penandatangan Kontrak :</p>
-              <p className="mb-1.5">Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal</p>
-              
-              <table className="w-full border-none mb-3 text-[11px]" style={{ border: 'none' }}>
-                <tbody>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>Nama</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 font-bold border-none" style={{ border: 'none' }}>{contract.ppkNama}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>Alamat</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 border-none" style={{ border: 'none' }}>Jl. Cut Nyak Dien, Kalisapu, Slawi, Kabupaten Tegal</td>
-                  </tr>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>E-mail</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 border-none" style={{ border: 'none' }}>{contract.sskkEmailPPK || 'dpupr@tegalkab.go.id'}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>Faksimili</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 border-none" style={{ border: 'none' }}>-</td>
-                  </tr>
-                </tbody>
-              </table>
+            <td className="border border-black p-2 font-bold text-center">4.1 & 4.2</td>
+            <td className="border border-black p-2 font-bold">Korespondensi</td>
+            <td className="border border-black p-2">
+              <p className="font-bold mb-1">Alamat Para Pihak sebagai berikut:</p>
+              <p className="font-bold text-[10.5px]">Satuan Kerja Pejabat Penandatangan Kontrak:</p>
+              <div className="pl-3 mb-2 space-y-0.5">
+                <div>Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal</div>
+                <div>Nama: <strong>{contract.ppkNama}</strong></div>
+                <div>Alamat: Jl. Cut Nyak Dien, Kalisapu, Slawi, Kabupaten Tegal</div>
+                <div>E-mail: {contract.sskkEmailPPK}</div>
+                <div>Faksimili: -</div>
+              </div>
 
-              <table className="w-full border-none text-[11px]" style={{ border: 'none' }}>
-                <tbody>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none font-bold" style={{ border: 'none' }}>Penyedia</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 font-bold border-none" style={{ border: 'none' }}>{contract.penyediaNamaBadanUsaha}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>Nama</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 font-bold border-none" style={{ border: 'none' }}>{contract.penyediaNamaDirektur}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>Alamat</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 border-none" style={{ border: 'none' }}>{contract.penyediaKedudukan}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>E-mail</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 border-none" style={{ border: 'none' }}>{contract.sskkEmailPenyedia}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>No. Whatsapp</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 border-none font-bold" style={{ border: 'none' }}>{contract.sskkWhatsappPenyedia}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>Faksimili</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 border-none" style={{ border: 'none' }}>{contract.sskkFaksimiliPenyedia || '-'}</td>
-                  </tr>
-                </tbody>
-              </table>
+              <p className="font-bold text-[10.5px]">Penyedia:</p>
+              <div className="pl-3 space-y-0.5">
+                <div>Badan Usaha: <strong>{contract.penyediaNamaBadanUsaha}</strong></div>
+                <div>Nama Direktur: <strong>{contract.penyediaNamaDirektur}</strong></div>
+                <div>Alamat: {contract.penyediaKedudukan}</div>
+                <div>E-mail: {contract.sskkEmailPenyedia}</div>
+                <div>No. Whatsapp: {contract.sskkWhatsappPenyedia}</div>
+                <div>Faksimili: {contract.sskkFaksimiliPenyedia}</div>
+              </div>
             </td>
           </tr>
 
           {/* 4.2 & 5.1 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center align-top">4.2 & 5.1</td>
-            <td className="border border-black p-2 font-bold align-top">Wakil Sah Para Pihak</td>
-            <td className="border border-black p-2 text-[11px] leading-relaxed">
-              <p className="mb-2">Wakil Sah Para Pihak sebagai berikut:</p>
-              
-              <p className="mb-1">Untuk Pejabat Penandatangan Kontrak:</p>
-              <table className="w-full border-none mb-2 text-[11px]" style={{ border: 'none' }}>
-                <tbody>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>Nama</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 font-bold border-none" style={{ border: 'none' }}>{contract.sskkWakilSahPPK || '- tidak ada -'}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <p className="mb-1">Untuk Penyedia:</p>
-              <table className="w-full border-none text-[11px]" style={{ border: 'none' }}>
-                <tbody>
-                  <tr>
-                    <td className="w-24 align-top py-0.5 border-none" style={{ border: 'none' }}>Nama</td>
-                    <td className="w-4 align-top py-0.5 text-center border-none" style={{ border: 'none' }}>:</td>
-                    <td className="align-top py-0.5 font-bold border-none" style={{ border: 'none' }}>{contract.sskkWakilSahPenyedia || '- tidak ada -'}</td>
-                  </tr>
-                </tbody>
-              </table>
+            <td className="border border-black p-2 font-bold text-center">4.2 & 5.1</td>
+            <td className="border border-black p-2 font-bold">Wakil Sah Para Pihak</td>
+            <td className="border border-black p-2">
+              <p>Wakil Sah Para Pihak sebagai berikut:</p>
+              <div className="pl-3 mt-1">
+                <div>Untuk Pejabat Penandatangan Kontrak: <strong>{contract.sskkWakilSahPPK}</strong></div>
+                <div>Untuk Penyedia: <strong>{contract.sskkWakilSahPenyedia}</strong></div>
+              </div>
             </td>
           </tr>
 
           {/* 6.3 & 43 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center align-top">6.3.b & 6.3.c<br/>43.4 & 43.6</td>
-            <td className="border border-black p-2 font-bold align-top">Pencairan Jaminan</td>
-            <td className="border border-black p-2 text-[11px] leading-relaxed">
+            <td className="border border-black p-2 font-bold text-center">6.3.b & 6.3.c<br/>43.4 & 43.6</td>
+            <td className="border border-black p-2 font-bold">Pencairan Jaminan</td>
+            <td className="border border-black p-2">
               Jaminan dicairkan dan disetorkan pada <strong>{contract.sskkPencairanJaminan}</strong>.
             </td>
           </tr>
 
           {/* 7.2 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center align-top">7.2</td>
-            <td className="border border-black p-2 font-bold align-top">Asal Material / Bahan</td>
-            <td className="border border-black p-2 space-y-1.5 text-justify text-[11px] leading-relaxed">
-              <div className="flex items-start">
-                <span className="w-5 shrink-0 select-none font-semibold">a.</span>
-                <p className="flex-1">Material/bahan yang digunakan harus berasal dari sumber, produsen, pabrik, pemasok, dan/atau lokasi pengambilan material yang sah serta memenuhi ketentuan perizinan berusaha yang dipersyaratkan sesuai jenis material dan ketentuan peraturan perundang-undangan. Penyedia wajib menunjukkan bukti asal dan/atau legalitas material apabila diminta oleh Pejabat Penandatangan Kontrak/Pengawas Pekerjaan.</p>
-              </div>
-              <div className="flex items-start">
-                <span className="w-5 shrink-0 select-none font-semibold">b.</span>
-                <p className="flex-1">Setiap material/bahan yang digunakan wajib memenuhi spesifikasi teknis dan persyaratan mutu dalam Kontrak. Ketidaksesuaian penggunaan material/bahan menjadi tanggung jawab Penyedia dan wajib diperbaiki, diganti, dan/atau ditindaklanjuti sesuai perintah Pengawas Pekerjaan tanpa menimbulkan tambahan biaya bagi Pejabat Penandatangan Kontrak.</p>
-              </div>
-              <div className="flex items-start">
-                <span className="w-5 shrink-0 select-none font-semibold">c.</span>
-                <p className="flex-1">Perjanjian pengadaan material/bahan antara Penyedia dengan produsen, pabrik, pemasok, dan/atau pemilik sumber material sepenuhnya menjadi tanggung jawab Penyedia. Setiap sengketa atau tuntutan yang timbul dari hubungan hukum tersebut menjadi tanggung jawab Penyedia dan tidak menimbulkan hubungan kontraktual maupun kewajiban pembayaran bagi Pejabat Penandatangan Kontrak dan/atau Pemerintah Kabupaten Tegal.</p>
-              </div>
+            <td className="border border-black p-2 font-bold text-center">7.2</td>
+            <td className="border border-black p-2 font-bold">Asal Material / Bahan</td>
+            <td className="border border-black p-2 space-y-1 text-justify">
+              <p>Material/bahan yang digunakan harus berasal dari sumber, produsen, pabrik, pemasok, dan/atau lokasi pengambilan material yang sah serta memenuhi ketentuan perizinan berusaha yang dipersyaratkan sesuai jenis material dan ketentuan peraturan perundang-undangan. Penyedia wajib menunjukkan bukti asal dan/atau legalitas material apabila diminta oleh Pejabat Penandatangan Kontrak/Pengawas Pekerjaan.</p>
+              <p>Setiap material/bahan yang digunakan wajib memenuhi spesifikasi teknis dan persyaratan mutu dalam Kontrak. Ketidaksesuaian penggunaan material/bahan menjadi tanggung jawab Penyedia dan wajib diperbaiki, diganti, dan/atau ditindaklanjuti sesuai perintah Pengawas Pekerjaan tanpa menimbulkan tambahan biaya bagi Pejabat Penandatangan Kontrak.</p>
+              <p>Perjanjian pengadaan material/bahan antara Penyedia dengan produsen, pabrik, pemasok, dan/atau pemilik sumber material sepenuhnya menjadi tanggung jawab Penyedia. Setiap sengketa atau tuntutan yang timbul dari hubungan hukum tersebut menjadi tanggung jawab Penyedia dan tidak menimbulkan hubungan kontraktual maupun kewajiban pembayaran bagi Pejabat Penandatangan Kontrak dan/atau Pemerintah Kabupaten Tegal.</p>
             </td>
           </tr>
 
@@ -170,34 +108,41 @@ export const SSKKPrint: React.FC<Props> = ({ contract }) => {
 
           {/* 26.1 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">26.1</td>
-            <td className="border border-black p-2 font-bold">Masa Pelaksanaan</td>
-            <td className="border border-black p-2">
-              Masa Pelaksanaan selama <strong>{contract.jangkaWaktuPelaksanaanHari} ({contract.jangkaWaktuPelaksanaanHuruf})</strong> hari kalender terhitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK.
+            <td className="border border-black p-2 font-bold text-center align-top">26.1</td>
+            <td className="border border-black p-2 font-bold align-top">Masa Pelaksanaan</td>
+            <td className="border border-black p-2 align-top">
+              Masa Pelaksanaan selama <strong>{contract.jangkaWaktuPelaksanaanHari} ({getPelaksanaanHuruf(contract.jangkaWaktuPelaksanaanHari, contract.jangkaWaktuPelaksanaanHuruf)})</strong> hari kalender terhitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK.
             </td>
           </tr>
 
           {/* 26.4 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">26.4</td>
-            <td className="border border-black p-2 font-bold">Masa Pelaksanaan untuk Serah Terima Sebagian Pekerjaan (Bagian Kontrak)</td>
-            <td className="border border-black p-2">Tidak Ada</td>
+            <td className="border border-black p-2 font-bold text-center align-top">26.4</td>
+            <td className="border border-black p-2 font-bold align-top">Masa Pelaksanaan untuk Serah Terima Sebagian Pekerjaan (Bagian Kontrak)</td>
+            <td className="border border-black p-2 align-top">Tidak Ada</td>
           </tr>
 
           {/* 32.8 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">32.8</td>
-            <td className="border border-black p-2 font-bold">Masa Pemeliharaan</td>
-            <td className="border border-black p-2">
-              Masa Pemeliharaan berlaku selama <strong>{contract.jangkaWaktuPemeliharaanHari} ({contract.jangkaWaktuPemeliharaanHuruf})</strong> hari kalender terhitung sejak Tanggal Penyerahan Pertama Pekerjaan (PHO).
+            <td className="border border-black p-2 font-bold text-center align-top">32.8</td>
+            <td className="border border-black p-2 font-bold align-top">Masa Pemeliharaan</td>
+            <td className="border border-black p-2 align-top">
+              Masa Pemeliharaan berlaku selama <strong>{contract.jangkaWaktuPemeliharaanHari} ({getPelaksanaanHuruf(contract.jangkaWaktuPemeliharaanHari, contract.jangkaWaktuPemeliharaanHuruf)})</strong> hari kalender terhitung sejak Tanggal Penyerahan Pertama Pekerjaan (PHO).
             </td>
           </tr>
 
-          {/* 32.14 & 32.17 */}
+          {/* 32.14 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">32.14 & 32.17</td>
-            <td className="border border-black p-2 font-bold">Serah Terima Sebagian Pekerjaan (Bagian Kontrak)</td>
-            <td className="border border-black p-2">Tidak Ada</td>
+            <td className="border border-black p-2 font-bold text-center align-top">32.14</td>
+            <td className="border border-black p-2 font-bold align-top">Serah Terima Sebagian Pekerjaan (Bagian Kontrak)</td>
+            <td className="border border-black p-2 align-top">Tidak Ada</td>
+          </tr>
+
+          {/* 32.17 */}
+          <tr className="border border-black">
+            <td className="border border-black p-2 font-bold text-center align-top">32.17</td>
+            <td className="border border-black p-2 font-bold align-top">Masa Pemeliharaan untuk Serah Terima Sebagian Pekerjaan (Bagian Kontrak)</td>
+            <td className="border border-black p-2 align-top">Tidak Ada</td>
           </tr>
 
           {/* 33 */}

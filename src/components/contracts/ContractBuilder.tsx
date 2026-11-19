@@ -10,7 +10,7 @@ import {
   IBPRPItem 
 } from '../../types';
 import { OFFICIAL_DPUPR_TEGAL_CLAUSES, OFFICIAL_SSUK_CLAUSES } from '../../data/lkppClauses';
-import { formatRupiah, formatRibuan, parseRibuanKeAngka, angkaKeTerbilang, formatTanggalIndo, parseKomponenTanggalKontrak, resolveContractPlaceholders } from '../../utils/formatters';
+import { formatRupiah, formatRibuan, parseRibuanKeAngka, angkaKeTerbilang, angkaKeTerbilangHari, formatTanggalIndo, parseKomponenTanggalKontrak, resolveContractPlaceholders } from '../../utils/formatters';
 import { hasPermission } from '../../utils/permissions';
 import { KopSurat } from '../common/KopSurat';
 import { SuratPerjanjianPrint } from './SuratPerjanjianPrint';
@@ -211,10 +211,17 @@ export const ContractBuilder: React.FC = () => {
         : '1. Pekerjaan Persiapan & SMKK\n2. Pekerjaan Pondasi & Struktur Beton\n3. Pekerjaan Pasangan Dinding & Plesteran\n4. Pekerjaan Penutup Lantai & Atap\n5. Pekerjaan Mekanikal Elektrikal';
       setRuangLingkupText(defaultLingkup);
 
-      setJangkaWaktuPelaksanaanHari(existingContract.jangkaWaktuPelaksanaanHari || selectedProject.durasiHari || 180);
-      setJangkaWaktuPelaksanaanHuruf(existingContract.jangkaWaktuPelaksanaanHuruf || 'Seratus Delapan Puluh');
-      setJangkaWaktuPemeliharaanHari(existingContract.jangkaWaktuPemeliharaanHari || selectedProject.masaPemeliharaanHari || 180);
-      setJangkaWaktuPemeliharaanHuruf(existingContract.jangkaWaktuPemeliharaanHuruf || 'Seratus Delapan Puluh');
+      const durasi = existingContract.jangkaWaktuPelaksanaanHari || selectedProject.durasiHari || 180;
+      setJangkaWaktuPelaksanaanHari(durasi);
+      const isHurufSesuai = existingContract.jangkaWaktuPelaksanaanHuruf &&
+        (durasi === 180 || existingContract.jangkaWaktuPelaksanaanHuruf.toLowerCase() !== 'seratus delapan puluh');
+      setJangkaWaktuPelaksanaanHuruf(isHurufSesuai ? existingContract.jangkaWaktuPelaksanaanHuruf : (angkaKeTerbilangHari(durasi) || 'Seratus Delapan Puluh'));
+
+      const pemeliharaan = existingContract.jangkaWaktuPemeliharaanHari || selectedProject.masaPemeliharaanHari || 180;
+      setJangkaWaktuPemeliharaanHari(pemeliharaan);
+      const isPemeliharaanSesuai = existingContract.jangkaWaktuPemeliharaanHuruf &&
+        (pemeliharaan === 180 || existingContract.jangkaWaktuPemeliharaanHuruf.toLowerCase() !== 'seratus delapan puluh');
+      setJangkaWaktuPemeliharaanHuruf(isPemeliharaanSesuai ? existingContract.jangkaWaktuPemeliharaanHuruf : (angkaKeTerbilangHari(pemeliharaan) || 'Seratus Delapan Puluh'));
 
       setSskkEmailPPK((existingContract.sskkEmailPPK || 'dpupr@tegalkab.go.id').replace(/,?\s*pbltaru\.kabtegal@gmail\.com/g, '').trim());
       setSskkEmailPenyedia(existingContract.sskkEmailPenyedia || 'kontraktor@wijayabangun.co.id');
@@ -322,10 +329,13 @@ export const ContractBuilder: React.FC = () => {
       setNamaRekeningPenyedia(selectedProject.kontraktorNama);
 
       setRuangLingkupText('1. Pekerjaan Persiapan & SMKK\n2. Pekerjaan Pondasi & Struktur Beton\n3. Pekerjaan Pasangan Dinding & Plesteran\n4. Pekerjaan Penutup Lantai & Atap\n5. Pekerjaan Mekanikal Elektrikal');
-      setJangkaWaktuPelaksanaanHari(selectedProject.durasiHari || 180);
-      setJangkaWaktuPelaksanaanHuruf('Seratus Delapan Puluh');
-      setJangkaWaktuPemeliharaanHari(selectedProject.masaPemeliharaanHari || 180);
-      setJangkaWaktuPemeliharaanHuruf('Seratus Delapan Puluh');
+      const durasiBaru = selectedProject.durasiHari || 180;
+      setJangkaWaktuPelaksanaanHari(durasiBaru);
+      setJangkaWaktuPelaksanaanHuruf(angkaKeTerbilangHari(durasiBaru) || 'Seratus Delapan Puluh');
+
+      const pemeliharaanBaru = selectedProject.masaPemeliharaanHari || 180;
+      setJangkaWaktuPemeliharaanHari(pemeliharaanBaru);
+      setJangkaWaktuPemeliharaanHuruf(angkaKeTerbilangHari(pemeliharaanBaru) || 'Seratus Delapan Puluh');
 
       setSskkEmailPPK('dpupr@tegalkab.go.id');
       setSskkEmailPenyedia('kontraktor@wijayabangun.co.id');
@@ -1298,7 +1308,11 @@ export const ContractBuilder: React.FC = () => {
                 <input
                   type="number"
                   value={jangkaWaktuPelaksanaanHari}
-                  onChange={e => setJangkaWaktuPelaksanaanHari(Number(e.target.value))}
+                  onChange={e => {
+                    const val = Number(e.target.value);
+                    setJangkaWaktuPelaksanaanHari(val);
+                    setJangkaWaktuPelaksanaanHuruf(angkaKeTerbilangHari(val));
+                  }}
                   className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg font-bold"
                 />
               </div>
@@ -1319,7 +1333,11 @@ export const ContractBuilder: React.FC = () => {
                 <input
                   type="number"
                   value={jangkaWaktuPemeliharaanHari}
-                  onChange={e => setJangkaWaktuPemeliharaanHari(Number(e.target.value))}
+                  onChange={e => {
+                    const val = Number(e.target.value);
+                    setJangkaWaktuPemeliharaanHari(val);
+                    setJangkaWaktuPemeliharaanHuruf(angkaKeTerbilangHari(val));
+                  }}
                   className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg font-bold"
                 />
               </div>
