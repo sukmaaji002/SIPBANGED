@@ -109,6 +109,21 @@
     width: 100% !important;
   }
 
+  /* Cover Lembar Muka SPK Fisik */
+  .spk-cover-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
   /* Cegah judul bagian SSUK terisolasi di bawah halaman tanpa baris isi */
   .ssuk-section-title {
     break-after: avoid !important;
@@ -142,28 +157,23 @@
   table.print-doc-table > tfoot > tr > td {
     padding: 0 !important;
     border: none !important;
-    height: 20mm !important;
+    height: auto !important;
   }
 
   .print-footer-space {
-    height: 20mm !important;
-    display: block !important;
+    display: none !important;
   }
 
   /* 
-    Hanya tampilkan 1 tabel paraf di pojok kanan bawah halaman cetak.
-    Sembunyikan tabel paraf inline layar agar tidak ada duplikasi tabel footer.
+    Tabel paraf cetak resmi di pojok kanan bawah otomatis ditangani oleh tfoot
+    Sembunyikan elemen paraf manual layar saat mencetak agar tidak terduplikasi.
   */
   .contract-footer-paraf-screen {
     display: none !important;
   }
 
   .contract-footer-paraf-print {
-    display: block !important;
-    position: fixed !important;
-    bottom: 6mm !important;
-    right: 15mm !important;
-    z-index: 10 !important;
+    display: none !important;
   }
 
   .contract-footer-paraf-print table {

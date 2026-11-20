@@ -17,121 +17,114 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
   const tanggalSelesaiFormatted = spk.tanggalSelesai ? formatTanggalIndo(spk.tanggalSelesai) : '-';
 
   // Format Fisik Baku DPUPR Kab. Tegal
+  // Format Fisik Baku DPUPR Kab. Tegal
   if (spk.spkType === 'fisik') {
+    const cleanPenyediaNama = (spk.penyediaNamaBadanUsaha || '').replace(/:\s*$/, '').trim();
+
     return (
-      <PrintDocWrapper>
+      <div className="spk-fisik-container">
         {/* ======================================================== */}
-        {/* LEMBAR 1: COVER / LEMBAR MUKA SPK FISIK                  */}
+        {/* LEMBAR 1: COVER / LEMBAR MUKA SPK FISIK (STANDALONE)     */}
+        {/* Tidak memakai PrintDocWrapper agar bebas dari paraf box  */}
         {/* ======================================================== */}
         <div 
-          className="spk-page spk-cover-sheet font-serif text-black leading-relaxed flex flex-col justify-between relative"
-          style={{ minHeight: '1050px', pageBreakAfter: 'always', breakAfter: 'page' }}
+          className="spk-page spk-cover-sheet font-serif text-black leading-relaxed bg-white p-6 sm:p-10 mb-8 max-w-[215mm] mx-auto text-xs"
+          style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
         >
-          <div>
-            <KopSurat />
+          <KopSurat />
 
-            {/* Judul SPK */}
-            <div className="text-center my-6 space-y-1">
-              <h2 className="text-base sm:text-lg font-bold uppercase tracking-wider">
-                SURAT PERINTAH KERJA (SPK)
-              </h2>
-              <p className="text-xs font-bold">
-                Nomor : {spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}
-              </p>
-              <p className="text-xs font-bold">
-                Tanggal {tanggalSpkFormatted}
-              </p>
-            </div>
+          {/* Judul SPK */}
+          <div className="text-center my-6 space-y-1">
+            <h2 className="text-base sm:text-lg font-bold uppercase tracking-wider underline">
+              SURAT PERINTAH KERJA (SPK)
+            </h2>
+            <p className="text-xs font-normal">
+              Nomor : {spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}
+            </p>
+            <p className="text-xs font-normal">
+              Tanggal {tanggalSpkFormatted}
+            </p>
+          </div>
 
-            {/* Uraian Kegiatan & Paket Pekerjaan */}
-            <div className="text-center my-6 space-y-2 uppercase font-bold text-xs max-w-2xl mx-auto px-4">
-              <p className="leading-snug">
-                {spk.kegiatan || 'KEGIATAN PENYELENGGARAAN BANGUNAN GEDUNG DI WILAYAH DAERAH KABUPATEN/KOTA, PEMBERIAN IZIN MENDIRIKAN BANGUNAN (IMB) DAN SERTIFIKAT LAIK FUNGSI BANGUNAN GEDUNG'}
-              </p>
-              <p className="leading-snug">
-                PAKET PEKERJAAN {spk.namaPaket}
-              </p>
-              <p className="leading-snug">
-                {spk.perubahanAnggaran || `PERUBAHAN ANGGARAN TAHUN ${spk.tahunAnggaran || 2026}`}
-              </p>
-            </div>
+          {/* Uraian Kegiatan & Paket Pekerjaan */}
+          <div className="text-center my-6 space-y-2 uppercase font-bold text-xs max-w-2xl mx-auto px-4">
+            <p className="leading-snug">
+              {spk.kegiatan || 'KEGIATAN PENYELENGGARAAN BANGUNAN GEDUNG DI WILAYAH DAERAH KABUPATEN/KOTA, PEMBERIAN IZIN MENDIRIKAN BANGUNAN (IMB) DAN SERTIFIKAT LAIK FUNGSI BANGUNAN GEDUNG'}
+            </p>
+            <p className="leading-snug">
+              PAKET PEKERJAAN {spk.namaPaket}
+            </p>
+            <p className="leading-snug">
+              {spk.perubahanAnggaran || `PERUBAHAN ANGGARAN TAHUN ${spk.tahunAnggaran || 2026}`}
+            </p>
+          </div>
 
-            {/* Ringkasan Data Kontrak Cover (Polos Tanpa Garis Tabel) */}
-            <div className="my-6 max-w-2xl mx-auto">
-              <table className="w-full text-xs border-collapse border-none">
-                <tbody>
-                  <tr>
-                    <td className="w-44 py-1.5 font-bold align-top border-none text-slate-900">Lokasi Pekerjaan</td>
-                    <td className="w-5 py-1.5 text-center align-top border-none font-bold">:</td>
-                    <td className="py-1.5 align-top border-none text-slate-800">{spk.lokasiPekerjaan}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Sumber Dana</td>
-                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
-                    <td className="py-1.5 align-top border-none text-slate-800">{spk.sumberDana}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Tahun Anggaran</td>
-                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
-                    <td className="py-1.5 align-top border-none text-slate-800">{spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Nilai Kontrak</td>
-                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
-                    <td className="py-1.5 align-top border-none text-slate-800">
-                      <span className="font-bold">{formatRupiah(spk.nilaiKontrak)}</span><br />
-                      <span className="italic text-slate-700">({spk.nilaiKontrakTerbilang})</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Masa pelaksanaan</td>
-                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
-                    <td className="py-1.5 align-top border-none text-slate-800">{spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'})</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Mulai</td>
-                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
-                    <td className="py-1.5 align-top border-none text-slate-800">{tanggalMulaiFormatted}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Sampai Dengan</td>
-                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
-                    <td className="py-1.5 align-top border-none text-slate-800">{tanggalSelesaiFormatted}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          {/* Ringkasan Data Kontrak Cover (Polos Tanpa Garis Tabel, Font Normal) */}
+          <div className="my-6 max-w-2xl mx-auto">
+            <table className="w-full text-xs border-collapse border-none">
+              <tbody>
+                <tr>
+                  <td className="w-44 py-1.5 font-normal align-top border-none text-black">Lokasi Pekerjaan</td>
+                  <td className="w-5 py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                  <td className="py-1.5 align-top border-none text-black">{spk.lokasiPekerjaan}</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 font-normal align-top border-none text-black">Sumber Dana</td>
+                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                  <td className="py-1.5 align-top border-none text-black">{spk.sumberDana}</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 font-normal align-top border-none text-black">Tahun Anggaran</td>
+                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                  <td className="py-1.5 align-top border-none text-black">{spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`}</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 font-normal align-top border-none text-black">Nilai Kontrak</td>
+                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                  <td className="py-1.5 align-top border-none text-black">
+                    <span className="font-bold">{formatRupiah(spk.nilaiKontrak)}</span><br />
+                    <span className="italic text-slate-800">({spk.nilaiKontrakTerbilang})</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 font-normal align-top border-none text-black">Masa pelaksanaan</td>
+                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                  <td className="py-1.5 align-top border-none text-black">{spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'})</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 font-normal align-top border-none text-black">Mulai</td>
+                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                  <td className="py-1.5 align-top border-none text-black">{tanggalMulaiFormatted}</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 font-normal align-top border-none text-black">Sampai Dengan</td>
+                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                  <td className="py-1.5 align-top border-none text-black">{tanggalSelesaiFormatted}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           {/* Bagian Penyedia Cover (Di Bagian Bawah Tengah Halaman) */}
-          <div className="text-center font-serif mt-auto mb-16 pb-4">
-            <p className="font-bold tracking-wider uppercase text-xs mb-1">PENYEDIA :</p>
-            <p className="font-bold text-sm uppercase">{spk.penyediaNamaBadanUsaha}</p>
+          <div className="text-center font-serif mt-12 mb-6">
+            <p className="font-normal tracking-wider uppercase text-xs mb-1">PENYEDIA :</p>
+            <p className="font-bold text-sm uppercase">{cleanPenyediaNama}</p>
             <p className="text-xs text-slate-800 max-w-lg mx-auto mt-0.5">{spk.penyediaAlamat}</p>
           </div>
-
-          {/* Masker Penutup Paraf Cetak Khusus Halaman Cover */}
-          <div 
-            className="hidden print:block pointer-events-none"
-            style={{ 
-              position: 'absolute', 
-              bottom: '0mm', 
-              right: '0mm', 
-              width: '85mm', 
-              height: '30mm', 
-              backgroundColor: '#ffffff', 
-              zIndex: 10000 
-            }} 
-          />
         </div>
 
         {/* ======================================================== */}
-        {/* LEMBAR 2: FORMULIR TABEL SPK UTUH (LKPP / DPUPR)         */}
+        {/* LEMBAR 2 & 3+: FORMULIR TABEL & SYARAT UMUM SPK DENGAN   */}
+        {/* PARAF FOOTER RESMI OTOMATIS DARI PrintDocWrapper         */}
         {/* ======================================================== */}
-        <div 
-          className="spk-page spk-main-form font-serif text-black leading-relaxed flex flex-col justify-between pt-6"
-          style={{ minHeight: '1050px', pageBreakAfter: 'always', breakAfter: 'page' }}
-        >
+        <PrintDocWrapper showFooterParaf={true}>
+          {/* ======================================================== */}
+          {/* LEMBAR 2: FORMULIR TABEL SPK UTUH (LKPP / DPUPR)         */}
+          {/* ======================================================== */}
+          <div 
+            className="spk-page spk-main-form font-serif text-black leading-relaxed flex flex-col justify-between pt-6"
+            style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
+          >
           <div>
             <KopSurat />
 
@@ -469,6 +462,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
         </div>
 
       </PrintDocWrapper>
+    </div>
     );
   }
 
@@ -480,7 +474,6 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
   return (
     <PrintDocWrapper>
-      <ContractFooterParaf isFixedPrint={true} />
       <KopSurat />
 
       {/* Judul Dokumen SPK */}

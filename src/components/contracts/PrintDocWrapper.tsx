@@ -1,5 +1,5 @@
 import React from 'react';
-import { ContractFooterParaf } from './ContractFooterParaf';
+import { ParafTable } from './ContractFooterParaf';
 
 interface Props {
   children: React.ReactNode;
@@ -16,9 +16,8 @@ export const PrintDocWrapper: React.FC<Props> = ({
     <div className={`font-serif text-black text-xs leading-relaxed print-page bg-white p-6 sm:p-10 mb-8 border-0 shadow-none rounded-none max-w-[215mm] mx-auto relative ${className}`}>
       {/* 
         Native HTML Table Wrapper for Print:
-        Ensures tfoot automatically repeats on every printed page as an invisible spacer.
-        This reserves 20mm of blank space at the bottom of EVERY printed page so normal
-        body content (clauses, paragraphs, tables) stops before the fixed paraf table.
+        Ensures tfoot automatically repeats on every printed page as an official footer.
+        tfoot only prints on pages where this table exists, preventing leaks to previous pages (like Cover).
       */}
       <table className="print-doc-table w-full border-none border-collapse">
         <tbody>
@@ -32,19 +31,20 @@ export const PrintDocWrapper: React.FC<Props> = ({
           <tfoot className="hidden print:table-footer-group">
             <tr>
               <td className="p-0 border-none">
-                <div className="print-footer-space h-20 w-full pointer-events-none" />
+                <div className="flex justify-end pt-2 pb-1 pr-2 bg-white">
+                  <ParafTable />
+                </div>
               </td>
             </tr>
           </tfoot>
         )}
       </table>
 
-      {/* Screen and Fixed Print Paraf Footer */}
+      {/* Screen Paraf Footer */}
       {showFooterParaf && (
-        <>
-          <ContractFooterParaf />
-          <ContractFooterParaf isFixedPrint />
-        </>
+        <div className="mt-6 pt-2 flex justify-end print:hidden">
+          <ParafTable />
+        </div>
       )}
     </div>
   );

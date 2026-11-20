@@ -51,6 +51,8 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   // EXPORT SPK FISIK (FORMAT PERSIS DOKUMEN FISIK DPUPR KAB. TEGAL)
   // =========================================================================
   if (spk.spkType === 'fisik') {
+    const cleanPenyediaNama = (spk.penyediaNamaBadanUsaha || '').replace(/:\s*$/, '').trim();
+
     const clausesHtml = (spk.clauses || []).filter(c => c.isActive).map(c => `
       <div style="margin-top: 8pt; margin-bottom: 6pt;">
         <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 3pt 0; font-size: 10pt; text-align: justify;">
@@ -88,7 +90,9 @@ export function generateSpkWordDoc(spk: SpkContract): void {
       mso-page-orientation: portrait;
       mso-header-margin: 1.0cm;
       mso-footer-margin: 1.0cm;
+      mso-title-page: yes;
       mso-footer: f1;
+      mso-first-footer: f0;
     }
     div.Section1 { page: Section1; }
     body {
@@ -127,13 +131,13 @@ export function generateSpkWordDoc(spk: SpkContract): void {
 
   <!-- Judul Dokumen SPK -->
   <div style="text-align: center; margin: 12pt 0 10pt 0;">
-    <p style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin: 0; text-align: center;">
+    <p style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin: 0; text-align: center; text-decoration: underline;">
       SURAT PERINTAH KERJA (SPK)
     </p>
-    <p style="font-size: 10pt; font-weight: bold; margin: 2pt 0 0 0; text-align: center;">
+    <p style="font-size: 10pt; font-weight: normal; margin: 2pt 0 0 0; text-align: center;">
       Nomor : ${spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}
     </p>
-    <p style="font-size: 10pt; font-weight: bold; margin: 2pt 0 0 0; text-align: center;">
+    <p style="font-size: 10pt; font-weight: normal; margin: 2pt 0 0 0; text-align: center;">
       Tanggal ${tanggalSpkFormatted}
     </p>
   </div>
@@ -151,52 +155,52 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </p>
   </div>
 
-  <!-- Ringkasan Cover Polosan Tanpa Garis Tabel -->
+  <!-- Ringkasan Cover Polosan Tanpa Garis Tabel (Font Normal) -->
   <table style="width: 100%; border-collapse: collapse; border: none; font-size: 10pt; margin: 12pt 0 16pt 0;">
     <tr>
-      <td style="width: 140pt; border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Lokasi Pekerjaan</td>
-      <td style="width: 15pt; border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="width: 140pt; border: none; padding: 3pt 0; font-weight: normal; vertical-align: top;">Lokasi Pekerjaan</td>
+      <td style="width: 15pt; border: none; padding: 3pt 0; text-align: center; font-weight: normal; vertical-align: top;">:</td>
       <td style="border: none; padding: 3pt 0; vertical-align: top;">${spk.lokasiPekerjaan}</td>
     </tr>
     <tr>
-      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Sumber Dana</td>
-      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; font-weight: normal; vertical-align: top;">Sumber Dana</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: normal; vertical-align: top;">:</td>
       <td style="border: none; padding: 3pt 0; vertical-align: top;">${spk.sumberDana}</td>
     </tr>
     <tr>
-      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Tahun Anggaran</td>
-      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; font-weight: normal; vertical-align: top;">Tahun Anggaran</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: normal; vertical-align: top;">:</td>
       <td style="border: none; padding: 3pt 0; vertical-align: top;">${spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`}</td>
     </tr>
     <tr>
-      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Nilai Kontrak</td>
-      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; font-weight: normal; vertical-align: top;">Nilai Kontrak</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: normal; vertical-align: top;">:</td>
       <td style="border: none; padding: 3pt 0; vertical-align: top;">
         <strong>${formatRupiah(spk.nilaiKontrak)}</strong><br/>
         <em>(${spk.nilaiKontrakTerbilang})</em>
       </td>
     </tr>
     <tr>
-      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Masa pelaksanaan</td>
-      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; font-weight: normal; vertical-align: top;">Masa pelaksanaan</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: normal; vertical-align: top;">:</td>
       <td style="border: none; padding: 3pt 0; vertical-align: top;">${spk.jangkaWaktuHari} (${spk.jangkaWaktuHuruf || '-'})</td>
     </tr>
     <tr>
-      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Mulai</td>
-      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; font-weight: normal; vertical-align: top;">Mulai</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: normal; vertical-align: top;">:</td>
       <td style="border: none; padding: 3pt 0; vertical-align: top;">${tanggalMulaiFormatted}</td>
     </tr>
     <tr>
-      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Sampai Dengan</td>
-      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; font-weight: normal; vertical-align: top;">Sampai Dengan</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: normal; vertical-align: top;">:</td>
       <td style="border: none; padding: 3pt 0; vertical-align: top;">${tanggalSelesaiFormatted}</td>
     </tr>
   </table>
 
   <!-- Penyedia Cover (Di Bagian Bawah Tengah Halaman) -->
-  <div style="text-align: center; margin: 45pt auto 20pt auto;">
-    <p style="font-weight: bold; margin: 0 0 3pt 0; font-size: 10pt; text-transform: uppercase; text-align: center;">PENYEDIA :</p>
-    <p style="font-weight: bold; font-size: 11pt; margin: 0 0 3pt 0; text-transform: uppercase; text-align: center;">${spk.penyediaNamaBadanUsaha}</p>
+  <div style="text-align: center; margin: 40pt auto 20pt auto;">
+    <p style="font-weight: normal; margin: 0 0 3pt 0; font-size: 10pt; text-transform: uppercase; text-align: center;">PENYEDIA :</p>
+    <p style="font-weight: bold; font-size: 11pt; margin: 0 0 3pt 0; text-transform: uppercase; text-align: center;">${cleanPenyediaNama}</p>
     <p style="font-size: 9.5pt; margin: 0; text-align: center;">${spk.penyediaAlamat}</p>
   </div>
 
@@ -529,7 +533,10 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
   </table>
 
-  <!-- Running Footer Word Kotak Paraf Koordinasi -->
+  <!-- Running Footer Word Kotak Paraf Koordinasi (Cover Halaman 1 Kosong, Halaman 2+ Muncul) -->
+  <div style="mso-element:footer" id="f0">
+    <p class="MsoFooter" style="margin: 0;"></p>
+  </div>
   <div style="mso-element:footer" id="f1">
     <p class="MsoFooter" style="margin: 0; text-align: right;">
       <table align="right" style="width: 170pt; border-collapse: collapse; border: 1px solid #000000; font-family: 'Times New Roman', serif; font-size: 8.5pt;">
@@ -879,7 +886,10 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
   </table>
 
-  <!-- Running Footer Word Kotak Paraf Koordinasi -->
+  <!-- Running Footer Word Kotak Paraf Koordinasi (Cover Halaman 1 Kosong, Halaman 2+ Muncul) -->
+  <div style="mso-element:footer" id="f0">
+    <p class="MsoFooter" style="margin: 0;"></p>
+  </div>
   <div style="mso-element:footer" id="f1">
     <p class="MsoFooter" style="margin: 0; text-align: right;">
       <table align="right" style="width: 170pt; border-collapse: collapse; border: 1px solid #000000; font-family: 'Times New Roman', serif; font-size: 8.5pt;">
