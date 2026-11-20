@@ -20,14 +20,11 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
   if (spk.spkType === 'fisik') {
     return (
       <PrintDocWrapper>
-        {/* Fixed Paraf Koordinasi Footer saat di-print pada setiap halaman */}
-        <ContractFooterParaf isFixedPrint={true} />
-
         {/* ======================================================== */}
         {/* LEMBAR 1: COVER / LEMBAR MUKA SPK FISIK                  */}
         {/* ======================================================== */}
         <div 
-          className="spk-page spk-cover-sheet font-serif text-black leading-relaxed flex flex-col justify-between"
+          className="spk-page spk-cover-sheet font-serif text-black leading-relaxed flex flex-col justify-between relative"
           style={{ minHeight: '1050px', pageBreakAfter: 'always', breakAfter: 'page' }}
         >
           <div>
@@ -59,63 +56,73 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
               </p>
             </div>
 
-            {/* Tabel Ringkasan Cover */}
-            <div className="my-6">
-              <table className="w-full border-collapse border border-black text-xs">
+            {/* Ringkasan Data Kontrak Cover (Polos Tanpa Garis Tabel) */}
+            <div className="my-6 max-w-2xl mx-auto">
+              <table className="w-full text-xs border-collapse border-none">
                 <tbody>
                   <tr>
-                    <td className="w-52 border border-black p-2 font-bold">Lokasi Pekerjaan</td>
-                    <td className="w-4 border border-black p-2 text-center">:</td>
-                    <td className="border border-black p-2">{spk.lokasiPekerjaan}</td>
+                    <td className="w-44 py-1.5 font-bold align-top border-none text-slate-900">Lokasi Pekerjaan</td>
+                    <td className="w-5 py-1.5 text-center align-top border-none font-bold">:</td>
+                    <td className="py-1.5 align-top border-none text-slate-800">{spk.lokasiPekerjaan}</td>
                   </tr>
                   <tr>
-                    <td className="border border-black p-2 font-bold">Sumber Dana</td>
-                    <td className="border border-black p-2 text-center">:</td>
-                    <td className="border border-black p-2">{spk.sumberDana}</td>
+                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Sumber Dana</td>
+                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
+                    <td className="py-1.5 align-top border-none text-slate-800">{spk.sumberDana}</td>
                   </tr>
                   <tr>
-                    <td className="border border-black p-2 font-bold">Tahun Anggaran</td>
-                    <td className="border border-black p-2 text-center">:</td>
-                    <td className="border border-black p-2">{spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`}</td>
+                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Tahun Anggaran</td>
+                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
+                    <td className="py-1.5 align-top border-none text-slate-800">{spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`}</td>
                   </tr>
                   <tr>
-                    <td className="border border-black p-2 font-bold align-top">Nilai Kontrak</td>
-                    <td className="border border-black p-2 text-center align-top">:</td>
-                    <td className="border border-black p-2">
+                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Nilai Kontrak</td>
+                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
+                    <td className="py-1.5 align-top border-none text-slate-800">
                       <span className="font-bold">{formatRupiah(spk.nilaiKontrak)}</span><br />
-                      <span className="italic">({spk.nilaiKontrakTerbilang})</span>
+                      <span className="italic text-slate-700">({spk.nilaiKontrakTerbilang})</span>
                     </td>
                   </tr>
                   <tr>
-                    <td className="border border-black p-2 font-bold">Masa pelaksanaan</td>
-                    <td className="border border-black p-2 text-center">:</td>
-                    <td className="border border-black p-2">{spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'})</td>
+                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Masa pelaksanaan</td>
+                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
+                    <td className="py-1.5 align-top border-none text-slate-800">{spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'})</td>
                   </tr>
                   <tr>
-                    <td className="border border-black p-2 font-bold">Mulai</td>
-                    <td className="border border-black p-2 text-center">:</td>
-                    <td className="border border-black p-2">{tanggalMulaiFormatted}</td>
+                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Mulai</td>
+                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
+                    <td className="py-1.5 align-top border-none text-slate-800">{tanggalMulaiFormatted}</td>
                   </tr>
                   <tr>
-                    <td className="border border-black p-2 font-bold">Sampai Dengan</td>
-                    <td className="border border-black p-2 text-center">:</td>
-                    <td className="border border-black p-2">{tanggalSelesaiFormatted}</td>
+                    <td className="py-1.5 font-bold align-top border-none text-slate-900">Sampai Dengan</td>
+                    <td className="py-1.5 text-center align-top border-none font-bold">:</td>
+                    <td className="py-1.5 align-top border-none text-slate-800">{tanggalSelesaiFormatted}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-
-            {/* Bagian Penyedia Cover */}
-            <div className="my-8 text-xs font-serif">
-              <p className="font-bold tracking-wider uppercase mb-1">PENYEDIA :</p>
-              <p className="font-bold text-sm uppercase">{spk.penyediaNamaBadanUsaha}</p>
-              <p className="text-xs text-slate-800">{spk.penyediaAlamat}</p>
-            </div>
           </div>
 
-          <div className="flex justify-end pt-4 pb-2 print:hidden">
-            <ContractFooterParaf isFixedPrint={false} />
+          {/* Bagian Penyedia Cover (Di Bagian Bawah Tengah Halaman) */}
+          <div className="text-center font-serif mt-auto mb-16 pb-4">
+            <p className="font-bold tracking-wider uppercase text-xs mb-1">PENYEDIA :</p>
+            <p className="font-bold text-sm uppercase">{spk.penyediaNamaBadanUsaha}</p>
+            <p className="text-xs text-slate-800 max-w-lg mx-auto mt-0.5">{spk.penyediaAlamat}</p>
           </div>
+
+          {/* Masker Penutup Paraf Cetak Khusus Halaman Cover */}
+          <div 
+            className="hidden print:block pointer-events-none"
+            style={{ 
+              position: 'absolute', 
+              bottom: '0mm', 
+              right: '0mm', 
+              width: '85mm', 
+              height: '30mm', 
+              backgroundColor: '#ffffff', 
+              zIndex: 10000 
+            }} 
+          />
         </div>
 
         {/* ======================================================== */}

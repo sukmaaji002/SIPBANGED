@@ -151,53 +151,53 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </p>
   </div>
 
-  <!-- Tabel Ringkasan Cover -->
-  <table style="width: 100%; border: 1px solid #000000; font-size: 10pt; margin: 10pt 0 14pt 0;">
+  <!-- Ringkasan Cover Polosan Tanpa Garis Tabel -->
+  <table style="width: 100%; border-collapse: collapse; border: none; font-size: 10pt; margin: 12pt 0 16pt 0;">
     <tr>
-      <td style="width: 150pt; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold;">Lokasi Pekerjaan</td>
-      <td style="width: 15pt; border: 1px solid #000000; padding: 4pt 2pt; text-align: center;">:</td>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt;">${spk.lokasiPekerjaan}</td>
+      <td style="width: 140pt; border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Lokasi Pekerjaan</td>
+      <td style="width: 15pt; border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; vertical-align: top;">${spk.lokasiPekerjaan}</td>
     </tr>
     <tr>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold;">Sumber Dana</td>
-      <td style="border: 1px solid #000000; padding: 4pt 2pt; text-align: center;">:</td>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt;">${spk.sumberDana}</td>
+      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Sumber Dana</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; vertical-align: top;">${spk.sumberDana}</td>
     </tr>
     <tr>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold;">Tahun Anggaran</td>
-      <td style="border: 1px solid #000000; padding: 4pt 2pt; text-align: center;">:</td>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt;">${spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`}</td>
+      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Tahun Anggaran</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; vertical-align: top;">${spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`}</td>
     </tr>
     <tr>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; vertical-align: top;">Nilai Kontrak</td>
-      <td style="border: 1px solid #000000; padding: 4pt 2pt; text-align: center; vertical-align: top;">:</td>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt;">
+      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Nilai Kontrak</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; vertical-align: top;">
         <strong>${formatRupiah(spk.nilaiKontrak)}</strong><br/>
         <em>(${spk.nilaiKontrakTerbilang})</em>
       </td>
     </tr>
     <tr>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold;">Masa pelaksanaan</td>
-      <td style="border: 1px solid #000000; padding: 4pt 2pt; text-align: center;">:</td>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt;">${spk.jangkaWaktuHari} (${spk.jangkaWaktuHuruf || '-'})</td>
+      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Masa pelaksanaan</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; vertical-align: top;">${spk.jangkaWaktuHari} (${spk.jangkaWaktuHuruf || '-'})</td>
     </tr>
     <tr>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold;">Mulai</td>
-      <td style="border: 1px solid #000000; padding: 4pt 2pt; text-align: center;">:</td>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt;">${tanggalMulaiFormatted}</td>
+      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Mulai</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; vertical-align: top;">${tanggalMulaiFormatted}</td>
     </tr>
     <tr>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold;">Sampai Dengan</td>
-      <td style="border: 1px solid #000000; padding: 4pt 2pt; text-align: center;">:</td>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt;">${tanggalSelesaiFormatted}</td>
+      <td style="border: none; padding: 3pt 0; font-weight: bold; vertical-align: top;">Sampai Dengan</td>
+      <td style="border: none; padding: 3pt 0; text-align: center; font-weight: bold; vertical-align: top;">:</td>
+      <td style="border: none; padding: 3pt 0; vertical-align: top;">${tanggalSelesaiFormatted}</td>
     </tr>
   </table>
 
-  <!-- Penyedia Cover -->
-  <div style="margin: 14pt 0 20pt 0;">
-    <p style="font-weight: bold; margin: 0 0 2pt 0; font-size: 10pt; text-transform: uppercase;">PENYEDIA :</p>
-    <p style="font-weight: bold; font-size: 11pt; margin: 0 0 2pt 0; text-transform: uppercase;">${spk.penyediaNamaBadanUsaha}</p>
-    <p style="font-size: 9.5pt; margin: 0;">${spk.penyediaAlamat}</p>
+  <!-- Penyedia Cover (Di Bagian Bawah Tengah Halaman) -->
+  <div style="text-align: center; margin: 45pt auto 20pt auto;">
+    <p style="font-weight: bold; margin: 0 0 3pt 0; font-size: 10pt; text-transform: uppercase; text-align: center;">PENYEDIA :</p>
+    <p style="font-weight: bold; font-size: 11pt; margin: 0 0 3pt 0; text-transform: uppercase; text-align: center;">${spk.penyediaNamaBadanUsaha}</p>
+    <p style="font-size: 9.5pt; margin: 0; text-align: center;">${spk.penyediaAlamat}</p>
   </div>
 
   <br clear="all" style="page-break-before: always; mso-break-type: section-break;" />
