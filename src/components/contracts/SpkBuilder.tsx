@@ -78,12 +78,13 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
       if (found.spkType === 'fisik') {
         const currentCount = (found.clauses || []).length;
         const totalLines = (found.clauses || []).reduce((acc, c) => acc + (c.isi ? c.isi.split('\n').length : 0), 0);
-        if (currentCount < 31 || totalLines < 200) {
+        const hasOldPasal3 = (found.clauses || []).some(cl => cl.id === 'spk-fsk-3' && cl.isi && cl.isi.includes('1) menawarkan'));
+        if (currentCount < 31 || totalLines < 230 || hasOldPasal3) {
           const activeMap = new Map((found.clauses || []).map(cl => [cl.id, cl.isActive]));
           const customMap = new Map((found.clauses || []).filter(cl => cl.isi).map(cl => [cl.id, cl.isi]));
           const updatedClauses = DEFAULT_SPK_FISIK_CLAUSES.map(defaultClause => {
             const existingText = customMap.get(defaultClause.id);
-            const isOutdated = !existingText || existingText.split('\n').length < defaultClause.isi.split('\n').length;
+            const isOutdated = !existingText || existingText.split('\n').length < defaultClause.isi.split('\n').length || (defaultClause.id === 'spk-fsk-3' && hasOldPasal3);
             return {
               ...defaultClause,
               isi: isOutdated ? defaultClause.isi : (existingText || defaultClause.isi),

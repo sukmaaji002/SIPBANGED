@@ -252,14 +252,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (s.spkType === 'fisik') {
           const currentCount = (s.clauses || []).length;
           const totalLines = (s.clauses || []).reduce((acc, c) => acc + (c.isi ? c.isi.split('\n').length : 0), 0);
-          // If clauses are fewer than 31 or total lines are fewer than 200, migrate to official 31 clauses
-          if (currentCount < 31 || totalLines < 200) {
+          const hasOldPasal3 = (s.clauses || []).some(cl => cl.id === 'spk-fsk-3' && cl.isi && cl.isi.includes('1) menawarkan'));
+          // If clauses are fewer than 31, or total lines are fewer than 230, or has outdated Pasal 3 numbering
+          if (currentCount < 31 || totalLines < 230 || hasOldPasal3) {
             wasMigrated = true;
             const activeMap = new Map((s.clauses || []).map(cl => [cl.id, cl.isActive]));
             const customMap = new Map((s.clauses || []).filter(cl => cl.isi).map(cl => [cl.id, cl.isi]));
             const updatedClauses = DEFAULT_SPK_FISIK_CLAUSES.map(defaultClause => {
               const existingText = customMap.get(defaultClause.id);
-              const isOutdated = !existingText || existingText.split('\n').length < defaultClause.isi.split('\n').length;
+              const isOutdated = !existingText || existingText.split('\n').length < defaultClause.isi.split('\n').length || (defaultClause.id === 'spk-fsk-3' && hasOldPasal3);
               return {
                 ...defaultClause,
                 isi: isOutdated ? defaultClause.isi : (existingText || defaultClause.isi),

@@ -408,13 +408,14 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
             </h3>
           </div>
 
-          <div className="space-y-4 text-xs">
+          <div className="space-y-3.5 text-xs font-serif">
             {(spk.clauses || []).filter(c => c.isActive).map((c) => (
-              <div key={c.id} className="text-justify clause-item">
-                <p className="font-bold uppercase mb-1">
-                  {c.judul}
-                </p>
-                <div className="leading-relaxed">
+              <div key={c.id} className="text-justify clause-item" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                <div className="flex items-start text-justify mb-1">
+                  <span className="shrink-0 w-7 font-bold text-left">{c.pasal}.</span>
+                  <span className="flex-1 font-bold uppercase">{c.judul}</span>
+                </div>
+                <div className="pl-7">
                   <FormattedLegalText text={c.isi} />
                 </div>
               </div>

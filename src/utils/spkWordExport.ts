@@ -10,32 +10,32 @@ function formatCustomClauseForWord(rawText: string): string {
     const trimmed = line.trim();
     if (!trimmed) return '<div style="height: 3pt;"></div>';
 
-    // 1. Numbered with dot like 1. , 14.1.
-    const numDotMatch = trimmed.match(/^(\d+(?:\.\d+)*\.)\s+(.*)$/);
-    if (numDotMatch) {
-      return `<p style="margin: 0 0 3pt 20pt; text-indent: -16pt; font-size: 10pt; line-height: 1.35; text-align: justify;"><strong>${numDotMatch[1]}</strong>&nbsp;&nbsp;${parseRichTextToHtml(numDotMatch[2])}</p>`;
-    }
-
-    // 2. Letter with dot like a., b., c.
-    const letterDotMatch = trimmed.match(/^([a-zA-Z])\.\s+(.*)$/);
-    if (letterDotMatch) {
-      return `<p style="margin: 0 0 3pt 36pt; text-indent: -16pt; font-size: 10pt; line-height: 1.35; text-align: justify;"><strong>${letterDotMatch[1]}.</strong>&nbsp;&nbsp;${parseRichTextToHtml(letterDotMatch[2])}</p>`;
-    }
-
-    // 3. Sub-paren like 1), 2), a), b)
+    // 1. Sub-paren like 1), 2), a), b)
     const parenMatch = trimmed.match(/^(\d+|[a-zA-Z])\)\s+(.*)$/);
     if (parenMatch) {
-      return `<p style="margin: 0 0 3pt 52pt; text-indent: -16pt; font-size: 10pt; line-height: 1.35; text-align: justify;"><strong>${parenMatch[1]})</strong>&nbsp;&nbsp;${parseRichTextToHtml(parenMatch[2])}</p>`;
+      return `<p style="margin: 0 0 3pt 56pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${parenMatch[1]})&nbsp;&nbsp;${parseRichTextToHtml(parenMatch[2])}</p>`;
     }
 
-    // 4. (1), (a)
+    // 2. (1), (a)
     const fullParenMatch = trimmed.match(/^\(([a-zA-Z0-9]+)\)\s+(.*)$/);
     if (fullParenMatch) {
-      return `<p style="margin: 0 0 3pt 52pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;"><strong>(${fullParenMatch[1]})</strong>&nbsp;&nbsp;${parseRichTextToHtml(fullParenMatch[2])}</p>`;
+      return `<p style="margin: 0 0 3pt 56pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">(${fullParenMatch[1]})&nbsp;&nbsp;${parseRichTextToHtml(fullParenMatch[2])}</p>`;
     }
 
-    // Standard paragraph
-    return `<p style="margin: 0 0 4pt 0; font-size: 10pt; line-height: 1.35; text-align: justify;">${parseRichTextToHtml(trimmed)}</p>`;
+    // 3. Numbered with dot like 1. , 14.1.
+    const numDotMatch = trimmed.match(/^(\d+(?:\.\d+)*)\.\s+(.*)$/);
+    if (numDotMatch) {
+      return `<p style="margin: 0 0 3pt 56pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${numDotMatch[1]}.&nbsp;&nbsp;${parseRichTextToHtml(numDotMatch[2])}</p>`;
+    }
+
+    // 4. Letter with dot like a., b., c.
+    const letterDotMatch = trimmed.match(/^([a-zA-Z])\.\s+(.*)$/);
+    if (letterDotMatch) {
+      return `<p style="margin: 0 0 3pt 38pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${letterDotMatch[1]}.&nbsp;&nbsp;${parseRichTextToHtml(letterDotMatch[2])}</p>`;
+    }
+
+    // 5. Standard paragraph (flush with title text at 20pt)
+    return `<p style="margin: 0 0 3pt 20pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${parseRichTextToHtml(trimmed)}</p>`;
   }).join('');
 }
 
@@ -55,10 +55,10 @@ export function generateSpkWordDoc(spk: SpkContract): void {
 
     const clausesHtml = (spk.clauses || []).filter(c => c.isActive).map(c => `
       <div style="margin-top: 8pt; margin-bottom: 6pt;">
-        <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 3pt 0; font-size: 10pt; text-align: justify;">
-          ${c.judul}
+        <p style="margin: 8pt 0 2pt 20pt; text-indent: -20pt; font-weight: bold; font-size: 10pt; text-transform: uppercase; text-align: justify; line-height: 1.35;">
+          ${c.pasal}.&nbsp;&nbsp;${c.judul}
         </p>
-        <div style="text-align: justify; font-size: 10pt; line-height: 1.35;">
+        <div>
           ${formatCustomClauseForWord(c.isi)}
         </div>
       </div>
