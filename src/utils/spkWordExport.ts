@@ -197,8 +197,11 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
   </table>
 
+  <!-- Spacer to push Penyedia to bottom of page in Word -->
+  <div style="height: 150pt; line-height: 150pt; font-size: 1pt;">&nbsp;</div>
+
   <!-- Penyedia Cover (Di Bagian Bawah Tengah Halaman) -->
-  <div style="text-align: center; margin: 40pt auto 20pt auto;">
+  <div style="text-align: center; margin: 0 auto 20pt auto;">
     <p style="font-weight: normal; margin: 0 0 3pt 0; font-size: 10pt; text-transform: uppercase; text-align: center;">PENYEDIA :</p>
     <p style="font-weight: bold; font-size: 11pt; margin: 0 0 3pt 0; text-transform: uppercase; text-align: center;">${cleanPenyediaNama}</p>
     <p style="font-size: 9.5pt; margin: 0; text-align: center;">${spk.penyediaAlamat}</p>
@@ -228,22 +231,22 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   <!-- Tabel Formulir Berbingkai LKPP/DPUPR -->
   <table style="width: 100%; border: 1px solid #000000; font-size: 9.5pt; line-height: 1.25; margin-bottom: 14pt;">
     <tr>
-      <td style="width: 32%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-align: center; vertical-align: middle;">
-        SURAT PERINTAH KERJA (SPK)
+      <td rowspan="2" style="width: 32%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; vertical-align: middle; text-align: left;">
+        SURAT PERINTAH<br/>KERJA (SPK)
       </td>
-      <td style="width: 68%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; vertical-align: middle;">
-        DINAS PEKERJAAN UMUM DAN PENATAAN RUANG KABUPATEN TEGAL
+      <td style="width: 68%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-align: center; vertical-align: middle;">
+        DINAS PEKERJAAN UMUM DAN PENATAAN RUANG KABUPATEN<br/>TEGAL
       </td>
     </tr>
 
     <tr>
-      <td colspan="2" style="border: 1px solid #000000; padding: 4pt 6pt;">
+      <td style="border: 1px solid #000000; padding: 4pt 6pt; vertical-align: top;">
         <strong>NOMOR DAN TANGGAL SPK:</strong><br/>
         <table style="width: 100%; font-size: 9.5pt; margin-top: 2pt;">
           <tr>
-            <td style="width: 65pt;">Nomor</td>
+            <td style="width: 55pt;">Nomor</td>
             <td style="width: 10pt;">:</td>
-            <td><strong>${spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}</strong></td>
+            <td>${spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}</td>
           </tr>
           <tr>
             <td>Tanggal</td>

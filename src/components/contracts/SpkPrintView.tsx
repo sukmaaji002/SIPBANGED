@@ -28,85 +28,87 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
         {/* Tidak memakai PrintDocWrapper agar bebas dari paraf box  */}
         {/* ======================================================== */}
         <div 
-          className="spk-page spk-cover-sheet font-serif text-black leading-relaxed bg-white p-6 sm:p-10 mb-8 max-w-[215mm] mx-auto text-xs"
+          className="spk-page spk-cover-sheet font-serif text-black leading-relaxed bg-white p-6 sm:p-10 mb-8 max-w-[215mm] mx-auto text-xs flex flex-col justify-between min-h-[960px] shadow-sm"
           style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
         >
-          <KopSurat />
+          <div>
+            <KopSurat />
 
-          {/* Judul SPK */}
-          <div className="text-center my-6 space-y-1">
-            <h2 className="text-base sm:text-lg font-bold uppercase tracking-wider underline">
-              SURAT PERINTAH KERJA (SPK)
-            </h2>
-            <p className="text-xs font-normal">
-              Nomor : {spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}
-            </p>
-            <p className="text-xs font-normal">
-              Tanggal {tanggalSpkFormatted}
-            </p>
-          </div>
+            {/* Judul SPK */}
+            <div className="text-center my-6 space-y-1">
+              <h2 className="text-base sm:text-lg font-bold uppercase tracking-wider underline">
+                SURAT PERINTAH KERJA (SPK)
+              </h2>
+              <p className="text-xs font-normal">
+                Nomor : {spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}
+              </p>
+              <p className="text-xs font-normal">
+                Tanggal {tanggalSpkFormatted}
+              </p>
+            </div>
 
-          {/* Uraian Kegiatan & Paket Pekerjaan */}
-          <div className="text-center my-6 space-y-2 uppercase font-bold text-xs max-w-2xl mx-auto px-4">
-            <p className="leading-snug">
-              {spk.kegiatan || 'KEGIATAN PENYELENGGARAAN BANGUNAN GEDUNG DI WILAYAH DAERAH KABUPATEN/KOTA, PEMBERIAN IZIN MENDIRIKAN BANGUNAN (IMB) DAN SERTIFIKAT LAIK FUNGSI BANGUNAN GEDUNG'}
-            </p>
-            <p className="leading-snug">
-              PAKET PEKERJAAN {spk.namaPaket}
-            </p>
-            <p className="leading-snug">
-              {spk.perubahanAnggaran || `PERUBAHAN ANGGARAN TAHUN ${spk.tahunAnggaran || 2026}`}
-            </p>
-          </div>
+            {/* Uraian Kegiatan & Paket Pekerjaan */}
+            <div className="text-center my-6 space-y-2 uppercase font-bold text-xs max-w-2xl mx-auto px-4">
+              <p className="leading-snug">
+                {spk.kegiatan || 'KEGIATAN PENYELENGGARAAN BANGUNAN GEDUNG DI WILAYAH DAERAH KABUPATEN/KOTA, PEMBERIAN IZIN MENDIRIKAN BANGUNAN (IMB) DAN SERTIFIKAT LAIK FUNGSI BANGUNAN GEDUNG'}
+              </p>
+              <p className="leading-snug">
+                PAKET PEKERJAAN {spk.namaPaket}
+              </p>
+              <p className="leading-snug">
+                {spk.perubahanAnggaran || `PERUBAHAN ANGGARAN TAHUN ${spk.tahunAnggaran || 2026}`}
+              </p>
+            </div>
 
-          {/* Ringkasan Data Kontrak Cover (Polos Tanpa Garis Tabel, Font Normal) */}
-          <div className="my-6 max-w-2xl mx-auto">
-            <table className="w-full text-xs border-collapse border-none">
-              <tbody>
-                <tr>
-                  <td className="w-44 py-1.5 font-normal align-top border-none text-black">Lokasi Pekerjaan</td>
-                  <td className="w-5 py-1.5 text-center align-top border-none font-normal text-black">:</td>
-                  <td className="py-1.5 align-top border-none text-black">{spk.lokasiPekerjaan}</td>
-                </tr>
-                <tr>
-                  <td className="py-1.5 font-normal align-top border-none text-black">Sumber Dana</td>
-                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
-                  <td className="py-1.5 align-top border-none text-black">{spk.sumberDana}</td>
-                </tr>
-                <tr>
-                  <td className="py-1.5 font-normal align-top border-none text-black">Tahun Anggaran</td>
-                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
-                  <td className="py-1.5 align-top border-none text-black">{spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`}</td>
-                </tr>
-                <tr>
-                  <td className="py-1.5 font-normal align-top border-none text-black">Nilai Kontrak</td>
-                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
-                  <td className="py-1.5 align-top border-none text-black">
-                    <span className="font-bold">{formatRupiah(spk.nilaiKontrak)}</span><br />
-                    <span className="italic text-slate-800">({spk.nilaiKontrakTerbilang})</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="py-1.5 font-normal align-top border-none text-black">Masa pelaksanaan</td>
-                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
-                  <td className="py-1.5 align-top border-none text-black">{spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'})</td>
-                </tr>
-                <tr>
-                  <td className="py-1.5 font-normal align-top border-none text-black">Mulai</td>
-                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
-                  <td className="py-1.5 align-top border-none text-black">{tanggalMulaiFormatted}</td>
-                </tr>
-                <tr>
-                  <td className="py-1.5 font-normal align-top border-none text-black">Sampai Dengan</td>
-                  <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
-                  <td className="py-1.5 align-top border-none text-black">{tanggalSelesaiFormatted}</td>
-                </tr>
-              </tbody>
-            </table>
+            {/* Ringkasan Data Kontrak Cover (Polos Tanpa Garis Tabel, Font Normal) */}
+            <div className="my-6 max-w-2xl mx-auto">
+              <table className="w-full text-xs border-collapse border-none">
+                <tbody>
+                  <tr>
+                    <td className="w-44 py-1.5 font-normal align-top border-none text-black">Lokasi Pekerjaan</td>
+                    <td className="w-5 py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{spk.lokasiPekerjaan}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Sumber Dana</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{spk.sumberDana}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Tahun Anggaran</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Nilai Kontrak</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">
+                      <span className="font-bold">{formatRupiah(spk.nilaiKontrak)}</span><br />
+                      <span className="italic text-slate-800">({spk.nilaiKontrakTerbilang})</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Masa pelaksanaan</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'})</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Mulai</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{tanggalMulaiFormatted}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Sampai Dengan</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{tanggalSelesaiFormatted}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Bagian Penyedia Cover (Di Bagian Bawah Tengah Halaman) */}
-          <div className="text-center font-serif mt-12 mb-6">
+          <div className="text-center font-serif mt-auto pt-16 pb-4">
             <p className="font-normal tracking-wider uppercase text-xs mb-1">PENYEDIA :</p>
             <p className="font-bold text-sm uppercase">{cleanPenyediaNama}</p>
             <p className="text-xs text-slate-800 max-w-lg mx-auto mt-0.5">{spk.penyediaAlamat}</p>
@@ -131,24 +133,24 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
             <div className="my-4">
               <table className="w-full border-collapse border border-black text-[11px] leading-snug">
                 <tbody>
-                  {/* Baris 1: Header SPK */}
+                  {/* Baris 1: Header SPK & Dinas */}
                   <tr>
-                    <td className="w-1/3 border border-black p-2.5 font-bold text-center uppercase align-middle">
-                      SURAT PERINTAH KERJA (SPK)
+                    <td rowSpan={2} className="w-[32%] border border-black p-2.5 font-bold uppercase align-middle text-left leading-snug">
+                      SURAT PERINTAH<br />KERJA (SPK)
                     </td>
-                    <td className="w-2/3 border border-black p-2.5 font-bold uppercase align-middle">
-                      DINAS PEKERJAAN UMUM DAN PENATAAN RUANG KABUPATEN TEGAL
+                    <td className="w-[68%] border border-black p-2.5 font-bold uppercase text-center align-middle leading-snug">
+                      DINAS PEKERJAAN UMUM DAN PENATAAN RUANG KABUPATEN<br />TEGAL
                     </td>
                   </tr>
 
-                  {/* Baris 2: Nomor & Tanggal */}
+                  {/* Baris 2: Nomor & Tanggal (hanya kolom kanan) */}
                   <tr>
-                    <td colSpan={2} className="border border-black p-2.5">
+                    <td className="border border-black p-2.5 align-top">
                       <div className="font-bold uppercase mb-1">NOMOR DAN TANGGAL SPK:</div>
-                      <div className="grid grid-cols-[80px_10px_1fr] text-[11px]">
+                      <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
                         <div>Nomor</div>
                         <div>:</div>
-                        <div className="font-semibold">{spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}</div>
+                        <div>{spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}</div>
                         <div>Tanggal</div>
                         <div>:</div>
                         <div>{tanggalSpkFormatted}</div>
