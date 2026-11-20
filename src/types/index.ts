@@ -542,6 +542,26 @@ export interface SpkContract {
   // Klausul Syarat-Syarat SPK
   clauses: SpkClauseItem[];
   
+  // Format Fisik Baku DPUPR Kab. Tegal
+  kegiatan?: string;
+  subKegiatan?: string;
+  perubahanAnggaran?: string;
+  ppkSkPengangkatanText?: string;
+  penyediaAktaNotarisNomor?: string;
+  penyediaAktaNotarisTanggal?: string;
+  penyediaAktaNotarisNama?: string;
+  wakilSahPpk?: string;
+  nomorUndanganPengadaan?: string;
+  tanggalUndanganPengadaan?: string;
+  nomorBahpl?: string;
+  tanggalBahpl?: string;
+  dppaNomor?: string;
+  mataAnggaran?: string;
+  jenisKontrak?: string;
+  besaranUangMuka?: string;
+  fasilitas?: string;
+  dokumenKontrakHierarki?: string[];
+  
   status: 'Draft' | 'Review Legal' | 'Ditandatangani PPK & Penyedia';
 }
 

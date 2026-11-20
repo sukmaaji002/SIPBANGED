@@ -416,7 +416,7 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                   value={spkData.nomorSpk || ''}
                   onChange={(e) => handleFieldChange('nomorSpk', e.target.value)}
                   className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-mono"
-                  placeholder="602.1/SPK-..."
+                  placeholder="000.3.2/PBLT/17.04/SPK/X/2026"
                 />
               </div>
 
@@ -450,24 +450,31 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Nomor SPPBJ / Surat Undangan
+                  Nomor Undangan Pengadaan Langsung / SPPBJ
                 </label>
                 <input
                   type="text"
-                  value={spkData.nomorSppbj || ''}
-                  onChange={(e) => handleFieldChange('nomorSppbj', e.target.value)}
+                  value={spkData.nomorUndanganPengadaan || spkData.nomorSppbj || ''}
+                  onChange={(e) => {
+                    handleFieldChange('nomorUndanganPengadaan', e.target.value);
+                    handleFieldChange('nomorSppbj', e.target.value);
+                  }}
                   className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-mono"
+                  placeholder="000.3.2/DPUPR/REHAB.JAKSA/PP/04/2026"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Tanggal SPPBJ / Undangan
+                  Tanggal Undangan Pengadaan Langsung
                 </label>
                 <input
                   type="date"
-                  value={spkData.tanggalSppbj || ''}
-                  onChange={(e) => handleFieldChange('tanggalSppbj', e.target.value)}
+                  value={spkData.tanggalUndanganPengadaan || spkData.tanggalSppbj || ''}
+                  onChange={(e) => {
+                    handleFieldChange('tanggalUndanganPengadaan', e.target.value);
+                    handleFieldChange('tanggalSppbj', e.target.value);
+                  }}
                   className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -481,6 +488,70 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                   value={spkData.tahunAnggaran || 2026}
                   onChange={(e) => handleFieldChange('tahunAnggaran', Number(e.target.value))}
                   className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Nomor Berita Acara Hasil Pengadaan Langsung (BAHPL)
+                </label>
+                <input
+                  type="text"
+                  value={spkData.nomorBahpl || ''}
+                  onChange={(e) => handleFieldChange('nomorBahpl', e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-mono"
+                  placeholder="000.3.2/DPUPR/Rehab.Jaksa/PP/07/2026"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Tanggal BAHPL
+                </label>
+                <input
+                  type="date"
+                  value={spkData.tanggalBahpl || ''}
+                  onChange={(e) => handleFieldChange('tanggalBahpl', e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Status Anggaran (Cover Dokumen)
+                </label>
+                <input
+                  type="text"
+                  value={spkData.perubahanAnggaran || ''}
+                  onChange={(e) => handleFieldChange('perubahanAnggaran', e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-semibold"
+                  placeholder="PERUBAHAN ANGGARAN TAHUN 2026"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Uraian Kegiatan (Sesuai Cover & Formulir SPK)
+                </label>
+                <input
+                  type="text"
+                  value={spkData.kegiatan || ''}
+                  onChange={(e) => handleFieldChange('kegiatan', e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                  placeholder="KEGIATAN PENYELENGGARAAN BANGUNAN GEDUNG..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Nomor DPPA / DPA
+                </label>
+                <input
+                  type="text"
+                  value={spkData.dppaNomor || ''}
+                  onChange={(e) => handleFieldChange('dppaNomor', e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-mono"
+                  placeholder="DPPA/A.3/1.03.0.00.0.00.01.0000/001/2026"
                 />
               </div>
             </div>
@@ -545,6 +616,28 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                     value={spkData.ppkAlamat || ''}
                     onChange={(e) => handleFieldChange('ppkAlamat', e.target.value)}
                     className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Dasar SK Pengangkatan PPK (Redaksi Lengkap)</label>
+                  <textarea
+                    rows={2}
+                    value={spkData.ppkSkPengangkatanText || ''}
+                    onChange={(e) => handleFieldChange('ppkSkPengangkatanText', e.target.value)}
+                    className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    placeholder="Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor 07 Tahun 2026..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Wakil Sah Pejabat Penandatangan Kontrak</label>
+                  <input
+                    type="text"
+                    value={spkData.wakilSahPpk || 'Tidak ada'}
+                    onChange={(e) => handleFieldChange('wakilSahPpk', e.target.value)}
+                    className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    placeholder="Tidak ada"
                   />
                 </div>
               </div>
@@ -616,7 +709,40 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Akta Notaris No.</label>
+                    <input
+                      type="text"
+                      value={spkData.penyediaAktaNotarisNomor || ''}
+                      onChange={(e) => handleFieldChange('penyediaAktaNotarisNomor', e.target.value)}
+                      className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                      placeholder="4"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Tanggal Akta</label>
+                    <input
+                      type="text"
+                      value={spkData.penyediaAktaNotarisTanggal || ''}
+                      onChange={(e) => handleFieldChange('penyediaAktaNotarisTanggal', e.target.value)}
+                      className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                      placeholder="7 April 2022"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Notaris</label>
+                    <input
+                      type="text"
+                      value={spkData.penyediaAktaNotarisNama || ''}
+                      onChange={(e) => handleFieldChange('penyediaAktaNotarisNama', e.target.value)}
+                      className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                      placeholder="LAELI NURCHAMIDAH, SH. MKn"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">NPWP Perusahaan</label>
                     <input
@@ -637,7 +763,17 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                         handleFieldChange('penyediaNomorRekening', parts[1]?.trim() || '');
                       }}
                       className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
-                      placeholder="Bank Jateng - 1-023-45678-9"
+                      placeholder="BANK JATENG - 1035-00710-1"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Rekening Pemilik (Escrow / Giro)</label>
+                    <input
+                      type="text"
+                      value={spkData.penyediaNamaRekening || ''}
+                      onChange={(e) => handleFieldChange('penyediaNamaRekening', e.target.value)}
+                      className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                      placeholder="ABADI JAYA (ESCROW)"
                     />
                   </div>
                 </div>
@@ -773,6 +909,45 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                   value={spkData.dendaKeterlambatan || ''}
                   onChange={(e) => handleFieldChange('dendaKeterlambatan', e.target.value)}
                   className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Jenis Kontrak
+                </label>
+                <input
+                  type="text"
+                  value={spkData.jenisKontrak || 'Harga Satuan'}
+                  onChange={(e) => handleFieldChange('jenisKontrak', e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-semibold"
+                  placeholder="Harga Satuan"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Besaran Uang Muka
+                </label>
+                <input
+                  type="text"
+                  value={spkData.besaranUangMuka || 'Kontrak ini tidak diberikan uang muka'}
+                  onChange={(e) => handleFieldChange('besaranUangMuka', e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Kontrak ini tidak diberikan uang muka"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Fasilitas yang Diberikan
+                </label>
+                <input
+                  type="text"
+                  value={spkData.fasilitas || 'tidak diberikan fasilitas'}
+                  onChange={(e) => handleFieldChange('fasilitas', e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                  placeholder="tidak diberikan fasilitas"
                 />
               </div>
             </div>
