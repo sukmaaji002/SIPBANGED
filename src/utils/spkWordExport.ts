@@ -468,19 +468,25 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
 
     <tr>
-      <td style="border: 1px solid #000000; padding: 8pt 6pt; text-align: center; vertical-align: top;">
-        <p style="font-weight: bold; margin: 0; text-align: center;">Untuk dan atas nama</p>
-        <p style="font-weight: bold; margin: 0; text-align: center;">Dinas PUPR Kabupaten Tegal</p>
-        <p style="font-size: 8.5pt; margin: 0; text-align: center;">${spk.ppkJabatan}</p>
-        <p style="font-size: 8.5pt; font-style: italic; margin: 0 0 40pt 0; text-align: center;">Selaku Pejabat Penandatangan Kontrak</p>
-        <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.ppkNama}</p>
-        <p style="font-size: 8.5pt; margin: 0; text-align: center;">NIP. ${spk.ppkNip}</p>
-      </td>
-      <td style="border: 1px solid #000000; padding: 8pt 6pt; text-align: center; vertical-align: top;">
-        <p style="font-weight: bold; margin: 0; text-align: center;">Untuk dan atas nama Penyedia</p>
-        <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 52pt 0; text-align: center;">${spk.penyediaNamaBadanUsaha}</p>
-        <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.penyediaNamaPimpinan}</p>
-        <p style="font-size: 8.5pt; margin: 0; text-align: center;">${spk.penyediaJabatanPimpinan}</p>
+      <td colspan="2" style="border: 1px solid #000000; padding: 0;">
+        <table style="width: 100%; border-collapse: collapse; margin: 0; padding: 0;">
+          <tr>
+            <td style="width: 50%; border-right: 1px solid #000000; padding: 8pt 6pt; text-align: center; vertical-align: top;">
+              <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama</p>
+              <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Dinas PUPR Kabupaten Tegal</p>
+              <p style="font-weight: normal; font-size: 8.5pt; margin: 0 0 2pt 0; text-align: center;">${spk.ppkJabatan}</p>
+              <p style="font-weight: bold; font-style: italic; font-size: 8.5pt; margin: 0 0 42pt 0; text-align: center;">Selaku Pejabat Penandatangan Kontrak</p>
+              <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.ppkNama}</p>
+              <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">NIP. ${spk.ppkNip}</p>
+            </td>
+            <td style="width: 50%; padding: 8pt 6pt; text-align: center; vertical-align: top;">
+              <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama Penyedia</p>
+              <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 54pt 0; text-align: center;">${spk.penyediaNamaBadanUsaha}</p>
+              <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.penyediaNamaPimpinan}</p>
+              <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">${spk.penyediaJabatanPimpinan}</p>
+            </td>
+          </tr>
+        </table>
       </td>
     </tr>
   </table>
@@ -518,20 +524,20 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   <table style="width: 100%; margin-top: 14pt; font-size: 10pt; text-align: center;">
     <tr>
       <td style="width: 50%; vertical-align: top; text-align: center;">
-        <p style="font-weight: bold; margin: 0; text-align: center;">Untuk dan atas nama</p>
-        <p style="font-weight: bold; margin: 0; text-align: center;">Dinas PUPR Kabupaten Tegal</p>
-        <p style="font-size: 8.5pt; margin: 0; text-align: center;">${spk.ppkJabatan}</p>
-        <p style="font-size: 8.5pt; font-style: italic; margin: 0 0 45pt 0; text-align: center;">Selaku Pejabat Penandatangan Kontrak</p>
+        <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama</p>
+        <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Dinas PUPR Kabupaten Tegal</p>
+        <p style="font-weight: normal; font-size: 8.5pt; margin: 0 0 2pt 0; text-align: center;">${spk.ppkJabatan}</p>
+        <p style="font-weight: bold; font-style: italic; font-size: 8.5pt; margin: 0 0 45pt 0; text-align: center;">Selaku Pejabat Penandatangan Kontrak</p>
         <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.ppkNama}</p>
-        <p style="font-size: 8.5pt; margin: 0; text-align: center;">NIP. ${spk.ppkNip}</p>
+        <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">NIP. ${spk.ppkNip}</p>
       </td>
       <td style="width: 50%; vertical-align: top; text-align: center;">
-        <p style="font-size: 8.5pt; margin: 0; text-align: center;">Slawi, ${tanggalSpkFormatted}</p>
+        <p style="font-size: 8.5pt; margin: 0 0 2pt 0; text-align: center;">Slawi, ${tanggalSpkFormatted}</p>
         <p style="font-size: 8.5pt; font-style: italic; margin: 0 0 2pt 0; text-align: center;">Menerima dan Menyetujui :</p>
-        <p style="font-weight: bold; margin: 0; text-align: center;">Untuk dan atas nama Penyedia</p>
+        <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama Penyedia</p>
         <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 45pt 0; text-align: center;">${spk.penyediaNamaBadanUsaha}</p>
         <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.penyediaNamaPimpinan}</p>
-        <p style="font-size: 8.5pt; margin: 0; text-align: center;">${spk.penyediaJabatanPimpinan}</p>
+        <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">${spk.penyediaJabatanPimpinan}</p>
       </td>
     </tr>
   </table>

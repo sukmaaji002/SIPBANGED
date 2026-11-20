@@ -367,22 +367,30 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
                     </td>
                   </tr>
 
-                  {/* Baris 16: Kolom Tanda Tangan Para Pihak */}
+                  {/* Baris 16: Kolom Tanda Tangan Para Pihak (Rata Kanan dan Kiri 50% - 50%) */}
                   <tr>
-                    <td className="border border-black p-4 text-center align-top">
-                      <p className="font-bold">Untuk dan atas nama</p>
-                      <p className="font-bold">Dinas PUPR Kabupaten Tegal</p>
-                      <p className="font-semibold text-[10px] mb-1">{spk.ppkJabatan}</p>
-                      <p className="text-[10px] italic mb-16">Selaku Pejabat Penandatangan Kontrak</p>
-                      <p className="font-bold underline text-xs">{spk.ppkNama}</p>
-                      <p className="text-[10px]">NIP. {spk.ppkNip}</p>
-                    </td>
-                    <td className="border border-black p-4 text-center align-top">
-                      <p className="font-bold">Untuk dan atas nama Penyedia</p>
-                      <p className="font-bold uppercase mb-1">{spk.penyediaNamaBadanUsaha}</p>
-                      <div className="h-20" />
-                      <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
-                      <p className="text-[10px]">{spk.penyediaJabatanPimpinan}</p>
+                    <td colSpan={2} className="border border-black p-0">
+                      <table className="w-full border-collapse">
+                        <tbody>
+                          <tr>
+                            <td className="w-1/2 border-r border-black p-4 text-center align-top">
+                              <p className="font-normal text-[11px]">Untuk dan atas nama</p>
+                              <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
+                              <p className="font-normal text-[10px] mb-1">{spk.ppkJabatan}</p>
+                              <p className="font-bold italic text-[10.5px] mb-16">Selaku Pejabat Penandatangan Kontrak</p>
+                              <p className="font-bold underline text-xs">{spk.ppkNama}</p>
+                              <p className="font-normal text-[10px] mt-0.5">NIP. {spk.ppkNip}</p>
+                            </td>
+                            <td className="w-1/2 p-4 text-center align-top">
+                              <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
+                              <p className="font-bold uppercase text-[11px] mb-1">{spk.penyediaNamaBadanUsaha}</p>
+                              <div className="h-20" />
+                              <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
+                              <p className="font-normal text-[10px] mt-0.5">{spk.penyediaJabatanPimpinan}</p>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </td>
                   </tr>
                 </tbody>
@@ -441,21 +449,21 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
             style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
           >
             <div>
-              <p className="font-bold">Untuk dan atas nama</p>
-              <p className="font-bold">Dinas PUPR Kabupaten Tegal</p>
-              <p className="text-[10px] font-semibold">{spk.ppkJabatan}</p>
-              <p className="text-[10px] italic mb-16">Selaku Pejabat Penandatangan Kontrak</p>
-              <p className="font-bold underline">{spk.ppkNama}</p>
-              <p className="text-[10px]">NIP. {spk.ppkNip}</p>
+              <p className="font-normal text-[11px]">Untuk dan atas nama</p>
+              <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
+              <p className="text-[10px] font-normal mb-1">{spk.ppkJabatan}</p>
+              <p className="text-[10.5px] font-bold italic mb-16">Selaku Pejabat Penandatangan Kontrak</p>
+              <p className="font-bold underline text-xs">{spk.ppkNama}</p>
+              <p className="text-[10px] font-normal mt-0.5">NIP. {spk.ppkNip}</p>
             </div>
 
             <div>
-              <p className="text-[10px] mb-1">Slawi, {tanggalSpkFormatted}</p>
-              <p className="text-[10px] italic">Menerima dan Menyetujui :</p>
-              <p className="font-bold">Untuk dan atas nama Penyedia</p>
-              <p className="font-bold uppercase mb-16">{spk.penyediaNamaBadanUsaha}</p>
-              <p className="font-bold underline">{spk.penyediaNamaPimpinan}</p>
-              <p className="text-[10px]">{spk.penyediaJabatanPimpinan}</p>
+              <p className="text-[10px] mb-1 font-normal">Slawi, {tanggalSpkFormatted}</p>
+              <p className="text-[10px] italic font-normal mb-0.5">Menerima dan Menyetujui :</p>
+              <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
+              <p className="font-bold uppercase text-[11px] mb-16">{spk.penyediaNamaBadanUsaha}</p>
+              <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
+              <p className="text-[10px] font-normal mt-0.5">{spk.penyediaJabatanPimpinan}</p>
             </div>
           </div>
 
