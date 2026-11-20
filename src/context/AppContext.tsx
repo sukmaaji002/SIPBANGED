@@ -30,7 +30,7 @@ import {
   INITIAL_MASTER_PPK
 } from '../data/initialData';
 import { DEFAULT_LKPP_CLAUSES } from '../data/lkppClauses';
-import { generateInitialSpkContracts, createDefaultSpkForProject } from '../data/spkData';
+import { generateInitialSpkContracts, createDefaultSpkForProject, DEFAULT_SPK_FISIK_CLAUSES } from '../data/spkData';
 import { supabaseSync } from '../lib/supabaseSync';
 import { isSupabaseConnected } from '../lib/supabase';
 
@@ -246,7 +246,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem(STORAGE_KEYS.SPK_CONTRACTS);
     if (!saved) return generateInitialSpkContracts(INITIAL_PROJECTS);
     try {
-      return JSON.parse(saved);
+      const parsed: SpkContract[] = JSON.parse(saved);
+      let wasMigrated = false;
+      const migrated = parsed.map((s) => {
+        if (s.spkType === 'fisik') {
+          const currentCount = (s.clauses || []).length;
+          const totalLines = (s.clauses || []).reduce((acc, c) => acc + (c.isi ? c.isi.split('\n').length : 0), 0);
+          // If clauses are fewer than 31 or total lines are fewer than 200, migrate to official 31 clauses
+          if (currentCount < 31 || totalLines < 200) {
+            wasMigrated = true;
+            const activeMap = new Map((s.clauses || []).map(cl => [cl.id, cl.isActive]));
+            const customMap = new Map((s.clauses || []).filter(cl => cl.isi).map(cl => [cl.id, cl.isi]));
+            const updatedClauses = DEFAULT_SPK_FISIK_CLAUSES.map(defaultClause => {
+              const existingText = customMap.get(defaultClause.id);
+              const isOutdated = !existingText || existingText.split('\n').length < defaultClause.isi.split('\n').length;
+              return {
+                ...defaultClause,
+                isi: isOutdated ? defaultClause.isi : (existingText || defaultClause.isi),
+                isActive: activeMap.has(defaultClause.id) ? (activeMap.get(defaultClause.id) ?? true) : true
+              };
+            });
+            return { ...s, clauses: updatedClauses };
+          }
+        }
+        return s;
+      });
+
+      if (wasMigrated) {
+        try {
+          localStorage.setItem(STORAGE_KEYS.SPK_CONTRACTS, JSON.stringify(migrated));
+        } catch (e) {
+          console.error('Failed to save migrated spkContracts', e);
+        }
+      }
+      return migrated;
     } catch {
       return generateInitialSpkContracts(INITIAL_PROJECTS);
     }

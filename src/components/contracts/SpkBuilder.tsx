@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { SpkContract, SpkType, SpkPersonelItem, SpkClauseItem } from '../../types';
-import { createDefaultSpkForProject } from '../../data/spkData';
+import { createDefaultSpkForProject, DEFAULT_SPK_FISIK_CLAUSES, DEFAULT_SPK_PENGAWAS_CLAUSES, DEFAULT_SPK_PERENCANA_CLAUSES } from '../../data/spkData';
 import { hasPermission } from '../../utils/permissions';
 import { formatRupiah, formatRibuan, parseRibuanKeAngka, angkaKeTerbilang, parseKomponenTanggalKontrak } from '../../utils/formatters';
 import { SpkPrintView } from './SpkPrintView';
@@ -26,7 +26,8 @@ import {
   Building,
   UserCheck,
   Calendar,
-  DollarSign
+  DollarSign,
+  RotateCcw
 } from 'lucide-react';
 
 interface SpkBuilderProps {
@@ -74,11 +75,34 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
       s => s.projectId === selectedProject.id && s.spkType === activeSpkType
     );
     if (found) {
+      if (found.spkType === 'fisik') {
+        const currentCount = (found.clauses || []).length;
+        const totalLines = (found.clauses || []).reduce((acc, c) => acc + (c.isi ? c.isi.split('\n').length : 0), 0);
+        if (currentCount < 31 || totalLines < 200) {
+          const activeMap = new Map((found.clauses || []).map(cl => [cl.id, cl.isActive]));
+          const customMap = new Map((found.clauses || []).filter(cl => cl.isi).map(cl => [cl.id, cl.isi]));
+          const updatedClauses = DEFAULT_SPK_FISIK_CLAUSES.map(defaultClause => {
+            const existingText = customMap.get(defaultClause.id);
+            const isOutdated = !existingText || existingText.split('\n').length < defaultClause.isi.split('\n').length;
+            return {
+              ...defaultClause,
+              isi: isOutdated ? defaultClause.isi : (existingText || defaultClause.isi),
+              isActive: activeMap.has(defaultClause.id) ? (activeMap.get(defaultClause.id) ?? true) : true
+            };
+          });
+          const migratedFound = { ...found, clauses: updatedClauses };
+          setSpkData(migratedFound);
+          updateSpkContract(migratedFound);
+          return;
+        }
+      }
       setSpkData(found);
     } else {
-      setSpkData(createDefaultSpkForProject(selectedProject, activeSpkType));
+      const defaultSpk = createDefaultSpkForProject(selectedProject, activeSpkType);
+      setSpkData(defaultSpk);
+      updateSpkContract(defaultSpk);
     }
-  }, [selectedProject.id, activeSpkType, spkContracts]);
+  }, [selectedProject.id, activeSpkType, spkContracts, updateSpkContract]);
 
   const canEdit = currentUser ? hasPermission(currentUser.role, 'edit_contract') : true;
 
@@ -187,6 +211,21 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
       ...prev,
       clauses: (prev.clauses || []).map(c => c.id === id ? { ...c, isi: text } : c)
     }));
+  };
+
+  const handleResetToDefaultClauses = () => {
+    const defaultClauses = activeSpkType === 'fisik'
+      ? DEFAULT_SPK_FISIK_CLAUSES
+      : (activeSpkType === 'pengawas' ? DEFAULT_SPK_PENGAWAS_CLAUSES : DEFAULT_SPK_PERENCANA_CLAUSES);
+    
+    const count = defaultClauses.length;
+    if (window.confirm(`Muat ulang seluruh ${count} pasal Syarat Umum SPK ke template baku resmi DPUPR Kab. Tegal? Seluruh pasal dan sub-poin akan dikembalikan ke format standar.`)) {
+      const updated = { ...spkData, clauses: JSON.parse(JSON.stringify(defaultClauses)) };
+      setSpkData(updated);
+      updateSpkContract(updated);
+      setSaveSuccessMsg(true);
+      setTimeout(() => setSaveSuccessMsg(false), 3000);
+    }
   };
 
   // Save Handler
@@ -1118,7 +1157,7 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
       {/* MODE 2: KLAUSUL SYARAT-SYARAT SPK */}
       {activeTabMode === 'klausul' && (
         <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
             <div>
               <h3 className="font-bold text-slate-900 text-sm">
                 Klausul Syarat-Syarat SPK ({activeSpkType.toUpperCase()})
@@ -1127,9 +1166,20 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                 Pilih atau sesuaikan pasal-pasal syarat umum/khusus SPK yang berlaku untuk kontrak pengadaan ini
               </p>
             </div>
-            <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-              {(spkData.clauses || []).filter(c => c.isActive).length} Pasal Aktif
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleResetToDefaultClauses}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                title="Muat ulang seluruh klausul ke standar baku resmi DPUPR Kab. Tegal"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-slate-600" />
+                <span>Reset ke Format Baku ({activeSpkType === 'fisik' ? '31 Pasal' : `${(spkData.clauses || []).length} Pasal`})</span>
+              </button>
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                {(spkData.clauses || []).filter(c => c.isActive).length}/{(spkData.clauses || []).length} Pasal Aktif
+              </span>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -1173,6 +1223,17 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                 )}
               </div>
             ))}
+          </div>
+
+          {/* Informasi Penutup & Pengesahan Dokumen */}
+          <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/70 text-xs text-blue-900 space-y-2 mt-4">
+            <div className="flex items-center gap-2 font-bold text-blue-950">
+              <FileText className="w-4 h-4 text-blue-700" />
+              <span>Ketentuan Penutup & Pengesahan Tanda Tangan SPK (Standar DPUPR)</span>
+            </div>
+            <p className="text-slate-700 leading-relaxed text-justify">
+              Bagian Penutup Surat Perintah Kerja (meliputi pembuatan rangkap 3 bermaterai bagi Pejabat Penandatangan Kontrak dan Penyedia, masa berlaku efektif sesuai SPMK, kesepakatan tertulis Para Pihak, serta blok pengesahan tanda tangan ganda) secara otomatis disertakan pada bagian akhir dokumen pratinjau cetak dan ekspor Word (.doc) sesuai format dokumen fisik resmi DPUPR Kab. Tegal.
+            </p>
           </div>
         </div>
       )}
