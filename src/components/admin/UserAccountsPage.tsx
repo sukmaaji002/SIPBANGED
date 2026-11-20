@@ -767,8 +767,8 @@ CREATE POLICY "Akses Penuh Anon Addendums" ON public.sipbanged_schedule_addendum
           MODAL: EDIT USER
           ========================================================================= */}
       {editingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 my-auto">
             {/* Header */}
             <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-2.5">
@@ -789,7 +789,7 @@ CREATE POLICY "Akses Penuh Anon Addendums" ON public.sipbanged_schedule_addendum
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSaveEdit} className="p-6 space-y-4 text-xs">
+            <form onSubmit={handleSaveEdit} className="p-6 space-y-4 text-xs overflow-y-auto flex-1">
               <div>
                 <label className="block font-bold text-slate-700 mb-1">
                   Nama Lengkap & Gelar <span className="text-rose-500">*</span>
@@ -917,8 +917,8 @@ CREATE POLICY "Akses Penuh Anon Addendums" ON public.sipbanged_schedule_addendum
           MODAL: ADD NEW USER
           ========================================================================= */}
       {isAddUserOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 my-auto">
             {/* Header */}
             <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-2.5">
@@ -939,7 +939,7 @@ CREATE POLICY "Akses Penuh Anon Addendums" ON public.sipbanged_schedule_addendum
             </div>
 
             {/* Form */}
-            <form onSubmit={handleCreateUser} className="p-6 space-y-4 text-xs">
+            <form onSubmit={handleCreateUser} className="p-6 space-y-4 text-xs overflow-y-auto flex-1">
               <div>
                 <label className="block font-bold text-slate-700 mb-1">
                   Nama Lengkap & Gelar <span className="text-rose-500">*</span>
@@ -1054,8 +1054,8 @@ CREATE POLICY "Akses Penuh Anon Addendums" ON public.sipbanged_schedule_addendum
           MODAL: SUPABASE CLOUD DATABASE CONFIGURATION
           ========================================================================= */}
       {isSupabaseModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 my-auto">
             {/* Header */}
             <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2.5">

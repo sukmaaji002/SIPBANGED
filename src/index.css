@@ -15,7 +15,10 @@
   }
 
   /* Kertas polos putih bersih total tanpa bayangan */
-  html, body, #root, main {
+  html,
+  body,
+  #root,
+  main {
     background: #ffffff !important;
     background-color: #ffffff !important;
     box-shadow: none !important;
@@ -73,18 +76,21 @@
     break-inside: avoid !important;
     break-inside: avoid-page !important;
   }
+
   .signature-section table,
   .signature-table {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
+
   .signature-section tr,
   .signature-table tr {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
-  th, td {
+  th,
+  td {
     color: black !important;
   }
 
@@ -149,23 +155,23 @@
     background: transparent !important;
   }
 
-  table.print-doc-table > tbody > tr {
+  table.print-doc-table>tbody>tr {
     page-break-inside: auto !important;
     break-inside: auto !important;
   }
 
-  table.print-doc-table > tbody > tr > td {
+  table.print-doc-table>tbody>tr>td {
     padding: 0 !important;
     border: none !important;
     page-break-inside: auto !important;
     break-inside: auto !important;
   }
 
-  table.print-doc-table > tfoot {
+  table.print-doc-table>tfoot {
     display: table-footer-group !important;
   }
 
-  table.print-doc-table > tfoot > tr > td {
+  table.print-doc-table>tfoot>tr>td {
     padding: 0 !important;
     border: none !important;
     height: auto !important;

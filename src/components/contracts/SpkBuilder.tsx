@@ -398,7 +398,7 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
       </div>
 
       {/* 3 Sub-Modes (Form, Klausul, Preview) */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 no-print">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 no-print overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTabMode('form')}
           className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
@@ -1242,23 +1242,23 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
       {/* MODE 3: PRATINJAU CETAK DOKUMEN RESMI */}
       {activeTabMode === 'preview' && (
         <div className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-xl flex items-center justify-between text-xs no-print">
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs no-print">
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-amber-600" />
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
               <span>
                 Pratinjau berikut menampilkan format persis sesuai cetakan resmi kedinasan DPUPR Kabupaten Tegal.
               </span>
             </div>
             <button
               onClick={handlePrint}
-              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
             >
               <Printer className="w-3.5 h-3.5" />
               Cetak Sekarang
             </button>
           </div>
 
-          <div className="bg-white p-0 rounded-none shadow-none border-0">
+          <div className="bg-white p-0 rounded-none shadow-none border-0 w-full overflow-x-auto pb-4">
             <SpkPrintView spk={spkData} />
           </div>
         </div>

@@ -439,8 +439,8 @@ export const BeritaAcaraList: React.FC = () => {
 
       {/* Modal Create Berita Acara */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 border border-slate-100 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 border border-slate-100 max-h-[90vh] overflow-y-auto my-auto">
             <h3 className="font-bold text-base text-slate-900 mb-1">
               Buat Berita Acara Baru
             </h3>

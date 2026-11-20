@@ -2372,7 +2372,7 @@ export const ContractBuilder: React.FC = () => {
           </div>
 
           {/* Printable Documents Container */}
-          <div className="space-y-8">
+          <div className="w-full overflow-x-auto pb-4 space-y-8">
             {(previewDocType === 'all' || previewDocType === 'sp') && (
               <SuratPerjanjianPrint contract={currentContractState} />
             )}

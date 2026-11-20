@@ -27,8 +27,8 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
         {/* LEMBAR 1: COVER / LEMBAR MUKA SPK FISIK (STANDALONE)     */}
         {/* Tidak memakai PrintDocWrapper agar bebas dari paraf box  */}
         {/* ======================================================== */}
-        <div 
-          className="spk-page spk-cover-sheet font-serif text-black leading-relaxed bg-white p-6 sm:p-10 mb-8 max-w-[215mm] mx-auto text-xs flex flex-col justify-between min-h-[960px] shadow-sm"
+        <div
+          className="spk-page spk-cover-sheet font-serif text-black leading-relaxed bg-white p-4 sm:p-8 md:p-10 mb-8 max-w-[215mm] mx-auto text-xs flex flex-col justify-between min-h-[960px] shadow-sm"
           style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
         >
           <div>
@@ -123,367 +123,367 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
           {/* ======================================================== */}
           {/* LEMBAR 2: FORMULIR TABEL SPK UTUH (LKPP / DPUPR)         */}
           {/* ======================================================== */}
-          <div 
+          <div
             className="spk-page spk-main-form font-serif text-black leading-relaxed flex flex-col justify-between pt-6"
             style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
           >
-          <div>
-            <KopSurat />
+            <div>
+              <KopSurat />
 
-            <div className="my-4">
-              <table className="w-full border-collapse border border-black text-[11px] leading-snug">
-                <tbody>
-                  {/* Baris 1: Header SPK & Dinas */}
-                  <tr>
-                    <td rowSpan={2} className="w-[32%] border border-black p-2.5 font-bold uppercase align-middle text-left leading-snug">
-                      SURAT PERINTAH<br />KERJA (SPK)
-                    </td>
-                    <td className="w-[68%] border border-black p-2.5 font-bold uppercase text-center align-middle leading-snug">
-                      DINAS PEKERJAAN UMUM DAN PENATAAN RUANG KABUPATEN<br />TEGAL
-                    </td>
-                  </tr>
+              <div className="my-4">
+                <table className="w-full border-collapse border border-black text-[11px] leading-snug">
+                  <tbody>
+                    {/* Baris 1: Header SPK & Dinas */}
+                    <tr>
+                      <td rowSpan={2} className="w-[32%] border border-black p-2.5 font-bold uppercase align-middle text-left leading-snug">
+                        SURAT PERINTAH<br />KERJA (SPK)
+                      </td>
+                      <td className="w-[68%] border border-black p-2.5 font-bold uppercase text-center align-middle leading-snug">
+                        DINAS PEKERJAAN UMUM DAN PENATAAN RUANG KABUPATEN<br />TEGAL
+                      </td>
+                    </tr>
 
-                  {/* Baris 2: Nomor & Tanggal (hanya kolom kanan) */}
-                  <tr>
-                    <td className="border border-black p-2.5 align-top">
-                      <div className="font-bold uppercase mb-1">NOMOR DAN TANGGAL SPK:</div>
-                      <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
-                        <div>Nomor</div>
-                        <div>:</div>
-                        <div>{spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}</div>
-                        <div>Tanggal</div>
-                        <div>:</div>
-                        <div>{tanggalSpkFormatted}</div>
-                      </div>
-                    </td>
-                  </tr>
+                    {/* Baris 2: Nomor & Tanggal (hanya kolom kanan) */}
+                    <tr>
+                      <td className="border border-black p-2.5 align-top">
+                        <div className="font-bold uppercase mb-1">NOMOR DAN TANGGAL SPK:</div>
+                        <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
+                          <div>Nomor</div>
+                          <div>:</div>
+                          <div>{spk.nomorSpk || '000.3.2/PBLT/17.04/SPK/X/2026'}</div>
+                          <div>Tanggal</div>
+                          <div>:</div>
+                          <div>{tanggalSpkFormatted}</div>
+                        </div>
+                      </td>
+                    </tr>
 
-                  {/* Baris 3: Pejabat Penandatangan Kontrak */}
-                  <tr>
-                    <td className="border border-black p-2.5 font-bold uppercase align-top">
-                      NAMA PEJABAT PENANDATANGAN KONTRAK
-                    </td>
-                    <td className="border border-black p-2.5 align-top">
-                      <div className="grid grid-cols-[110px_10px_1fr] text-[11px] mb-2">
-                        <div>Nama</div>
-                        <div>:</div>
-                        <div className="font-bold">{spk.ppkNama}</div>
-                        <div>NIP</div>
-                        <div>:</div>
-                        <div>{spk.ppkNip}</div>
-                        <div>Jabatan</div>
-                        <div>:</div>
-                        <div>{spk.ppkJabatan}</div>
-                        <div>Berkedudukan di</div>
-                        <div>:</div>
-                        <div>{spk.ppkAlamat || 'Satuan Kerja Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal'}</div>
-                      </div>
-                      <p className="text-justify text-[10.5px] leading-relaxed">
-                        yang bertindak untuk dan atas nama Pemerintah Indonesia c.q. Pemerintah Kabupaten Tegal c.q. Satuan Kerja Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal. berdasarkan {spk.ppkSkPengangkatanText || 'Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor 07 Tahun 2026 tanggal 12 Januari 2026 tentang Penunjukan Pejabat Pembuat Komitmen (PPKom) Pada Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal Tahun Anggaran 2026'} selanjutnya disebut “Pejabat Penandatangan Kontrak”, dengan:
-                      </p>
-                    </td>
-                  </tr>
+                    {/* Baris 3: Pejabat Penandatangan Kontrak */}
+                    <tr>
+                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                        NAMA PEJABAT PENANDATANGAN KONTRAK
+                      </td>
+                      <td className="border border-black p-2.5 align-top">
+                        <div className="grid grid-cols-[110px_10px_1fr] text-[11px] mb-2">
+                          <div>Nama</div>
+                          <div>:</div>
+                          <div className="font-bold">{spk.ppkNama}</div>
+                          <div>NIP</div>
+                          <div>:</div>
+                          <div>{spk.ppkNip}</div>
+                          <div>Jabatan</div>
+                          <div>:</div>
+                          <div>{spk.ppkJabatan}</div>
+                          <div>Berkedudukan di</div>
+                          <div>:</div>
+                          <div>{spk.ppkAlamat || 'Satuan Kerja Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal'}</div>
+                        </div>
+                        <p className="text-justify text-[10.5px] leading-relaxed">
+                          yang bertindak untuk dan atas nama Pemerintah Indonesia c.q. Pemerintah Kabupaten Tegal c.q. Satuan Kerja Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal. berdasarkan {spk.ppkSkPengangkatanText || 'Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor 07 Tahun 2026 tanggal 12 Januari 2026 tentang Penunjukan Pejabat Pembuat Komitmen (PPKom) Pada Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal Tahun Anggaran 2026'} selanjutnya disebut “Pejabat Penandatangan Kontrak”, dengan:
+                        </p>
+                      </td>
+                    </tr>
 
-                  {/* Baris 4: Nama Penyedia */}
-                  <tr>
-                    <td className="border border-black p-2.5 font-bold uppercase align-top">
-                      NAMA PENYEDIA
-                    </td>
-                    <td className="border border-black p-2.5 align-top">
-                      <div className="grid grid-cols-[130px_10px_1fr] text-[11px] mb-2">
-                        <div>Nama</div>
-                        <div>:</div>
-                        <div className="font-bold">{spk.penyediaNamaPimpinan}</div>
-                        <div>Jabatan</div>
-                        <div>:</div>
-                        <div>{spk.penyediaJabatanPimpinan}</div>
-                        <div>Berkedudukan di</div>
-                        <div>:</div>
-                        <div>{spk.penyediaAlamat}</div>
-                        <div>Akta Notaris Nomor</div>
-                        <div>:</div>
-                        <div>{spk.penyediaAktaNotarisNomor || '4'}</div>
-                        <div>Tanggal</div>
-                        <div>:</div>
-                        <div>{spk.penyediaAktaNotarisTanggal || '7 April 2022'}</div>
-                        <div>Notaris</div>
-                        <div>:</div>
-                        <div>{spk.penyediaAktaNotarisNama || 'LAELI NURCHAMIDAH, SH. MKn'}</div>
-                      </div>
-                      <p className="text-justify text-[10.5px] leading-relaxed">
-                        yang bertindak untuk dan atas nama <strong>{spk.penyediaNamaBadanUsaha}</strong> selanjutnya disebut “Penyedia”.
-                      </p>
-                    </td>
-                  </tr>
+                    {/* Baris 4: Nama Penyedia */}
+                    <tr>
+                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                        NAMA PENYEDIA
+                      </td>
+                      <td className="border border-black p-2.5 align-top">
+                        <div className="grid grid-cols-[130px_10px_1fr] text-[11px] mb-2">
+                          <div>Nama</div>
+                          <div>:</div>
+                          <div className="font-bold">{spk.penyediaNamaPimpinan}</div>
+                          <div>Jabatan</div>
+                          <div>:</div>
+                          <div>{spk.penyediaJabatanPimpinan}</div>
+                          <div>Berkedudukan di</div>
+                          <div>:</div>
+                          <div>{spk.penyediaAlamat}</div>
+                          <div>Akta Notaris Nomor</div>
+                          <div>:</div>
+                          <div>{spk.penyediaAktaNotarisNomor || '4'}</div>
+                          <div>Tanggal</div>
+                          <div>:</div>
+                          <div>{spk.penyediaAktaNotarisTanggal || '7 April 2022'}</div>
+                          <div>Notaris</div>
+                          <div>:</div>
+                          <div>{spk.penyediaAktaNotarisNama || 'LAELI NURCHAMIDAH, SH. MKn'}</div>
+                        </div>
+                        <p className="text-justify text-[10.5px] leading-relaxed">
+                          yang bertindak untuk dan atas nama <strong>{spk.penyediaNamaBadanUsaha}</strong> selanjutnya disebut “Penyedia”.
+                        </p>
+                      </td>
+                    </tr>
 
-                  {/* Baris 5: Wakil Sah */}
-                  <tr>
-                    <td className="border border-black p-2.5 font-bold uppercase align-top">
-                      WAKIL SAH PEJABAT PENANDATANGAN KONTRAK
-                    </td>
-                    <td className="border border-black p-2.5 align-top">
-                      <p className="font-bold mb-1">Wakil Sah Pejabat penandatangan kontrak</p>
-                      <p>Untuk Pejabat penandatangan kontrak: {spk.wakilSahPpk || 'Tidak ada'}</p>
-                    </td>
-                  </tr>
+                    {/* Baris 5: Wakil Sah */}
+                    <tr>
+                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                        WAKIL SAH PEJABAT PENANDATANGAN KONTRAK
+                      </td>
+                      <td className="border border-black p-2.5 align-top">
+                        <p className="font-bold mb-1">Wakil Sah Pejabat penandatangan kontrak</p>
+                        <p>Untuk Pejabat penandatangan kontrak: {spk.wakilSahPpk || 'Tidak ada'}</p>
+                      </td>
+                    </tr>
 
-                  {/* Baris 6: Paket Pengadaan */}
-                  <tr>
-                    <td className="border border-black p-2.5 font-bold uppercase align-top">
-                      PAKET PENGADAAN: {spk.namaPaket.toUpperCase()}
-                    </td>
-                    <td className="border border-black p-2.5 align-top">
-                      <div className="space-y-2">
-                        <div>
-                          <div className="font-bold uppercase text-[10px] text-slate-800">
-                            NOMOR DAN TANGGAL UNDANGAN PENGADAAN LANGSUNG:
+                    {/* Baris 6: Paket Pengadaan */}
+                    <tr>
+                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                        PAKET PENGADAAN: {spk.namaPaket.toUpperCase()}
+                      </td>
+                      <td className="border border-black p-2.5 align-top">
+                        <div className="space-y-2">
+                          <div>
+                            <div className="font-bold uppercase text-[10px] text-slate-800">
+                              NOMOR DAN TANGGAL UNDANGAN PENGADAAN LANGSUNG:
+                            </div>
+                            <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
+                              <div>Nomor</div>
+                              <div>:</div>
+                              <div>{spk.nomorUndanganPengadaan || spk.nomorSppbj || '-'}</div>
+                              <div>Tanggal</div>
+                              <div>:</div>
+                              <div>{spk.tanggalUndanganPengadaan ? formatTanggalIndo(spk.tanggalUndanganPengadaan) : tanggalSppbjFormatted}</div>
+                            </div>
                           </div>
-                          <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
-                            <div>Nomor</div>
-                            <div>:</div>
-                            <div>{spk.nomorUndanganPengadaan || spk.nomorSppbj || '-'}</div>
-                            <div>Tanggal</div>
-                            <div>:</div>
-                            <div>{spk.tanggalUndanganPengadaan ? formatTanggalIndo(spk.tanggalUndanganPengadaan) : tanggalSppbjFormatted}</div>
+
+                          <div>
+                            <div className="font-bold uppercase text-[10px] text-slate-800">
+                              NOMOR DAN TANGGAL BERITA ACARA HASIL PENGADAAN LANGSUNG:
+                            </div>
+                            <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
+                              <div>Nomor</div>
+                              <div>:</div>
+                              <div>{spk.nomorBahpl || '000.3.2/DPUPR/Rehab.Jaksa/PP/07/2026'}</div>
+                              <div>Tanggal</div>
+                              <div>:</div>
+                              <div>{spk.tanggalBahpl ? formatTanggalIndo(spk.tanggalBahpl) : '12 Oktober 2026'}</div>
+                            </div>
                           </div>
                         </div>
+                      </td>
+                    </tr>
 
-                        <div>
-                          <div className="font-bold uppercase text-[10px] text-slate-800">
-                            NOMOR DAN TANGGAL BERITA ACARA HASIL PENGADAAN LANGSUNG:
-                          </div>
-                          <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
-                            <div>Nomor</div>
-                            <div>:</div>
-                            <div>{spk.nomorBahpl || '000.3.2/DPUPR/Rehab.Jaksa/PP/07/2026'}</div>
-                            <div>Tanggal</div>
-                            <div>:</div>
-                            <div>{spk.tanggalBahpl ? formatTanggalIndo(spk.tanggalBahpl) : '12 Oktober 2026'}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
+                    {/* Baris 7: Sumber Dana */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5 text-justify leading-relaxed">
+                        <strong>SUMBER DANA:</strong> {spk.sumberDana} dibebankan atas DPPA Nomor {spk.dppaNomor || 'DPPA/A.3/1.03.0.00.0.00.01.0000/001/2026'} {spk.perubahanAnggaran || `Perubahan Anggaran Tahun ${spk.tahunAnggaran || 2026}`} untuk mata anggaran kegiatan {spk.mataAnggaran || spk.kegiatan || 'Penyelenggaraan Bangunan Gedung Di Wilayah Daerah Kabupaten/Kota, Pemberian Izin Mendirikan Bangunan (IMB) dan Sertifikat Laik Fungsi Bangunan Gedung'}
+                      </td>
+                    </tr>
 
-                  {/* Baris 7: Sumber Dana */}
-                  <tr>
-                    <td colSpan={2} className="border border-black p-2.5 text-justify leading-relaxed">
-                      <strong>SUMBER DANA:</strong> {spk.sumberDana} dibebankan atas DPPA Nomor {spk.dppaNomor || 'DPPA/A.3/1.03.0.00.0.00.01.0000/001/2026'} {spk.perubahanAnggaran || `Perubahan Anggaran Tahun ${spk.tahunAnggaran || 2026}`} untuk mata anggaran kegiatan {spk.mataAnggaran || spk.kegiatan || 'Penyelenggaraan Bangunan Gedung Di Wilayah Daerah Kabupaten/Kota, Pemberian Izin Mendirikan Bangunan (IMB) dan Sertifikat Laik Fungsi Bangunan Gedung'}
-                    </td>
-                  </tr>
+                    {/* Baris 8: Masa Pelaksanaan & Pemeliharaan */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5 space-y-1.5 text-justify leading-relaxed">
+                        <p>
+                          <strong>MASA PELAKSANAAN PEKERJAAN:</strong> {spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'}) hari kalender dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan
+                        </p>
+                        <p>
+                          <strong>MASA PEMELIHARAAN PEKERJAAN:</strong> {spk.masaPemeliharaanHari || 180} ({spk.masaPemeliharaanHuruf || 'seratus delapan puluh'}) hari Kalender dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan
+                        </p>
+                      </td>
+                    </tr>
 
-                  {/* Baris 8: Masa Pelaksanaan & Pemeliharaan */}
-                  <tr>
-                    <td colSpan={2} className="border border-black p-2.5 space-y-1.5 text-justify leading-relaxed">
-                      <p>
-                        <strong>MASA PELAKSANAAN PEKERJAAN:</strong> {spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'}) hari kalender dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan
-                      </p>
-                      <p>
-                        <strong>MASA PEMELIHARAAN PEKERJAAN:</strong> {spk.masaPemeliharaanHari || 180} ({spk.masaPemeliharaanHuruf || 'seratus delapan puluh'}) hari Kalender dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan
-                      </p>
-                    </td>
-                  </tr>
+                    {/* Baris 9: Jenis Kontrak */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5">
+                        <strong>JENIS KONTRAK:</strong> {spk.jenisKontrak || 'Harga Satuan'}
+                      </td>
+                    </tr>
 
-                  {/* Baris 9: Jenis Kontrak */}
-                  <tr>
-                    <td colSpan={2} className="border border-black p-2.5">
-                      <strong>JENIS KONTRAK:</strong> {spk.jenisKontrak || 'Harga Satuan'}
-                    </td>
-                  </tr>
+                    {/* Baris 10: Dokumen Kontrak */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5 text-justify leading-relaxed">
+                        <p className="font-bold mb-1">DOKUMEN KONTRAK</p>
+                        <p className="mb-2">
+                          Dokumen-dokumen berikut merupakan satu kesatuan dan jika terjadi pertentangan antara ketentuan dalam suatu dokumen dengan ketentuan dalam dokumen yang lain maka yang berlaku adalah ketentuan dalam dokumen yang lebih tinggi berdasarkan urutan hierarki sebagai berikut:
+                        </p>
+                        <ol className="list-decimal pl-6 space-y-0.5">
+                          {(spk.dokumenKontrakHierarki || [
+                            'Adendum Surat Perintah Kerja/SPK (apabila ada)',
+                            'Surat Perintah Kerja',
+                            'Surat Penawaran',
+                            'Syarat-Syarat Umum SPK',
+                            'Gambar-Gambar',
+                            'Spesifikasi Teknis',
+                            'Daftar Kuantitas dan Harga hasil negosiasi dan koreksi aritmatik',
+                            'dokumen lainnya seperti: Surat Penunjukan Penyedia Barang/Jasa, Jadwal Pelaksanaan Pekerjaan, jaminan-jaminan, Berita Acara Rapat Persiapan Pelaksanaan Kontrak'
+                          ]).map((doc, idx) => (
+                            <li key={idx}>{doc};</li>
+                          ))}
+                        </ol>
+                      </td>
+                    </tr>
 
-                  {/* Baris 10: Dokumen Kontrak */}
-                  <tr>
-                    <td colSpan={2} className="border border-black p-2.5 text-justify leading-relaxed">
-                      <p className="font-bold mb-1">DOKUMEN KONTRAK</p>
-                      <p className="mb-2">
-                        Dokumen-dokumen berikut merupakan satu kesatuan dan jika terjadi pertentangan antara ketentuan dalam suatu dokumen dengan ketentuan dalam dokumen yang lain maka yang berlaku adalah ketentuan dalam dokumen yang lebih tinggi berdasarkan urutan hierarki sebagai berikut:
-                      </p>
-                      <ol className="list-decimal pl-6 space-y-0.5">
-                        {(spk.dokumenKontrakHierarki || [
-                          'Adendum Surat Perintah Kerja/SPK (apabila ada)',
-                          'Surat Perintah Kerja',
-                          'Surat Penawaran',
-                          'Syarat-Syarat Umum SPK',
-                          'Gambar-Gambar',
-                          'Spesifikasi Teknis',
-                          'Daftar Kuantitas dan Harga hasil negosiasi dan koreksi aritmatik',
-                          'dokumen lainnya seperti: Surat Penunjukan Penyedia Barang/Jasa, Jadwal Pelaksanaan Pekerjaan, jaminan-jaminan, Berita Acara Rapat Persiapan Pelaksanaan Kontrak'
-                        ]).map((doc, idx) => (
-                          <li key={idx}>{doc};</li>
-                        ))}
-                      </ol>
-                    </td>
-                  </tr>
+                    {/* Baris 11: Harga Kontrak */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5 text-justify">
+                        <p className="font-bold mb-0.5">HARGA KONTRAK</p>
+                        <p>
+                          Harga Kontrak termasuk Pajak Pertambahan Nilai (PPN) adalah sebesar <strong>{formatRupiah(spk.nilaiKontrak)}</strong> ({spk.nilaiKontrakTerbilang})
+                        </p>
+                      </td>
+                    </tr>
 
-                  {/* Baris 11: Harga Kontrak */}
-                  <tr>
-                    <td colSpan={2} className="border border-black p-2.5 text-justify">
-                      <p className="font-bold mb-0.5">HARGA KONTRAK</p>
-                      <p>
-                        Harga Kontrak termasuk Pajak Pertambahan Nilai (PPN) adalah sebesar <strong>{formatRupiah(spk.nilaiKontrak)}</strong> ({spk.nilaiKontrakTerbilang})
-                      </p>
-                    </td>
-                  </tr>
+                    {/* Baris 12: Lingkup Pekerjaan */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5">
+                        <p className="font-bold mb-1">LINGKUP PEKERJAAN</p>
+                        <p className="mb-1">Ruang lingkup pekerjaan terdiri dari :</p>
+                        <ul className="list-disc pl-6 space-y-0.5">
+                          {(spk.ruangLingkup || []).map((rk, idx) => (
+                            <li key={idx}>{rk}</li>
+                          ))}
+                        </ul>
+                      </td>
+                    </tr>
 
-                  {/* Baris 12: Lingkup Pekerjaan */}
-                  <tr>
-                    <td colSpan={2} className="border border-black p-2.5">
-                      <p className="font-bold mb-1">LINGKUP PEKERJAAN</p>
-                      <p className="mb-1">Ruang lingkup pekerjaan terdiri dari :</p>
-                      <ul className="list-disc pl-6 space-y-0.5">
-                        {(spk.ruangLingkup || []).map((rk, idx) => (
-                          <li key={idx}>{rk}</li>
-                        ))}
-                      </ul>
-                    </td>
-                  </tr>
+                    {/* Baris 13: Sistem Pembayaran */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5 space-y-1">
+                        <p className="font-bold mb-0.5">SISTEM PEMBAYARAN</p>
+                        <p>
+                          Pembayaran untuk kontrak ini dilakukan ke <strong>{spk.penyediaBank}</strong> rekening nomor : <strong>{spk.penyediaNomorRekening}</strong> atas nama <strong>{spk.penyediaNamaRekening}</strong>
+                        </p>
+                        <p>
+                          Pembayaran prestasi pekerjaan dilakukan dengan cara : <strong>{spk.sistemPembayaran.includes('Sekaligus') ? 'Sekaligus' : spk.sistemPembayaran}</strong>
+                        </p>
+                      </td>
+                    </tr>
 
-                  {/* Baris 13: Sistem Pembayaran */}
-                  <tr>
-                    <td colSpan={2} className="border border-black p-2.5 space-y-1">
-                      <p className="font-bold mb-0.5">SISTEM PEMBAYARAN</p>
-                      <p>
-                        Pembayaran untuk kontrak ini dilakukan ke <strong>{spk.penyediaBank}</strong> rekening nomor : <strong>{spk.penyediaNomorRekening}</strong> atas nama <strong>{spk.penyediaNamaRekening}</strong>
-                      </p>
-                      <p>
-                        Pembayaran prestasi pekerjaan dilakukan dengan cara : <strong>{spk.sistemPembayaran.includes('Sekaligus') ? 'Sekaligus' : spk.sistemPembayaran}</strong>
-                      </p>
-                    </td>
-                  </tr>
+                    {/* Baris 14: Besaran Uang Muka */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5">
+                        <p className="font-bold mb-0.5">BESARAN UANG MUKA</p>
+                        <p>{spk.besaranUangMuka || 'Kontrak ini tidak diberikan uang muka'}</p>
+                      </td>
+                    </tr>
 
-                  {/* Baris 14: Besaran Uang Muka */}
-                  <tr>
-                    <td colSpan={2} className="border border-black p-2.5">
-                      <p className="font-bold mb-0.5">BESARAN UANG MUKA</p>
-                      <p>{spk.besaranUangMuka || 'Kontrak ini tidak diberikan uang muka'}</p>
-                    </td>
-                  </tr>
+                    {/* Baris 15: Fasilitas */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5">
+                        <p className="font-bold mb-0.5">FASILITAS</p>
+                        <p>Pejabat penandatangan kontrak memberikan fasilitas berupa : {spk.fasilitas || 'tidak diberikan fasilitas'}</p>
+                      </td>
+                    </tr>
 
-                  {/* Baris 15: Fasilitas */}
-                  <tr>
-                    <td colSpan={2} className="border border-black p-2.5">
-                      <p className="font-bold mb-0.5">FASILITAS</p>
-                      <p>Pejabat penandatangan kontrak memberikan fasilitas berupa : {spk.fasilitas || 'tidak diberikan fasilitas'}</p>
-                    </td>
-                  </tr>
-
-                  {/* Baris 16: Kolom Tanda Tangan Para Pihak (Rata Kanan dan Kiri 50% - 50%) */}
-                  <tr>
-                    <td colSpan={2} className="border border-black p-0">
-                      <table className="w-full border-collapse">
-                        <tbody>
-                          <tr>
-                            <td className="w-1/2 border-r border-black p-4 text-center align-top">
-                              <p className="font-normal text-[11px]">Untuk dan atas nama</p>
-                              <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
-                              <p className="font-normal text-[10px] mb-1">{spk.ppkJabatan}</p>
-                              <p className="font-bold italic text-[10.5px] mb-16">Selaku Pejabat Penandatangan Kontrak</p>
-                              <p className="font-bold underline text-xs">{spk.ppkNama}</p>
-                              <p className="font-normal text-[10px] mt-0.5">NIP. {spk.ppkNip}</p>
-                            </td>
-                            <td className="w-1/2 p-4 text-center align-top">
-                              <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
-                              <p className="font-bold uppercase text-[11px] mb-1">{spk.penyediaNamaBadanUsaha}</p>
-                              <div className="h-20" />
-                              <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
-                              <p className="font-normal text-[10px] mt-0.5">{spk.penyediaJabatanPimpinan}</p>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-4 pb-2 print:hidden">
-            <ContractFooterParaf isFixedPrint={false} />
-          </div>
-        </div>
-
-        {/* ======================================================== */}
-        {/* LEMBAR 3+: SYARAT UMUM SURAT PERINTAH KERJA (SPK)        */}
-        {/* ======================================================== */}
-        <div className="spk-page spk-clauses-doc font-serif text-black leading-relaxed pt-6">
-          <div className="text-center my-6 space-y-1">
-            <h3 className="text-base font-bold uppercase tracking-wider underline">
-              SYARAT UMUM
-            </h3>
-            <h3 className="text-base font-bold uppercase tracking-wider underline">
-              SURAT PERINTAH KERJA (SPK)
-            </h3>
-          </div>
-
-          <div className="space-y-3.5 text-xs font-serif">
-            {(spk.clauses || []).filter(c => c.isActive).map((c) => (
-              <div key={c.id} className="text-justify clause-item">
-                <div className="flex items-start text-justify mb-1" style={{ breakAfter: 'avoid', pageBreakAfter: 'avoid' }}>
-                  <span className="shrink-0 w-7 font-bold text-left">{c.pasal}.</span>
-                  <span className="flex-1 font-bold uppercase">{c.judul}</span>
-                </div>
-                <div className="pl-7">
-                  <FormattedLegalText text={c.isi} />
-                </div>
+                    {/* Baris 16: Kolom Tanda Tangan Para Pihak (Rata Kanan dan Kiri 50% - 50%) */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-0">
+                        <table className="w-full border-collapse">
+                          <tbody>
+                            <tr>
+                              <td className="w-1/2 border-r border-black p-4 text-center align-top">
+                                <p className="font-normal text-[11px]">Untuk dan atas nama</p>
+                                <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
+                                <p className="font-normal text-[10px] mb-1">{spk.ppkJabatan}</p>
+                                <p className="font-bold italic text-[10.5px] mb-16">Selaku Pejabat Penandatangan Kontrak</p>
+                                <p className="font-bold underline text-xs">{spk.ppkNama}</p>
+                                <p className="font-normal text-[10px] mt-0.5">NIP. {spk.ppkNip}</p>
+                              </td>
+                              <td className="w-1/2 p-4 text-center align-top">
+                                <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
+                                <p className="font-bold uppercase text-[11px] mb-1">{spk.penyediaNamaBadanUsaha}</p>
+                                <div className="h-20" />
+                                <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
+                                <p className="font-normal text-[10px] mt-0.5">{spk.penyediaJabatanPimpinan}</p>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
-
-          {/* Bagian Penutup & Tanda Tangan SPK (Dikelola agar langsung menyambung dengan poin terakhir dan tetap utuh) */}
-          <div 
-            className="spk-closing-container mt-6 pt-3 border-t border-slate-300"
-            style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-          >
-            {/* Penutup SPK */}
-            <div className="text-xs text-justify leading-relaxed space-y-2">
-              <p>
-                SPK untuk melaksanakan Pekerjaan {spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
-              </p>
-              <p>
-                SPK ini mulai berlaku efektif terhitung sejak tanggal yang ditetapkan dalam SPK dengan tanggal mulai dan penyelesaian keseluruhan pekerjaan sebagaimana diatur dalam SPMK.
-              </p>
-              <p>
-                Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani SPK ini pada tanggal tersebut di atas dan melaksanakan SPK sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia.
-              </p>
             </div>
 
-            {/* Tanda Tangan Penutup */}
-            <div 
-              className="grid grid-cols-2 gap-8 text-center pt-8 text-xs"
+            <div className="flex justify-end pt-4 pb-2 print:hidden">
+              <ContractFooterParaf isFixedPrint={false} />
+            </div>
+          </div>
+
+          {/* ======================================================== */}
+          {/* LEMBAR 3+: SYARAT UMUM SURAT PERINTAH KERJA (SPK)        */}
+          {/* ======================================================== */}
+          <div className="spk-page spk-clauses-doc font-serif text-black leading-relaxed pt-6">
+            <div className="text-center my-6 space-y-1">
+              <h3 className="text-base font-bold uppercase tracking-wider underline">
+                SYARAT UMUM
+              </h3>
+              <h3 className="text-base font-bold uppercase tracking-wider underline">
+                SURAT PERINTAH KERJA (SPK)
+              </h3>
+            </div>
+
+            <div className="space-y-3.5 text-xs font-serif">
+              {(spk.clauses || []).filter(c => c.isActive).map((c) => (
+                <div key={c.id} className="text-justify clause-item">
+                  <div className="flex items-start text-justify mb-1" style={{ breakAfter: 'avoid', pageBreakAfter: 'avoid' }}>
+                    <span className="shrink-0 w-7 font-bold text-left">{c.pasal}.</span>
+                    <span className="flex-1 font-bold uppercase">{c.judul}</span>
+                  </div>
+                  <div className="pl-7">
+                    <FormattedLegalText text={c.isi} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bagian Penutup & Tanda Tangan SPK (Dikelola agar langsung menyambung dengan poin terakhir dan tetap utuh) */}
+            <div
+              className="spk-closing-container mt-6 pt-3 border-t border-slate-300"
+              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
             >
-              <div>
-                <p className="font-normal text-[11px]">Untuk dan atas nama</p>
-                <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
-                <p className="text-[10px] font-normal mb-1">{spk.ppkJabatan}</p>
-                <p className="text-[10.5px] font-bold italic mb-16">Selaku Pejabat Penandatangan Kontrak</p>
-                <p className="font-bold underline text-xs">{spk.ppkNama}</p>
-                <p className="text-[10px] font-normal mt-0.5">NIP. {spk.ppkNip}</p>
+              {/* Penutup SPK */}
+              <div className="text-xs text-justify leading-relaxed space-y-2">
+                <p>
+                  SPK untuk melaksanakan Pekerjaan {spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
+                </p>
+                <p>
+                  SPK ini mulai berlaku efektif terhitung sejak tanggal yang ditetapkan dalam SPK dengan tanggal mulai dan penyelesaian keseluruhan pekerjaan sebagaimana diatur dalam SPMK.
+                </p>
+                <p>
+                  Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani SPK ini pada tanggal tersebut di atas dan melaksanakan SPK sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia.
+                </p>
               </div>
 
-              <div>
-                <p className="text-[10px] mb-1 font-normal">Slawi, {tanggalSpkFormatted}</p>
-                <p className="text-[10px] italic font-normal mb-0.5">Menerima dan Menyetujui :</p>
-                <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
-                <p className="font-bold uppercase text-[11px] mb-16">{spk.penyediaNamaBadanUsaha}</p>
-                <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
-                <p className="text-[10px] font-normal mt-0.5">{spk.penyediaJabatanPimpinan}</p>
+              {/* Tanda Tangan Penutup */}
+              <div
+                className="grid grid-cols-2 gap-8 text-center pt-8 text-xs"
+              >
+                <div>
+                  <p className="font-normal text-[11px]">Untuk dan atas nama</p>
+                  <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
+                  <p className="text-[10px] font-normal mb-1">{spk.ppkJabatan}</p>
+                  <p className="text-[10.5px] font-bold italic mb-16">Selaku Pejabat Penandatangan Kontrak</p>
+                  <p className="font-bold underline text-xs">{spk.ppkNama}</p>
+                  <p className="text-[10px] font-normal mt-0.5">NIP. {spk.ppkNip}</p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] mb-1 font-normal">Slawi, {tanggalSpkFormatted}</p>
+                  <p className="text-[10px] italic font-normal mb-0.5">Menerima dan Menyetujui :</p>
+                  <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
+                  <p className="font-bold uppercase text-[11px] mb-16">{spk.penyediaNamaBadanUsaha}</p>
+                  <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
+                  <p className="text-[10px] font-normal mt-0.5">{spk.penyediaJabatanPimpinan}</p>
+                </div>
               </div>
+            </div>
+
+            <div className="flex justify-end pt-8 pb-2 print:hidden">
+              <ContractFooterParaf isFixedPrint={false} />
             </div>
           </div>
 
-          <div className="flex justify-end pt-8 pb-2 print:hidden">
-            <ContractFooterParaf isFixedPrint={false} />
-          </div>
-        </div>
-
-      </PrintDocWrapper>
-    </div>
+        </PrintDocWrapper>
+      </div>
     );
   }
 
   // Format Konsultan Pengawas / Konsultan Perencana
-  const jenisSpkJudul = 
+  const jenisSpkJudul =
     spk.spkType === 'pengawas'
       ? 'JASA KONSULTANSI PENGAWASAN TEKNIS'
       : 'JASA KONSULTANSI PERENCANAAN TEKNIS (DED)';
@@ -610,28 +610,28 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
             <tr>
               <td className="border border-slate-900 p-2 font-bold bg-slate-100">3. Nilai SPK (Termasuk PPN)</td>
               <td className="border border-slate-900 p-2">
-                <span className="font-bold text-sm text-slate-900">{formatRupiah(spk.nilaiKontrak)}</span><br/>
+                <span className="font-bold text-sm text-slate-900">{formatRupiah(spk.nilaiKontrak)}</span><br />
                 <span className="italic">({spk.nilaiKontrakTerbilang})</span>
               </td>
             </tr>
             <tr>
               <td className="border border-slate-900 p-2 font-bold bg-slate-100">4. Sumber Dana / Rekening</td>
               <td className="border border-slate-900 p-2">
-                {spk.sumberDana} Tahun Anggaran {spk.tahunAnggaran}<br/>
+                {spk.sumberDana} Tahun Anggaran {spk.tahunAnggaran}<br />
                 Kode Akun: {spk.kodeRekeningKegiatan || '-'}
               </td>
             </tr>
             <tr>
               <td className="border border-slate-900 p-2 font-bold bg-slate-100">5. Jangka Waktu Pelaksanaan</td>
               <td className="border border-slate-900 p-2">
-                <strong>{spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'})</strong> hari kalender<br/>
+                <strong>{spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'})</strong> hari kalender<br />
                 Terhitung sejak {tanggalMulaiFormatted} s.d. {tanggalSelesaiFormatted}
               </td>
             </tr>
             <tr>
               <td className="border border-slate-900 p-2 font-bold bg-slate-100">6. Cara Pembayaran</td>
               <td className="border border-slate-900 p-2">
-                <strong>{spk.sistemPembayaran}</strong><br/>
+                <strong>{spk.sistemPembayaran}</strong><br />
                 <span className="text-[10px] text-slate-600">{spk.keteranganPembayaran}</span>
               </td>
             </tr>
@@ -732,7 +732,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
         </div>
 
         {/* Penutup & Tanda Tangan */}
-        <div 
+        <div
           className="signature-section mt-6 pt-2 no-page-break"
           style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
         >
@@ -740,7 +740,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
             Demikian Surat Perintah Kerja (SPK) ini dibuat dan ditandatangani oleh Para Pihak dengan penuh tanggung jawab dalam 2 (dua) rangkap asli bermaterai cukup dan memiliki kekuatan hukum yang sama.
           </p>
 
-          <div 
+          <div
             className="grid grid-cols-2 gap-8 text-center pt-6"
             style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
           >

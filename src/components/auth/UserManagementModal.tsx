@@ -47,8 +47,8 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ isOpen
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-100 my-auto">
         
         {/* Header */}
         <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between flex-shrink-0">
@@ -220,9 +220,9 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ isOpen
 
       {/* Edit Single User Sub-Modal */}
       {editingUser && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 animate-fade-in">
-            <div className="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-fade-in my-auto">
+            <div className="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <Edit2 className="w-4 h-4 text-emerald-400" />
                 <h4 className="font-bold text-sm">Edit Data Pengguna & Jabatan</h4>
@@ -241,7 +241,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ isOpen
                 updateUser(editingUser);
                 setEditingUser(null);
               }}
-              className="p-5 space-y-3 text-xs"
+              className="p-5 space-y-3 text-xs overflow-y-auto flex-1"
             >
               <div>
                 <label className="block font-bold text-slate-700 mb-1">
