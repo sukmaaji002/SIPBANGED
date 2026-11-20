@@ -430,51 +430,46 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
             ))}
           </div>
 
-          {/* Bagian Penutup & Tanda Tangan SPK (Dikelola agar utuh dan tfoot paraf turun ke dasar halaman) */}
+          {/* Bagian Penutup & Tanda Tangan SPK (Dikelola agar langsung menyambung dengan poin terakhir dan tetap utuh) */}
           <div 
-            className="spk-closing-container flex flex-col justify-between"
+            className="spk-closing-container mt-6 pt-3 border-t border-slate-300"
             style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
           >
-            <div>
-              {/* Penutup SPK */}
-              <div className="mt-8 pt-4 text-xs text-justify leading-relaxed space-y-2 border-t border-slate-300">
-                <p>
-                  SPK untuk melaksanakan Pekerjaan {spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
-                </p>
-                <p>
-                  SPK ini mulai berlaku efektif terhitung sejak tanggal yang ditetapkan dalam SPK dengan tanggal mulai dan penyelesaian keseluruhan pekerjaan sebagaimana diatur dalam SPMK.
-                </p>
-                <p>
-                  Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani SPK ini pada tanggal tersebut di atas dan melaksanakan SPK sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia.
-                </p>
-              </div>
-
-              {/* Tanda Tangan Penutup */}
-              <div 
-                className="grid grid-cols-2 gap-8 text-center pt-8 text-xs"
-              >
-                <div>
-                  <p className="font-normal text-[11px]">Untuk dan atas nama</p>
-                  <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
-                  <p className="text-[10px] font-normal mb-1">{spk.ppkJabatan}</p>
-                  <p className="text-[10.5px] font-bold italic mb-16">Selaku Pejabat Penandatangan Kontrak</p>
-                  <p className="font-bold underline text-xs">{spk.ppkNama}</p>
-                  <p className="text-[10px] font-normal mt-0.5">NIP. {spk.ppkNip}</p>
-                </div>
-
-                <div>
-                  <p className="text-[10px] mb-1 font-normal">Slawi, {tanggalSpkFormatted}</p>
-                  <p className="text-[10px] italic font-normal mb-0.5">Menerima dan Menyetujui :</p>
-                  <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
-                  <p className="font-bold uppercase text-[11px] mb-16">{spk.penyediaNamaBadanUsaha}</p>
-                  <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
-                  <p className="text-[10px] font-normal mt-0.5">{spk.penyediaJabatanPimpinan}</p>
-                </div>
-              </div>
+            {/* Penutup SPK */}
+            <div className="text-xs text-justify leading-relaxed space-y-2">
+              <p>
+                SPK untuk melaksanakan Pekerjaan {spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
+              </p>
+              <p>
+                SPK ini mulai berlaku efektif terhitung sejak tanggal yang ditetapkan dalam SPK dengan tanggal mulai dan penyelesaian keseluruhan pekerjaan sebagaimana diatur dalam SPMK.
+              </p>
+              <p>
+                Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani SPK ini pada tanggal tersebut di atas dan melaksanakan SPK sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia.
+              </p>
             </div>
 
-            {/* Spacer print agar tfoot terdorong ke batas bawah halaman */}
-            <div className="h-4" />
+            {/* Tanda Tangan Penutup */}
+            <div 
+              className="grid grid-cols-2 gap-8 text-center pt-8 text-xs"
+            >
+              <div>
+                <p className="font-normal text-[11px]">Untuk dan atas nama</p>
+                <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
+                <p className="text-[10px] font-normal mb-1">{spk.ppkJabatan}</p>
+                <p className="text-[10.5px] font-bold italic mb-16">Selaku Pejabat Penandatangan Kontrak</p>
+                <p className="font-bold underline text-xs">{spk.ppkNama}</p>
+                <p className="text-[10px] font-normal mt-0.5">NIP. {spk.ppkNip}</p>
+              </div>
+
+              <div>
+                <p className="text-[10px] mb-1 font-normal">Slawi, {tanggalSpkFormatted}</p>
+                <p className="text-[10px] italic font-normal mb-0.5">Menerima dan Menyetujui :</p>
+                <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
+                <p className="font-bold uppercase text-[11px] mb-16">{spk.penyediaNamaBadanUsaha}</p>
+                <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
+                <p className="text-[10px] font-normal mt-0.5">{spk.penyediaJabatanPimpinan}</p>
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-end pt-8 pb-2 print:hidden">

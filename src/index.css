@@ -135,14 +135,10 @@
     page-break-after: avoid !important;
   }
 
-  /* Bagian Penutup & Tanda Tangan SPK: anti-potong halaman & dorong footer paraf ke bawah halaman */
+  /* Bagian Penutup & Tanda Tangan SPK: anti-potong halaman agar selalu utuh dalam satu halaman */
   .spk-closing-container {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    min-height: 250mm !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
   }
 
   /* Table wrapper for print pagination to reserve bottom space for repeating paraf footer */
