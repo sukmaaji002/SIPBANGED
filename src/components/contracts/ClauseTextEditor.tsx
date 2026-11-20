@@ -671,3 +671,4 @@ export const ClauseTextEditor: React.FC<ClauseTextEditorProps> = ({
     </div>
   );
 };
+

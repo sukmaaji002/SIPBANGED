@@ -38,3 +38,4 @@ export const RichSpan: React.FC<RichSpanProps> = ({ text, className = '' }) => {
   const html = parseRichTextToHtml(text);
   return <span className={className} dangerouslySetInnerHTML={{ __html: html }} />;
 };
+

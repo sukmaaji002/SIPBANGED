@@ -14,6 +14,42 @@ const getPelaksanaanHuruf = (hari: number, huruf?: string) => {
   return huruf;
 };
 
+function formatCustomClauseForWord(rawText: string): string {
+  if (!rawText) return '';
+  const lines = rawText.split('\n');
+  return lines.map(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return '<div style="height: 4pt;"></div>';
+
+    // 1. Numbered with dot like 1. , 14.1 
+    const numDotMatch = trimmed.match(/^(\d+(?:\.\d+)*\.)\s+(.*)$/);
+    if (numDotMatch) {
+      return `<p style="margin: 0 0 3pt 20pt; text-indent: -16pt; font-size: 10pt; line-height: 1.35; text-align: justify;"><strong>${numDotMatch[1]}</strong>&nbsp;&nbsp;${parseRichTextToHtml(numDotMatch[2])}</p>`;
+    }
+
+    // 2. Letter with dot like a., b., c.
+    const letterDotMatch = trimmed.match(/^([a-zA-Z])\.\s+(.*)$/);
+    if (letterDotMatch) {
+      return `<p style="margin: 0 0 3pt 36pt; text-indent: -16pt; font-size: 10pt; line-height: 1.35; text-align: justify;"><strong>${letterDotMatch[1]}.</strong>&nbsp;&nbsp;${parseRichTextToHtml(letterDotMatch[2])}</p>`;
+    }
+
+    // 3. Sub-paren like 1), 2), a), b)
+    const parenMatch = trimmed.match(/^(\d+|[a-zA-Z])\)\s+(.*)$/);
+    if (parenMatch) {
+      return `<p style="margin: 0 0 3pt 52pt; text-indent: -16pt; font-size: 10pt; line-height: 1.35; text-align: justify;"><strong>${parenMatch[1]})</strong>&nbsp;&nbsp;${parseRichTextToHtml(parenMatch[2])}</p>`;
+    }
+
+    // 4. (1), (a)
+    const fullParenMatch = trimmed.match(/^\(([a-zA-Z0-9]+)\)\s+(.*)$/);
+    if (fullParenMatch) {
+      return `<p style="margin: 0 0 3pt 52pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;"><strong>(${fullParenMatch[1]})</strong>&nbsp;&nbsp;${parseRichTextToHtml(fullParenMatch[2])}</p>`;
+    }
+
+    // Standard paragraph
+    return `<p style="margin: 0 0 4pt 0; font-size: 10pt; line-height: 1.35; text-align: justify;">${parseRichTextToHtml(trimmed)}</p>`;
+  }).join('');
+}
+
 export function generateContractWordDoc(contract: ProjectContract): void {
   const konsideransClause = (contract.clauses || []).find(c => c.id === 'sp-konsiderans');
   const premisClause = (contract.clauses || []).find(c => c.id === 'sp-premis');
@@ -140,11 +176,8 @@ export function generateContractWordDoc(contract: ProjectContract): void {
 
       let parasHtml = '';
       if (clauseState && clauseState.kontenCustom !== undefined) {
-        // Gunakan redaksi hasil editan pengguna
-        const customParas = clauseState.kontenCustom.split('\n\n').filter(Boolean);
-        parasHtml = customParas.map(cp => {
-          return `<p style="margin: 0 0 4pt 0; font-size: 10pt; line-height: 1.35; text-align: justify;">${parseRichTextToHtml(cp).replace(/\n/g, '<br/>')}</p>`;
-        }).join('');
+        // Gunakan redaksi hasil editan pengguna dengan hierarki indent rapi
+        parasHtml = formatCustomClauseForWord(clauseState.kontenCustom);
       } else {
         // Redaksi baku LKPP
         clause.paragraphs.forEach((p) => {
@@ -1093,7 +1126,8 @@ export function generateContractWordDoc(contract: ProjectContract): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `DOKUMEN_KONTRAK_LENGKAP_${contract.nomorSurat.replace(/[/\\?%*:|"<>]/g, '_')}.doc`;
+  const safeDocName = (contract.nomorSurat || contract.namaPaket || 'DRAFT_KONTRAK').replace(/[/\\?%*:|"<>]/g, '_');
+  a.download = `DOKUMEN_KONTRAK_LENGKAP_${safeDocName}.doc`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
