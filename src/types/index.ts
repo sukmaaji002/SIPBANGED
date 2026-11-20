@@ -565,3 +565,25 @@ export interface SpkContract {
   status: 'Draft' | 'Review Legal' | 'Ditandatangani PPK & Penyedia';
 }
 
+// ==========================================
+// MASTER DATA PPK (PEJABAT PEMBUAT KOMITMEN)
+// Dikelola Eksklusif oleh Super Admin (master_admin)
+// ==========================================
+export interface MasterPpk {
+  id: string;
+  nama: string;
+  nip: string;
+  jabatan: string;
+  instansi: string;
+  alamat: string;
+  nomorSk: string;
+  tanggalSk: string;
+  uraianSk: string;
+  tahunAnggaran: number;
+  status: 'aktif' | 'nonaktif';
+  telepon?: string;
+  email?: string;
+  catatan?: string;
+}
+
+

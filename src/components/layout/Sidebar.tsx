@@ -17,7 +17,8 @@ import {
   X,
   Layers,
   FileCheck2,
-  Users
+  Users,
+  UserCheck
 } from 'lucide-react';
 
 export type ActiveTab = 
@@ -30,6 +31,7 @@ export type ActiveTab =
   | 'kontrak'
   | 'berita-acara'
   | 'keuangan'
+  | 'master-ppk'
   | 'user-management'
   | 'rbac-matrix';
 
@@ -133,6 +135,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     // KHUSUS MASTER ADMIN (Hanya muncul jika login sebagai Master Admin)
     ...(isMasterAdmin ? [
+      {
+        id: 'master-ppk' as ActiveTab,
+        label: 'Master Data PPK',
+        category: 'Super Admin Master',
+        icon: <UserCheck className="w-4 h-4 flex-shrink-0 text-emerald-600" />,
+        badge: 'PPK'
+      },
       {
         id: 'user-management' as ActiveTab,
         label: 'Data Akun Pengguna',

@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { Project, ProjectStage, ProjectPackageDetail } from '../../types';
 import { X, Building2, Plus, HardHat, ClipboardCheck, Compass, UserCheck } from 'lucide-react';
 import { formatRibuan, parseRibuanKeAngka, formatRupiah } from '../../utils/formatters';
+import { PpkSelectorDropdown } from '../common/PpkSelectorDropdown';
 
 interface NewProjectModalProps {
   isOpen: boolean;
@@ -377,6 +378,19 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
             <p className="text-[11px] text-slate-500">
               Data ini dapat ditarik secara otomatis sebagai PPK acuan ke paket Fisik, Pengawas, maupun Perencana, atau dapat diubah khusus per paket jika diperlukan.
             </p>
+
+            {/* Quick Picker Master PPK */}
+            <PpkSelectorDropdown
+              selectedPpkNama={ppkNama}
+              selectedPpkNip={ppkNip}
+              onSelectPpk={(ppk) => {
+                setPpkNama(ppk.nama);
+                setPpkNip(ppk.nip);
+                setPpkJabatan(ppk.jabatan);
+              }}
+              label="Tarik Data dari Master PPK DPUPR"
+              helperText="Pilih nama PPK dari Master Data untuk mengisi Nama, NIP, dan Jabatan acuan proyek secara otomatis."
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div>

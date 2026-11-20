@@ -9,7 +9,8 @@ import {
   BeritaAcara, 
   PaymentTerm,
   ScheduleAddendum,
-  ProgressAttachment 
+  ProgressAttachment,
+  MasterPpk 
 } from '../types';
 import { DEFAULT_LKPP_CLAUSES } from './lkppClauses';
 
@@ -939,4 +940,76 @@ export const INITIAL_PAYMENTS: PaymentTerm[] = [
     keterangan: 'Menunggu penerbitan SP2D dari BPKAD Kabupaten Tegal.'
   }
 ];
+
+// ==========================================
+// MASTER DATA PPK (PEJABAT PEMBUAT KOMITMEN)
+// DPUPR KABUPATEN TEGAL
+// ==========================================
+export const INITIAL_MASTER_PPK: MasterPpk[] = [
+  {
+    id: 'ppk-1',
+    nama: 'Eko Karyanto, ST, MT.',
+    nip: '19710620 199903 1 009',
+    jabatan: 'Plt. Kepala Bidang Penataan Bangunan, Lingkungan, dan Tata Ruang selaku Pejabat Pembuat Komitmen (PPK)',
+    instansi: 'Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal',
+    alamat: 'Jl. Cut Nyak Dhien No. 13 Ds. Kalisapu Kec. Slawi Kab. Tegal – Kode Pos 52416',
+    nomorSk: '07 Tahun 2026',
+    tanggalSk: '2026-01-02',
+    uraianSk: 'Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor 07 Tahun 2026 tentang Penetapan Pejabat Pembuat Komitmen di Lingkungan Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Tahun Anggaran 2026',
+    tahunAnggaran: 2026,
+    status: 'aktif',
+    telepon: '0812-2556-7890',
+    email: 'eko.karyanto@dpupr-tegal.go.id',
+    catatan: 'PPK Utama Penataan Bangunan Gedung & Lingkungan Kawasan Strategis'
+  },
+  {
+    id: 'ppk-2',
+    nama: 'Ahmad Fauzi, S.T., M.Eng.',
+    nip: '19820719 200604 1 009',
+    jabatan: 'PPK Bidang Bangunan Gedung dan Permukiman',
+    instansi: 'Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal',
+    alamat: 'Jl. Cut Nyak Dhien No. 13 Ds. Kalisapu Kec. Slawi Kab. Tegal – Kode Pos 52416',
+    nomorSk: '08 Tahun 2026',
+    tanggalSk: '2026-01-02',
+    uraianSk: 'Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor 08 Tahun 2026 tentang Pengangkatan Pejabat Pembuat Komitmen (PPK) Bidang Bangunan Gedung dan Permukiman Tahun Anggaran 2026',
+    tahunAnggaran: 2026,
+    status: 'aktif',
+    telepon: '0857-4100-8822',
+    email: 'ppk.gedung@dpupr-tegal.go.id',
+    catatan: 'PPK Proyek Gedung Fasilitas Kesehatan, Rumah Sakit & Kantor Pemerintahan'
+  },
+  {
+    id: 'ppk-3',
+    nama: 'Teguh Wicaksono, S.T.',
+    nip: '19850512 201001 1 015',
+    jabatan: 'PPK Bidang Penataan Ruang dan Bina Konstruksi',
+    instansi: 'Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal',
+    alamat: 'Jl. Cut Nyak Dhien No. 13 Ds. Kalisapu Kec. Slawi Kab. Tegal – Kode Pos 52416',
+    nomorSk: '09 Tahun 2026',
+    tanggalSk: '2026-01-02',
+    uraianSk: 'Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor 09 Tahun 2026 tentang Pengangkatan Pejabat Pembuat Komitmen (PPK) Penataan Ruang dan Bina Konstruksi Tahun Anggaran 2026',
+    tahunAnggaran: 2026,
+    status: 'aktif',
+    telepon: '0813-9088-7711',
+    email: 'teguh.ppk@dpupr-tegal.go.id',
+    catatan: 'PPK Tata Ruang & Pengawasan Standar Konstruksi Bangunan Gedung'
+  },
+  {
+    id: 'ppk-4',
+    nama: 'Dwi Prasetyo, S.T., M.T.',
+    nip: '19780415 200312 1 004',
+    jabatan: 'PPK Bidang Jalan dan Jembatan',
+    instansi: 'Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal',
+    alamat: 'Jl. Cut Nyak Dhien No. 13 Ds. Kalisapu Kec. Slawi Kab. Tegal – Kode Pos 52416',
+    nomorSk: '10 Tahun 2026',
+    tanggalSk: '2026-01-02',
+    uraianSk: 'Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor 10 Tahun 2026 tentang Penetapan Pejabat Pembuat Komitmen (PPK) Bidang Jalan dan Jembatan Tahun Anggaran 2026',
+    tahunAnggaran: 2026,
+    status: 'aktif',
+    telepon: '0815-6677-8899',
+    email: 'dwi.prasetyo@dpupr-tegal.go.id',
+    catatan: 'PPK Aksesibilitas Kawasan & Prasarana Penghubung Bangunan Gedung'
+  }
+];
+
 

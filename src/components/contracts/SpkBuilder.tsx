@@ -7,6 +7,7 @@ import { formatRupiah, formatRibuan, parseRibuanKeAngka, angkaKeTerbilang, parse
 import { SpkPrintView } from './SpkPrintView';
 import { generateSpkWordDoc } from '../../utils/spkWordExport';
 import { ClauseTextEditor } from './ClauseTextEditor';
+import { PpkSelectorDropdown } from '../common/PpkSelectorDropdown';
 import { 
   FileText, 
   HardHat, 
@@ -566,6 +567,22 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                 <UserCheck className="w-4 h-4 text-blue-600" />
                 <span>Pihak Pertama (Pejabat Pembuat Komitmen - PPK)</span>
               </div>
+
+              {/* Tarik Data Cepat dari Master Data PPK */}
+              <PpkSelectorDropdown
+                selectedPpkNama={spkData.ppkNama}
+                selectedPpkNip={spkData.ppkNip}
+                onSelectPpk={(ppk) => {
+                  handleFieldChange('ppkNama', ppk.nama);
+                  handleFieldChange('ppkNip', ppk.nip);
+                  handleFieldChange('ppkJabatan', ppk.jabatan);
+                  if (ppk.alamat) handleFieldChange('ppkAlamat', ppk.alamat);
+                  if (ppk.nomorSk) handleFieldChange('ppkNomorSk', ppk.nomorSk);
+                  if (ppk.uraianSk) handleFieldChange('ppkSkPengangkatanText', ppk.uraianSk);
+                }}
+                label="Tarik Data dari Master PPK DPUPR"
+                helperText="Pilih nama PPK terdaftar untuk otomatis mengisi Nama, NIP, Jabatan, Alamat Kantor, Nomor SK, dan Redaksi SK Pengangkatan."
+              />
 
               <div className="space-y-3">
                 <div>

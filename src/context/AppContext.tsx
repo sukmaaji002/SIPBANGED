@@ -13,7 +13,8 @@ import {
   ScheduleAddendum,
   ContractDocType,
   SpkType,
-  SpkContract
+  SpkContract,
+  MasterPpk
 } from '../types';
 import { 
   INITIAL_USERS, 
@@ -25,7 +26,8 @@ import {
   INITIAL_CONTRACTS, 
   INITIAL_BERITA_ACARA, 
   INITIAL_PAYMENTS,
-  INITIAL_SCHEDULE_ADDENDUMS 
+  INITIAL_SCHEDULE_ADDENDUMS,
+  INITIAL_MASTER_PPK
 } from '../data/initialData';
 import { DEFAULT_LKPP_CLAUSES } from '../data/lkppClauses';
 import { generateInitialSpkContracts, createDefaultSpkForProject } from '../data/spkData';
@@ -102,6 +104,12 @@ interface AppContextType {
   addPayment: (pay: PaymentTerm) => void;
   updatePayment: (pay: PaymentTerm) => void;
   deletePayment: (id: string) => void;
+
+  // Master Data PPK (Eksklusif Super Admin)
+  masterPpkList: MasterPpk[];
+  addMasterPpk: (ppk: Omit<MasterPpk, 'id'>) => MasterPpk;
+  updateMasterPpk: (ppk: MasterPpk) => void;
+  deleteMasterPpk: (id: string) => void;
   
   resetToDefault: () => void;
 }
@@ -122,6 +130,7 @@ export const STORAGE_KEYS = {
   BA: 'sipbanged_berita_acara',
   PAYMENTS: 'sipbanged_payments',
   SCHEDULE_ADDENDUMS: 'sipbanged_schedule_addendums',
+  MASTER_PPK: 'sipbanged_master_ppk',
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -243,6 +252,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
+  const [masterPpkList, setMasterPpkList] = useState<MasterPpk[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.MASTER_PPK);
+    if (!saved) return INITIAL_MASTER_PPK;
+    try {
+      const parsed: MasterPpk[] = JSON.parse(saved);
+      const missing = INITIAL_MASTER_PPK.filter(initPpk => !parsed.some(p => p.id === initPpk.id));
+      if (missing.length > 0) {
+        const merged = [...parsed, ...missing];
+        localStorage.setItem(STORAGE_KEYS.MASTER_PPK, JSON.stringify(merged));
+        return merged;
+      }
+      return parsed;
+    } catch {
+      return INITIAL_MASTER_PPK;
+    }
+  });
+
   // LocalStorage Sync
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
@@ -303,6 +329,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.SCHEDULE_ADDENDUMS, JSON.stringify(scheduleAddendums));
   }, [scheduleAddendums]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.MASTER_PPK, JSON.stringify(masterPpkList));
+  }, [masterPpkList]);
 
   // Supabase Cloud Initial Sync
   useEffect(() => {
@@ -567,6 +597,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setPayments(prev => prev.filter(item => item.id !== id));
   };
 
+  // Master PPK (Eksklusif Super Admin)
+  const addMasterPpk = (newPpk: Omit<MasterPpk, 'id'>): MasterPpk => {
+    const id = `ppk-${Date.now()}`;
+    const created: MasterPpk = { ...newPpk, id };
+    setMasterPpkList(prev => [created, ...prev]);
+    return created;
+  };
+
+  const updateMasterPpk = (updated: MasterPpk) => {
+    setMasterPpkList(prev => prev.map(p => p.id === updated.id ? updated : p));
+  };
+
+  const deleteMasterPpk = (id: string) => {
+    setMasterPpkList(prev => prev.filter(p => p.id !== id));
+  };
+
   const resetToDefault = () => {
     localStorage.clear();
     setUsers(INITIAL_USERS);
@@ -584,6 +630,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setBeritaAcaraList(INITIAL_BERITA_ACARA);
     setPayments(INITIAL_PAYMENTS);
     setScheduleAddendums(INITIAL_SCHEDULE_ADDENDUMS);
+    setMasterPpkList(INITIAL_MASTER_PPK);
   };
 
   return (
@@ -640,6 +687,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addPayment,
       updatePayment,
       deletePayment,
+      masterPpkList,
+      addMasterPpk,
+      updateMasterPpk,
+      deleteMasterPpk,
       resetToDefault
     }}>
       {children}

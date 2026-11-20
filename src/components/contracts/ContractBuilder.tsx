@@ -23,6 +23,7 @@ import { RichSpan } from '../../utils/richText';
 import { generateContractWordDoc } from '../../utils/contractWordExport';
 import { RuangLingkupEditor } from './RuangLingkupEditor';
 import { parseRuangLingkup, formatRuangLingkupToLines, formatRuangLingkupToText } from '../../utils/ruangLingkupParser';
+import { PpkSelectorDropdown } from '../common/PpkSelectorDropdown';
 import { 
   CheckSquare, 
   Square, 
@@ -1077,6 +1078,22 @@ export const ContractBuilder: React.FC = () => {
               <span className="w-2 h-2 rounded-full bg-blue-500"></span>
               B. Data Pihak Pertama — Pejabat Penandatangan Kontrak (PPK DPUPR)
             </h3>
+
+            {/* Tarik Data Cepat dari Master Data PPK */}
+            <PpkSelectorDropdown
+              selectedPpkNama={ppkNama}
+              selectedPpkNip={ppkNip}
+              onSelectPpk={(ppk) => {
+                setPpkNama(ppk.nama);
+                setPpkNip(ppk.nip);
+                setPpkJabatan(ppk.jabatan);
+                if (ppk.alamat) setPpkKedudukan(ppk.alamat);
+                if (ppk.nomorSk) setPpkNomorSK(ppk.nomorSk);
+                if (ppk.tanggalSk) setPpkTanggalSK(ppk.tanggalSk);
+              }}
+              label="Tarik Data dari Master PPK DPUPR"
+              helperText="Pilih nama PPK terdaftar untuk otomatis mengisi Nama, NIP, Jabatan, Alamat Kedudukan, dan SK Pengangkatan."
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
