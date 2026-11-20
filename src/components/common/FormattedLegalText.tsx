@@ -1,4 +1,5 @@
 import React from 'react';
+import { RichSpan } from '../../utils/richText';
 
 interface FormattedLegalTextProps {
   text: string;
@@ -29,7 +30,7 @@ export const FormattedLegalText: React.FC<FormattedLegalTextProps> = ({
           return (
             <div key={idx} className="flex items-start gap-1.5 pl-6 sm:pl-8 text-justify">
               <span className="shrink-0 w-5 sm:w-6 font-serif font-medium text-left">{subParenMatch[1]})</span>
-              <span className="flex-1 text-justify leading-relaxed">{subParenMatch[2]}</span>
+              <RichSpan text={subParenMatch[2]} className="flex-1 text-justify leading-relaxed" />
             </div>
           );
         }
@@ -40,7 +41,7 @@ export const FormattedLegalText: React.FC<FormattedLegalTextProps> = ({
           return (
             <div key={idx} className="flex items-start gap-1.5 pl-0.5 sm:pl-1 text-justify">
               <span className="shrink-0 w-7 sm:w-8 font-serif font-medium text-left">({parenLetterMatch[1]})</span>
-              <span className="flex-1 text-justify leading-relaxed">{parenLetterMatch[2]}</span>
+              <RichSpan text={parenLetterMatch[2]} className="flex-1 text-justify leading-relaxed" />
             </div>
           );
         }
@@ -51,7 +52,7 @@ export const FormattedLegalText: React.FC<FormattedLegalTextProps> = ({
           return (
             <div key={idx} className="flex items-start gap-1.5 pl-0.5 sm:pl-1 text-justify">
               <span className="shrink-0 w-6 sm:w-7 font-serif font-medium text-left">{numDotMatch[1]}.</span>
-              <span className="flex-1 text-justify leading-relaxed">{numDotMatch[2]}</span>
+              <RichSpan text={numDotMatch[2]} className="flex-1 text-justify leading-relaxed" />
             </div>
           );
         }
@@ -62,7 +63,7 @@ export const FormattedLegalText: React.FC<FormattedLegalTextProps> = ({
           return (
             <div key={idx} className="flex items-start gap-1.5 pl-4 sm:pl-6 text-justify">
               <span className="shrink-0 w-5 sm:w-6 font-serif font-medium text-left">{letterDotMatch[1]}.</span>
-              <span className="flex-1 text-justify leading-relaxed">{letterDotMatch[2]}</span>
+              <RichSpan text={letterDotMatch[2]} className="flex-1 text-justify leading-relaxed" />
             </div>
           );
         }
@@ -70,7 +71,7 @@ export const FormattedLegalText: React.FC<FormattedLegalTextProps> = ({
         // 5. Standard paragraph
         return (
           <p key={idx} className="text-justify leading-relaxed">
-            {trimmed}
+            <RichSpan text={trimmed} />
           </p>
         );
       })}

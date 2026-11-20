@@ -71,7 +71,7 @@ export const LampiranAPrint: React.FC<Props> = ({ contract }) => {
         <h3 className="font-bold text-xs uppercase mb-1">
           DAFTAR PEKERJAAN YANG DISUBKONTRAKKAN DAN SUBKONTRAKTOR (apabila ada)
         </h3>
-        
+
         <p className="font-bold text-[11px] mt-2 mb-1">Pekerjaan Utama</p>
         <table className="w-full text-[10px] border border-black border-collapse text-left font-serif mb-3">
           <thead>

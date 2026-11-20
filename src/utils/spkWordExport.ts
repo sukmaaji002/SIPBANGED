@@ -1,6 +1,7 @@
 import { SpkContract } from '../types';
 import { formatTanggalIndo, formatRupiah } from './formatters';
 import { LOGO_KAB_TEGAL_BASE64 } from './logoBase64';
+import { parseRichTextToHtml } from './richText';
 
 export function generateSpkWordDoc(spk: SpkContract): void {
   const tanggalSpkFormatted = spk.tanggalSpk ? formatTanggalIndo(spk.tanggalSpk) : '-';
@@ -47,7 +48,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
         Pasal ${c.pasal}<br/>${c.judul}
       </p>
       <div style="text-align: justify; font-size: 10pt; line-height: 1.4;">
-        ${c.isi.replace(/\n/g, '<br/>')}
+        ${parseRichTextToHtml(c.isi).replace(/\n/g, '<br/>')}
       </div>
     </div>
   `).join('');

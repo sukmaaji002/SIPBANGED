@@ -1,6 +1,7 @@
 import React from 'react';
 import { OFFICIAL_SSUK_SECTIONS } from '../../data/ssukData';
 import { ContractClause } from '../../types';
+import { RichSpan } from '../../utils/richText';
 import { PrintDocWrapper } from './PrintDocWrapper';
 
 interface SSUKPrintProps {
@@ -155,7 +156,7 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
                                   className="flex-1 text-justify leading-relaxed text-[11px] font-serif"
                                   style={{ flex: 1, textAlign: 'justify' }}
                                 >
-                                  <span className={isCustom ? 'whitespace-pre-line' : ''}>{p.text}</span>
+                                  <RichSpan text={p.text} className={isCustom ? 'whitespace-pre-line' : ''} />
                                 </div>
                               </div>
                             ) : p.level === 2 ? (
@@ -178,7 +179,7 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
                                   className="flex-1 text-justify leading-relaxed text-[11px] font-serif"
                                   style={{ flex: 1, textAlign: 'justify' }}
                                 >
-                                  <span className={isCustom ? 'whitespace-pre-line' : ''}>{p.text}</span>
+                                  <RichSpan text={p.text} className={isCustom ? 'whitespace-pre-line' : ''} />
                                 </div>
                               </div>
                             ) : p.level === 3 ? (
@@ -201,7 +202,7 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
                                   className="flex-1 text-justify leading-relaxed text-[11px] font-serif"
                                   style={{ flex: 1, textAlign: 'justify' }}
                                 >
-                                  <span className={isCustom ? 'whitespace-pre-line' : ''}>{p.text}</span>
+                                  <RichSpan text={p.text} className={isCustom ? 'whitespace-pre-line' : ''} />
                                 </div>
                               </div>
                             ) : (
@@ -210,7 +211,7 @@ export const SSUKPrint: React.FC<SSUKPrintProps> = ({ clauses }) => {
                                 className="leading-relaxed text-[11px] text-justify font-serif"
                                 style={{ textAlign: 'justify' }}
                               >
-                                <span className={isCustom ? 'whitespace-pre-line' : ''}>{p.text}</span>
+                                <RichSpan text={p.text} className={isCustom ? 'whitespace-pre-line' : ''} />
                               </div>
                             )}
                           </td>

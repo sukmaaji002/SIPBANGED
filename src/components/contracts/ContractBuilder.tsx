@@ -18,6 +18,8 @@ import { SSUKPrint } from './SSUKPrint';
 import { SSKKPrint } from './SSKKPrint';
 import { LampiranAPrint } from './LampiranAPrint';
 import { LampiranBPrint } from './LampiranBPrint';
+import { ClauseTextEditor } from './ClauseTextEditor';
+import { RichSpan } from '../../utils/richText';
 import { generateContractWordDoc } from '../../utils/contractWordExport';
 import { RuangLingkupEditor } from './RuangLingkupEditor';
 import { parseRuangLingkup, formatRuangLingkupToLines, formatRuangLingkupToText } from '../../utils/ruangLingkupParser';
@@ -760,92 +762,117 @@ export const ContractBuilder: React.FC = () => {
   return (
     <div className="space-y-6">
       
-      {/* Top Header */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 uppercase font-mono">
-              Perlem LKPP No. 12/2021 & SK DPUPR Kab. Tegal
-            </span>
-            <span className="text-xs text-slate-400 font-medium">
-              Kontrak Spesifik Per Proyek: <strong className="text-slate-800">{selectedProject.nama}</strong>
-            </span>
+      {/* Top Header & Integrated Navigation (Neat, Compact & High Efficiency) */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-3.5 sm:p-4 shadow-xs no-print space-y-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 shrink-0 shadow-2xs">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-base font-extrabold text-slate-900 leading-tight">
+                  Pengelolaan Kontrak & Dokumen Pengadaan
+                </h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 uppercase font-mono">
+                  Perlem LKPP 12/2021
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
+                <span>Paket:</span>
+                <span className="font-bold text-slate-800 truncate max-w-md" title={selectedProject.nama}>
+                  {selectedProject.nama}
+                </span>
+              </div>
+            </div>
           </div>
-          <h2 className="text-xl font-black text-slate-900 mt-1">
-            Pengelolaan Kontrak, SSUK, SSKK & Lampiran
-          </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Lengkapi data isian perjanjian, pilih klausul yang digunakan per proyek, dan pratinjau dokumen cetak resmi
-          </p>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {canEdit && (
+              <button
+                onClick={handleSaveContract}
+                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all"
+                title="Simpan perubahan kontrak proyek ini"
+              >
+                <Save className="w-4 h-4" />
+                Simpan Kontrak
+              </button>
+            )}
+
+            {activeTabMode !== 'preview' ? (
+              <button
+                onClick={() => setActiveTabMode('preview')}
+                className="px-3.5 py-1.5 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all"
+              >
+                <Eye className="w-4 h-4" />
+                Buka Pratinjau Cetak
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleExportWord}
+                  className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all"
+                  title="Download File Word Lengkap (.doc)"
+                >
+                  <Download className="w-4 h-4" />
+                  Export Word (.doc)
+                </button>
+                <button
+                  onClick={() => handlePrint(previewDocType)}
+                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all"
+                  title="Cetak Dokumen Resmi"
+                >
+                  <Printer className="w-4 h-4" />
+                  Cetak Dokumen
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          {canEdit && (
-            <button
-              onClick={handleSaveContract}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
-            >
-              <Save className="w-4 h-4" />
-              Simpan Kontrak Proyek Ini
-            </button>
-          )}
-
+        {/* 3 Main Tab Buttons (Segmented Controls) */}
+        <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100 overflow-x-auto">
           <button
-            onClick={handleExportWord}
-            className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold rounded-xl shadow-2xs flex items-center gap-1.5 transition-all"
-            title="Download Naskah Kontrak dalam Format Word (.doc)"
+            onClick={() => setActiveTabMode('form')}
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTabMode === 'form'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
           >
-            <Download className="w-4 h-4" />
-            Export Word (.doc)
+            <Sliders className="w-3.5 h-3.5" />
+            1. Form Isian Kontrak & SSKK
           </button>
 
           <button
-            onClick={() => handlePrint()}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
+            onClick={() => setActiveTabMode('klausul')}
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTabMode === 'klausul'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
           >
-            <Printer className="w-4 h-4" />
-            Cetak Dokumen Resmi
+            <CheckSquare className="w-3.5 h-3.5" />
+            2. Pemilihan & Editor Klausul
+            <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
+              activeTabMode === 'klausul' ? 'bg-blue-800 text-white' : 'bg-slate-200 text-slate-700'
+            }`}>
+              {activeClauses.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTabMode('preview')}
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTabMode === 'preview'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <Eye className="w-3.5 h-3.5" />
+            3. Pratinjau Dokumen Cetak Resmi
           </button>
         </div>
-      </div>
-
-      {/* 3 Main Tab Buttons */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 no-print">
-        <button
-          onClick={() => setActiveTabMode('form')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 ${
-            activeTabMode === 'form'
-              ? 'bg-emerald-600 text-white shadow-sm'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <Sliders className="w-4 h-4" />
-          1. Form Isian Data Kontrak & SSKK
-        </button>
-
-        <button
-          onClick={() => setActiveTabMode('klausul')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 ${
-            activeTabMode === 'klausul'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <CheckSquare className="w-4 h-4" />
-          2. Pemilihan & Editor Klausul ({activeClauses.length} Aktif)
-        </button>
-
-        <button
-          onClick={() => setActiveTabMode('preview')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 ${
-            activeTabMode === 'preview'
-              ? 'bg-slate-900 text-white shadow-sm'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <Eye className="w-4 h-4" />
-          3. Pratinjau Dokumen Cetak Resmi
-        </button>
       </div>
 
       {/* TAB 1: FORM ISIAN DATA KONTRAK */}
@@ -2215,67 +2242,33 @@ export const ContractBuilder: React.FC = () => {
 
                   <div className="mt-3 pl-8">
                     {isEditing ? (
-                      <div className="space-y-2">
-                        {/* Quick Variable Tag Helper */}
-                        <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
-                          <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
-                            <span className="flex items-center gap-1 text-emerald-700">
-                              <Sparkles className="w-3.5 h-3.5" /> Variabel Otomatis (Klik untuk menyisipkan ke teks):
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-normal">Data diambil dari Form Isian Kontrak & SSKK</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {[
-                              { label: 'Nama Paket', tag: '{{NAMA_PAKET}}' },
-                              { label: 'Metode Pemilihan', tag: '{{METODE_PEMILIHAN}}' },
-                              { label: 'Nomor SPPBJ', tag: '{{NOMOR_SPPBJ}}' },
-                              { label: 'Tanggal SPPBJ', tag: '{{TANGGAL_SPPBJ}}' },
-                              { label: 'Nama Penyedia', tag: '{{NAMA_PENYEDIA}}' },
-                              { label: 'Nama Direktur', tag: '{{NAMA_DIREKTUR}}' },
-                              { label: 'Nama PPK', tag: '{{NAMA_PPK}}' },
-                              { label: 'Nilai Kontrak', tag: '{{NILAI_KONTRAK}}' },
-                              { label: 'Nilai Terbilang', tag: '{{NILAI_TERBILANG}}' },
-                              { label: 'Sumber Dana', tag: '{{SUMBER_PEMBIAYAAN}}' },
-                              { label: 'Waktu Pelaksanaan', tag: '{{JANGKA_WAKTU_PELAKSANAAN}}' }
-                            ].map(v => (
-                              <button
-                                key={v.tag}
-                                type="button"
-                                onClick={() => setTempClauseText(prev => prev + ' ' + v.tag)}
-                                className="px-2 py-0.5 bg-white hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200 rounded text-[10px] font-mono font-medium transition-colors"
-                                title={`Sisipkan variabel ${v.tag}`}
-                              >
-                                + {v.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <textarea
-                          rows={Math.min(18, Math.max(7, tempClauseText.split('\n').length + 1))}
-                          value={tempClauseText}
-                          onChange={e => setTempClauseText(e.target.value)}
-                          className="w-full p-3 text-xs border border-blue-300 rounded-xl font-mono leading-relaxed focus:ring-2 focus:ring-blue-500 bg-white"
-                        />
-
-                        {/* Live Preview Box while editing */}
-                        <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl text-xs space-y-1">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1">
-                            <span>👁️</span> Pratinjau Teks dengan Data Terisi Nyata:
-                          </span>
-                          <p className="text-slate-800 whitespace-pre-line text-[11px] leading-relaxed">
-                            {resolveContractPlaceholders(tempClauseText, currentContractState)}
-                          </p>
-                        </div>
-                      </div>
+                      <ClauseTextEditor
+                        value={tempClauseText}
+                        onChange={setTempClauseText}
+                        variables={[
+                          { label: 'Nama Paket', tag: '{{NAMA_PAKET}}' },
+                          { label: 'Metode Pemilihan', tag: '{{METODE_PEMILIHAN}}' },
+                          { label: 'Nomor SPPBJ', tag: '{{NOMOR_SPPBJ}}' },
+                          { label: 'Tanggal SPPBJ', tag: '{{TANGGAL_SPPBJ}}' },
+                          { label: 'Nama Penyedia', tag: '{{NAMA_PENYEDIA}}' },
+                          { label: 'Nama Direktur', tag: '{{NAMA_DIREKTUR}}' },
+                          { label: 'Nama PPK', tag: '{{NAMA_PPK}}' },
+                          { label: 'Nilai Kontrak', tag: '{{NILAI_KONTRAK}}' },
+                          { label: 'Nilai Terbilang', tag: '{{NILAI_TERBILANG}}' },
+                          { label: 'Sumber Dana', tag: '{{SUMBER_PEMBIAYAAN}}' },
+                          { label: 'Waktu Pelaksanaan', tag: '{{JANGKA_WAKTU_PELAKSANAAN}}' }
+                        ]}
+                        previewResolvedText={resolveContractPlaceholders(tempClauseText, currentContractState)}
+                      />
                     ) : (
                       <div className="space-y-2">
                         <div className="text-xs text-slate-700 whitespace-pre-line leading-relaxed bg-slate-50/70 p-3.5 rounded-xl border border-slate-100 font-sans">
                           {(() => {
                             const resolvedContent = resolveContractPlaceholders(displayContent, currentContractState);
-                            return isExpanded || !isLongContent
+                            const textToShow = isExpanded || !isLongContent
                               ? resolvedContent
                               : `${resolvedContent.slice(0, 280)}...`;
+                            return <RichSpan text={textToShow} />;
                           })()}
                         </div>
                         {isLongContent && (
@@ -2312,53 +2305,22 @@ export const ContractBuilder: React.FC = () => {
       {activeTabMode === 'preview' && (
         <div className="space-y-6">
           
-          {/* Document Section Selector & Print Controller Toolbar (no-print) */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm no-print space-y-3">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Pilih Tampilan Dokumen:</span>
-                <span className="text-sm font-extrabold text-slate-800">Pratinjau Sesuai Format File Word DPUPR Kab. Tegal</span>
-              </div>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => handlePrint(previewDocType)}
-                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all"
-                >
-                  <Printer className="w-4 h-4" /> Cetak Tampilan Ini
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePrint('all')}
-                  className="px-3.5 py-1.5 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all"
-                >
-                  <Printer className="w-4 h-4" /> Cetak Semua Lengkap (5 Dokumen)
-                </button>
-                <button
-                  type="button"
-                  onClick={handleExportWord}
-                  className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all"
-                >
-                  <Download className="w-4 h-4" /> Download Word Lengkap (.doc)
-                </button>
-              </div>
-            </div>
-
+          {/* Document Section Selector & Print Controller Toolbar (Neat & Efficient Single Bar) */}
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-3 shadow-xs no-print flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             {/* Sub Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pt-2 border-t border-slate-100 pb-1">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
               {[
-                { id: 'all', label: '📄 Semua Dokumen Lengkap (Surat + SSUK + SSKK + Lampiran A & B)' },
+                { id: 'all', label: '📄 Semua (5 Dokumen)' },
                 { id: 'sp', label: '1. Surat Perjanjian' },
-                { id: 'ssuk', label: '2. SSUK (45 Klausul)' },
-                { id: 'sskk', label: '3. SSKK (Tabel 3 Kolom)' },
-                { id: 'lampa', label: '4. Lampiran A (Personel & Alat)' },
-                { id: 'lampb', label: '5. Lampiran B (RKK & K3)' }
+                { id: 'ssuk', label: '2. SSUK' },
+                { id: 'sskk', label: '3. SSKK' },
+                { id: 'lampa', label: '4. Lampiran A' },
+                { id: 'lampb', label: '5. Lampiran B' }
               ].map(sub => (
                 <button
                   key={sub.id}
                   onClick={() => setPreviewDocType(sub.id as any)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
+                  className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
                     previewDocType === sub.id
                       ? 'bg-slate-800 text-white shadow-xs'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -2367,6 +2329,28 @@ export const ContractBuilder: React.FC = () => {
                   {sub.label}
                 </button>
               ))}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => handlePrint(previewDocType)}
+                className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all"
+                title="Cetak Dokumen Sesuai Pilihan"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                Cetak {previewDocType === 'all' ? 'Semua (5 Dokumen)' : 'Tampilan Ini'}
+              </button>
+              <button
+                type="button"
+                onClick={handleExportWord}
+                className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all"
+                title="Download Naskah Lengkap File Word (.doc)"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Word (.doc)
+              </button>
             </div>
           </div>
 

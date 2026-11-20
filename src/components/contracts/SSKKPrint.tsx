@@ -66,34 +66,57 @@ export const SSKKPrint: React.FC<Props> = ({ contract }) => {
 
           {/* 4.2 & 5.1 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">4.2 & 5.1</td>
-            <td className="border border-black p-2 font-bold">Wakil Sah Para Pihak</td>
-            <td className="border border-black p-2">
-              <p>Wakil Sah Para Pihak sebagai berikut:</p>
-              <div className="pl-3 mt-1">
-                <div>Untuk Pejabat Penandatangan Kontrak: <strong>{contract.sskkWakilSahPPK}</strong></div>
-                <div>Untuk Penyedia: <strong>{contract.sskkWakilSahPenyedia}</strong></div>
+            <td className="border border-black p-2 font-bold text-center align-top">4.2 & 5.1</td>
+            <td className="border border-black p-2 font-bold align-top">Wakil Sah Para Pihak</td>
+            <td className="border border-black p-2 align-top">
+              <p className="mb-2">Wakil Sah Para Pihak sebagai berikut:</p>
+              <div className="space-y-2">
+                <div>
+                  <div className="font-medium">Untuk Pejabat Penandatangan Kontrak:</div>
+                  <div className="flex">
+                    <span className="w-16">Nama</span>
+                    <span className="mr-2">:</span>
+                    <span>{contract.sskkWakilSahPPK || '- tidak ada -'}</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="font-medium">Untuk Penyedia:</div>
+                  <div className="flex">
+                    <span className="w-16">Nama</span>
+                    <span className="mr-2">:</span>
+                    <span>{contract.sskkWakilSahPenyedia || '- tidak ada -'}</span>
+                  </div>
+                </div>
               </div>
             </td>
           </tr>
 
           {/* 6.3 & 43 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">6.3.b & 6.3.c<br/>43.4 & 43.6</td>
-            <td className="border border-black p-2 font-bold">Pencairan Jaminan</td>
-            <td className="border border-black p-2">
-              Jaminan dicairkan dan disetorkan pada <strong>{contract.sskkPencairanJaminan}</strong>.
+            <td className="border border-black p-2 font-bold text-center align-top">6.3.b & 6.3.c<br/>43.4 & 43.6</td>
+            <td className="border border-black p-2 font-bold align-top">Pencairan Jaminan</td>
+            <td className="border border-black p-2 align-top">
+              Jaminan dicairkan dan disetorkan pada {contract.sskkPencairanJaminan || 'Kas Daerah Pemerintah Kabupaten Tegal'}
             </td>
           </tr>
 
           {/* 7.2 */}
           <tr className="border border-black">
-            <td className="border border-black p-2 font-bold text-center">7.2</td>
-            <td className="border border-black p-2 font-bold">Asal Material / Bahan</td>
-            <td className="border border-black p-2 space-y-1 text-justify">
-              <p>Material/bahan yang digunakan harus berasal dari sumber, produsen, pabrik, pemasok, dan/atau lokasi pengambilan material yang sah serta memenuhi ketentuan perizinan berusaha yang dipersyaratkan sesuai jenis material dan ketentuan peraturan perundang-undangan. Penyedia wajib menunjukkan bukti asal dan/atau legalitas material apabila diminta oleh Pejabat Penandatangan Kontrak/Pengawas Pekerjaan.</p>
-              <p>Setiap material/bahan yang digunakan wajib memenuhi spesifikasi teknis dan persyaratan mutu dalam Kontrak. Ketidaksesuaian penggunaan material/bahan menjadi tanggung jawab Penyedia dan wajib diperbaiki, diganti, dan/atau ditindaklanjuti sesuai perintah Pengawas Pekerjaan tanpa menimbulkan tambahan biaya bagi Pejabat Penandatangan Kontrak.</p>
-              <p>Perjanjian pengadaan material/bahan antara Penyedia dengan produsen, pabrik, pemasok, dan/atau pemilik sumber material sepenuhnya menjadi tanggung jawab Penyedia. Setiap sengketa atau tuntutan yang timbul dari hubungan hukum tersebut menjadi tanggung jawab Penyedia dan tidak menimbulkan hubungan kontraktual maupun kewajiban pembayaran bagi Pejabat Penandatangan Kontrak dan/atau Pemerintah Kabupaten Tegal.</p>
+            <td className="border border-black p-2 font-bold text-center align-top">7.2.</td>
+            <td className="border border-black p-2 font-bold align-top">Asal Material/ Bahan</td>
+            <td className="border border-black p-2 space-y-2.5 text-justify text-[11px] leading-relaxed">
+              <div className="flex items-start">
+                <span className="w-5 shrink-0 select-none">a.</span>
+                <p className="flex-1">Material/bahan yang digunakan harus berasal dari sumber, produsen, pabrik, pemasok, dan/atau lokasi pengambilan material yang sah serta memenuhi ketentuan perizinan berusaha yang dipersyaratkan sesuai jenis material dan ketentuan peraturan perundang-undangan. Penyedia wajib menunjukkan bukti asal dan/atau legalitas material apabila diminta oleh Pejabat Penandatangan Kontrak/Pengawas Pekerjaan.</p>
+              </div>
+              <div className="flex items-start">
+                <span className="w-5 shrink-0 select-none">b.</span>
+                <p className="flex-1">Setiap material/bahan yang digunakan wajib memenuhi spesifikasi teknis dan persyaratan mutu dalam Kontrak. Ketidaksesuaian penggunaan material/bahan menjadi tanggung jawab Penyedia dan wajib diperbaiki, diganti, dan/atau ditindaklanjuti sesuai perintah Pengawas Pekerjaan tanpa menimbulkan tambahan biaya bagi Pejabat Penandatangan Kontrak.</p>
+              </div>
+              <div className="flex items-start">
+                <span className="w-5 shrink-0 select-none">c.</span>
+                <p className="flex-1">Perjanjian pengadaan material/bahan antara Penyedia dengan produsen, pabrik, pemasok, dan/atau pemilik sumber material sepenuhnya menjadi tanggung jawab Penyedia. Setiap sengketa atau tuntutan yang timbul dari hubungan hukum tersebut menjadi tanggung jawab Penyedia dan tidak menimbulkan hubungan kontraktual maupun kewajiban pembayaran bagi Pejabat Penandatangan Kontrak dan/atau Pemerintah Kabupaten Tegal.</p>
+              </div>
             </td>
           </tr>
 

@@ -3,6 +3,7 @@ import { OFFICIAL_SSUK_SECTIONS } from '../data/ssukData';
 import { formatTanggalIndo, formatRupiah, angkaKeTerbilang, angkaKeTerbilangHari, parseKomponenTanggalKontrak, resolveContractPlaceholders } from './formatters';
 import { parseRuangLingkup } from './ruangLingkupParser';
 import { LOGO_KAB_TEGAL_BASE64 } from './logoBase64';
+import { parseRichTextToHtml } from './richText';
 
 const getPelaksanaanHuruf = (hari: number, huruf?: string) => {
   const terbilangAuto = angkaKeTerbilangHari(hari);
@@ -142,7 +143,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
         // Gunakan redaksi hasil editan pengguna
         const customParas = clauseState.kontenCustom.split('\n\n').filter(Boolean);
         parasHtml = customParas.map(cp => {
-          return `<p style="margin: 0 0 4pt 0; font-size: 10pt; line-height: 1.35; text-align: justify;">${cp.replace(/\n/g, '<br/>')}</p>`;
+          return `<p style="margin: 0 0 4pt 0; font-size: 10pt; line-height: 1.35; text-align: justify;">${parseRichTextToHtml(cp).replace(/\n/g, '<br/>')}</p>`;
         }).join('');
       } else {
         // Redaksi baku LKPP
@@ -413,7 +414,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
             ${resolveContractPlaceholders(
               konsideransClause.kontenCustom !== undefined ? konsideransClause.kontenCustom : konsideransClause.kontenDefault,
               contract
-            ).split('\n').filter(Boolean).map(line => `<p style="margin: 0 0 3pt 20pt; text-indent: -16pt;">${line}</p>`).join('')}
+            ).split('\n').filter(Boolean).map(line => `<p style="margin: 0 0 3pt 20pt; text-indent: -16pt;">${parseRichTextToHtml(line)}</p>`).join('')}
           </div>
         ` : ''}
 
@@ -426,7 +427,7 @@ export function generateContractWordDoc(contract: ProjectContract): void {
             ).split('\n').filter(Boolean).map(line => {
               const trimmed = line.trim();
               const isSub = /^\d+\)/.test(trimmed);
-              return `<p style="margin: 0 0 3pt ${isSub ? '44pt' : '24pt'}; text-indent: -${isSub ? '18pt' : '20pt'};">${trimmed}</p>`;
+              return `<p style="margin: 0 0 3pt ${isSub ? '44pt' : '24pt'}; text-indent: -${isSub ? '18pt' : '20pt'};">${parseRichTextToHtml(trimmed)}</p>`;
             }).join('')}
           </div>
         ` : ''}
@@ -532,25 +533,27 @@ export function generateContractWordDoc(contract: ProjectContract): void {
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">4.2 & 5.1</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Wakil Sah Para Pihak</td>
             <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              Wakil Sah Para Pihak sebagai berikut:<br/>
-              Untuk Pejabat Penandatangan Kontrak: <strong>${contract.sskkWakilSahPPK}</strong><br/>
-              Untuk Penyedia: <strong>${contract.sskkWakilSahPenyedia}</strong>
+              Wakil Sah Para Pihak sebagai berikut:<br/><br/>
+              Untuk Pejabat Penandatangan Kontrak:<br/>
+              Nama&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${contract.sskkWakilSahPPK || '- tidak ada -'}<br/><br/>
+              Untuk Penyedia:<br/>
+              Nama&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${contract.sskkWakilSahPenyedia || '- tidak ada -'}
             </td>
           </tr>
           <tr>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">6.3.b & 6.3.c<br/>43.4 & 43.6</td>
             <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Pencairan Jaminan</td>
             <td style="border: 1px solid black; padding: 6px; vertical-align: top;">
-              Jaminan dicairkan dan disetorkan pada <strong>${contract.sskkPencairanJaminan}</strong>.
+              Jaminan dicairkan dan disetorkan pada ${contract.sskkPencairanJaminan || 'Kas Daerah Pemerintah Kabupaten Tegal'}
             </td>
           </tr>
           <tr>
-            <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">7.2</td>
-            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Asal Material / Bahan</td>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; text-align: center; vertical-align: top;">7.2.</td>
+            <td style="border: 1px solid black; padding: 6px; font-weight: bold; vertical-align: top;">Asal Material/ Bahan</td>
             <td style="border: 1px solid black; padding: 6px; vertical-align: top; text-align: justify;">
-              Material/bahan yang digunakan harus berasal dari sumber, produsen, pabrik, pemasok, dan/atau lokasi pengambilan material yang sah serta memenuhi ketentuan perizinan berusaha yang dipersyaratkan sesuai jenis material dan ketentuan peraturan perundang-undangan. Penyedia wajib menunjukkan bukti asal dan/atau legalitas material apabila diminta oleh Pejabat Penandatangan Kontrak/Pengawas Pekerjaan.<br/><br/>
-              Setiap material/bahan yang digunakan wajib memenuhi spesifikasi teknis dan persyaratan mutu dalam Kontrak. Ketidaksesuaian penggunaan material/bahan menjadi tanggung jawab Penyedia dan wajib diperbaiki, diganti, dan/atau ditindaklanjuti sesuai perintah Pengawas Pekerjaan tanpa menimbulkan tambahan biaya bagi Pejabat Penandatangan Kontrak.<br/><br/>
-              Perjanjian pengadaan material/bahan antara Penyedia dengan produsen, pabrik, pemasok, dan/atau pemilik sumber material sepenuhnya menjadi tanggung jawab Penyedia. Setiap sengketa atau tuntutan yang timbul dari hubungan hukum tersebut menjadi tanggung jawab Penyedia dan tidak menimbulkan hubungan kontraktual maupun kewajiban pembayaran bagi Pejabat Penandatangan Kontrak dan/atau Pemerintah Kabupaten Tegal.
+              a. Material/bahan yang digunakan harus berasal dari sumber, produsen, pabrik, pemasok, dan/atau lokasi pengambilan material yang sah serta memenuhi ketentuan perizinan berusaha yang dipersyaratkan sesuai jenis material dan ketentuan peraturan perundang-undangan. Penyedia wajib menunjukkan bukti asal dan/atau legalitas material apabila diminta oleh Pejabat Penandatangan Kontrak/Pengawas Pekerjaan.<br/><br/>
+              b. Setiap material/bahan yang digunakan wajib memenuhi spesifikasi teknis dan persyaratan mutu dalam Kontrak. Ketidaksesuaian penggunaan material/bahan menjadi tanggung jawab Penyedia dan wajib diperbaiki, diganti, dan/atau ditindaklanjuti sesuai perintah Pengawas Pekerjaan tanpa menimbulkan tambahan biaya bagi Pejabat Penandatangan Kontrak.<br/><br/>
+              c. Perjanjian pengadaan material/bahan antara Penyedia dengan produsen, pabrik, pemasok, dan/atau pemilik sumber material sepenuhnya menjadi tanggung jawab Penyedia. Setiap sengketa atau tuntutan yang timbul dari hubungan hukum tersebut menjadi tanggung jawab Penyedia dan tidak menimbulkan hubungan kontraktual maupun kewajiban pembayaran bagi Pejabat Penandatangan Kontrak dan/atau Pemerintah Kabupaten Tegal.
             </td>
           </tr>
           <tr>

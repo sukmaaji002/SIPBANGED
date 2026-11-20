@@ -6,6 +6,7 @@ import { hasPermission } from '../../utils/permissions';
 import { formatRupiah, formatRibuan, parseRibuanKeAngka, angkaKeTerbilang, parseKomponenTanggalKontrak } from '../../utils/formatters';
 import { SpkPrintView } from './SpkPrintView';
 import { generateSpkWordDoc } from '../../utils/spkWordExport';
+import { ClauseTextEditor } from './ClauseTextEditor';
 import { 
   FileText, 
   HardHat, 
@@ -970,12 +971,13 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                 </div>
 
                 {clause.isActive && (
-                  <textarea
-                    rows={4}
-                    value={clause.isi}
-                    onChange={(e) => handleUpdateClauseText(clause.id, e.target.value)}
-                    className="w-full text-xs p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 font-sans text-slate-800 leading-relaxed"
-                  />
+                  <div className="mt-2">
+                    <ClauseTextEditor
+                      value={clause.isi}
+                      onChange={(newVal) => handleUpdateClauseText(clause.id, newVal)}
+                      minRows={4}
+                    />
+                  </div>
                 )}
               </div>
             ))}
