@@ -931,7 +931,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
 
     <tr>
       <td colspan="2" style="border: 1px solid #000000; padding: 6pt; text-align: justify;">
-        <strong>SUMBER DANA :</strong> ${spk.sumberDana || 'APBD DAU Kabupaten Tegal'} "dibebankan atas DIPA/DPA ${spk.dppaNomor || 'DPPA/A.2/1.03.0.00.0.01.0000/001/2026'} ${spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`} untuk mata anggaran kegiatan ${spk.mataAnggaran || spk.kegiatan || 'Penyelenggaraan Bangunan Gedung Di Wilayah Daerah Kabupaten/Kota, Pemberian Izin Mendirikan Bangunan (IMB) dan Sertifikat Laik Fungsi Bangunan Gedung'}
+        <strong>SUMBER DANA :</strong> ${spk.sumberDana || 'APBD DAU Kabupaten Tegal'} dibebankan atas DPA Nomor ${spk.dppaNomor || 'DPA/A.1/1.03.0.00.0.00.01.0000/001/2026'} ${spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`} untuk mata anggaran kegiatan ${spk.mataAnggaran || spk.kegiatan || 'Penyelenggaraan Bangunan Gedung Di Wilayah Daerah Kabupaten/Kota, Pemberian Izin Mendirikan Bangunan (IMB) dan Sertifikat Laik Fungsi Bangunan Gedung'}
       </td>
     </tr>
 
@@ -948,7 +948,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
           1. Pembayaran untuk kontrak ini dilakukan ke <strong>${spk.penyediaBank || 'Bank Jateng Cabang Slawi'}</strong> rekening nomor : <strong>${spk.penyediaNomorRekening || '1035-01626-7'}</strong> atas nama Penyedia : <strong>${spk.penyediaNamaRekening || cleanPenyediaNama}</strong>
         </p>
         <p style="margin: 0;">
-          2. Pembayaran dilakukan dengan pembayaran secara <strong>${spk.sistemPembayaran.toLowerCase().includes('termin') ? 'termin' : 'sekaligus'}</strong>.
+          2. Pembayaran dilakukan dengan pembayaran secara <strong>${(spk.sistemPembayaran || 'sekaligus').toLowerCase().includes('termin') ? 'termin' : (spk.sistemPembayaran || '').toLowerCase().includes('bulanan') ? 'bulanan' : 'sekaligus'}</strong>.
         </p>
       </td>
     </tr>

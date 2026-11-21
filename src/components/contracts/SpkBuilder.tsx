@@ -514,6 +514,32 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                 </select>
               </div>
 
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Nama Paket Pengadaan / Pekerjaan
+                </label>
+                <input
+                  type="text"
+                  value={spkData.namaPaket || ''}
+                  onChange={(e) => handleFieldChange('namaPaket', e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold uppercase"
+                  placeholder="JASA KONSULTANSI PERENCANAAN..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Lokasi Pekerjaan
+                </label>
+                <input
+                  type="text"
+                  value={spkData.lokasiPekerjaan || ''}
+                  onChange={(e) => handleFieldChange('lokasiPekerjaan', e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Kecamatan Slawi Kab. Tegal"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Nomor Undangan Pengadaan Langsung / SPPBJ
@@ -835,27 +861,33 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Bank & No. Rekening</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Bank Pembayaran</label>
                     <input
                       type="text"
-                      value={`${spkData.penyediaBank || ''} - ${spkData.penyediaNomorRekening || ''}`}
-                      onChange={(e) => {
-                        const parts = e.target.value.split('-');
-                        handleFieldChange('penyediaBank', parts[0]?.trim() || '');
-                        handleFieldChange('penyediaNomorRekening', parts[1]?.trim() || '');
-                      }}
+                      value={spkData.penyediaBank || ''}
+                      onChange={(e) => handleFieldChange('penyediaBank', e.target.value)}
                       className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
-                      placeholder="BANK JATENG - 1035-00710-1"
+                      placeholder="Bank Jateng Cabang Slawi"
                     />
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Rekening Pemilik (Escrow / Giro)</label>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Nomor Rekening Bank</label>
+                    <input
+                      type="text"
+                      value={spkData.penyediaNomorRekening || ''}
+                      onChange={(e) => handleFieldChange('penyediaNomorRekening', e.target.value)}
+                      className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-mono"
+                      placeholder="1035-01626-7"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Pemilik Rekening</label>
                     <input
                       type="text"
                       value={spkData.penyediaNamaRekening || ''}
                       onChange={(e) => handleFieldChange('penyediaNamaRekening', e.target.value)}
                       className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
-                      placeholder="ABADI JAYA (ESCROW)"
+                      placeholder="CV. TITIAN SEJAHTERA KONSULTAN"
                     />
                   </div>
                 </div>
@@ -1000,10 +1032,10 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                 </label>
                 <input
                   type="text"
-                  value={spkData.jenisKontrak || 'Harga Satuan'}
+                  value={spkData.jenisKontrak || (activeSpkType === 'perencana' || activeSpkType === 'pengawas' ? 'Lumpsum' : 'Harga Satuan')}
                   onChange={(e) => handleFieldChange('jenisKontrak', e.target.value)}
                   className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-semibold"
-                  placeholder="Harga Satuan"
+                  placeholder={activeSpkType === 'perencana' || activeSpkType === 'pengawas' ? 'Lumpsum' : 'Harga Satuan'}
                 />
               </div>
 
@@ -1274,13 +1306,23 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
                 Pratinjau berikut menampilkan format persis sesuai cetakan resmi kedinasan DPUPR Kabupaten Tegal.
               </span>
             </div>
-            <button
-              onClick={handlePrint}
-              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              Cetak Sekarang
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={handleExportWord}
+                className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                title="Download Dokumen SPK dalam format Word (.doc)"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Export Word (.doc)
+              </button>
+              <button
+                onClick={handlePrint}
+                className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                Cetak Sekarang
+              </button>
+            </div>
           </div>
 
           <div className="bg-white p-0 rounded-none shadow-none border-0 w-full overflow-x-auto pb-4">
