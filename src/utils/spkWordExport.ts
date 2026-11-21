@@ -507,40 +507,40 @@ export function generateSpkWordDoc(spk: SpkContract): void {
 
   ${clausesHtml}
 
-  <!-- Penutup SPK -->
-  <div style="margin-top: 14pt; padding-top: 8pt; border-top: 1px solid #000000;">
-    <p style="font-size: 9.5pt; text-align: justify; margin-bottom: 4pt;">
+  <!-- Penutup & Tanda Tangan SPK (Satu Kesatuan Utuh di Word, Tidak Terpisah) -->
+  <div style="page-break-inside: avoid; mso-pagination: widow-orphan; margin-top: 14pt; padding-top: 8pt; border-top: 1px solid #000000;">
+    <p style="font-size: 9.5pt; text-align: justify; margin-bottom: 4pt; page-break-after: avoid;">
       SPK untuk melaksanakan Pekerjaan ${spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
     </p>
-    <p style="font-size: 9.5pt; text-align: justify; margin-bottom: 4pt;">
+    <p style="font-size: 9.5pt; text-align: justify; margin-bottom: 4pt; page-break-after: avoid;">
       SPK ini mulai berlaku efektif terhitung sejak tanggal yang ditetapkan dalam SPK dengan tanggal mulai dan penyelesaian keseluruhan pekerjaan sebagaimana diatur dalam SPMK.
     </p>
-    <p style="font-size: 9.5pt; text-align: justify; margin-bottom: 6pt;">
+    <p style="font-size: 9.5pt; text-align: justify; margin-bottom: 6pt; page-break-after: avoid;">
       Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani SPK ini pada tanggal tersebut di atas dan melaksanakan SPK sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia.
     </p>
-  </div>
 
-  <!-- Tanda Tangan Penutup -->
-  <table style="width: 100%; margin-top: 14pt; font-size: 10pt; text-align: center;">
-    <tr>
-      <td style="width: 50%; vertical-align: top; text-align: center;">
-        <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama</p>
-        <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Dinas PUPR Kabupaten Tegal</p>
-        <p style="font-weight: normal; font-size: 8.5pt; margin: 0 0 2pt 0; text-align: center;">${spk.ppkJabatan}</p>
-        <p style="font-weight: bold; font-style: italic; font-size: 8.5pt; margin: 0 0 45pt 0; text-align: center;">Selaku Pejabat Penandatangan Kontrak</p>
-        <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.ppkNama}</p>
-        <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">NIP. ${spk.ppkNip}</p>
-      </td>
-      <td style="width: 50%; vertical-align: top; text-align: center;">
-        <p style="font-size: 8.5pt; margin: 0 0 2pt 0; text-align: center;">Slawi, ${tanggalSpkFormatted}</p>
-        <p style="font-size: 8.5pt; font-style: italic; margin: 0 0 2pt 0; text-align: center;">Menerima dan Menyetujui :</p>
-        <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama Penyedia</p>
-        <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 45pt 0; text-align: center;">${spk.penyediaNamaBadanUsaha}</p>
-        <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.penyediaNamaPimpinan}</p>
-        <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">${spk.penyediaJabatanPimpinan}</p>
-      </td>
-    </tr>
-  </table>
+    <!-- Tanda Tangan Penutup -->
+    <table style="width: 100%; margin-top: 14pt; font-size: 10pt; text-align: center; page-break-inside: avoid;">
+      <tr>
+        <td style="width: 50%; vertical-align: top; text-align: center;">
+          <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama</p>
+          <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Dinas PUPR Kabupaten Tegal</p>
+          <p style="font-weight: normal; font-size: 8.5pt; margin: 0 0 2pt 0; text-align: center;">${spk.ppkJabatan}</p>
+          <p style="font-weight: bold; font-style: italic; font-size: 8.5pt; margin: 0 0 45pt 0; text-align: center;">Selaku Pejabat Penandatangan Kontrak</p>
+          <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.ppkNama}</p>
+          <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">NIP. ${spk.ppkNip}</p>
+        </td>
+        <td style="width: 50%; vertical-align: top; text-align: center;">
+          <p style="font-size: 8.5pt; margin: 0 0 2pt 0; text-align: center;">Slawi, ${tanggalSpkFormatted}</p>
+          <p style="font-size: 8.5pt; font-style: italic; margin: 0 0 2pt 0; text-align: center;">Menerima dan Menyetujui :</p>
+          <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama Penyedia</p>
+          <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 45pt 0; text-align: center;">${spk.penyediaNamaBadanUsaha}</p>
+          <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.penyediaNamaPimpinan}</p>
+          <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">${spk.penyediaJabatanPimpinan}</p>
+        </td>
+      </tr>
+    </table>
+  </div>
 
   <!-- Running Footer Word Kotak Paraf Koordinasi (Cover Halaman 1 Kosong, Halaman 2+ Muncul) -->
   <div style="mso-element:footer" id="f0">
@@ -637,7 +637,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   <title>SPK - ${spk.namaPaket}</title>
   <style>
     @page Section1 {
-      size: 21.0cm 29.7cm;
+      size: 21.5cm 33.0cm; /* Ukuran Kertas Folio / F4 */
       margin: 2.0cm 2.0cm 2.0cm 2.0cm;
       mso-page-orientation: portrait;
       mso-footer: f1;
@@ -865,35 +865,35 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   <!-- Klausul-Klausul -->
   ${clausesHtml}
 
-  <!-- Penutup & Tanda Tangan -->
-  <div style="margin-top: 18pt;">
-    <p>
+  <!-- Penutup & Tanda Tangan (Satu Kesatuan Utuh di Word, Tidak Terpisah) -->
+  <div style="page-break-inside: avoid; mso-pagination: widow-orphan; margin-top: 18pt;">
+    <p style="page-break-after: avoid;">
       Demikian Surat Perintah Kerja (SPK) ini dibuat dan ditandatangani oleh Para Pihak dengan penuh tanggung jawab dalam 2 (dua) rangkap asli bermaterai cukup dan memiliki kekuatan hukum yang sama.
     </p>
-  </div>
 
-  <table style="width: 100%; margin-top: 20pt; text-align: center;">
-    <tr>
-      <td style="width: 50%; vertical-align: top;">
-        <p style="font-weight: bold; margin: 0;">Untuk dan atas nama</p>
-        <p style="font-weight: bold; margin: 0 0 45pt 0;">${spk.penyediaNamaBadanUsaha}</p>
-        <div style="border: 1px dashed #999; width: 65pt; margin: 0 auto 5pt auto; padding: 2pt; font-size: 7.5pt; color: #666;">
-          MATERAI<br/>Rp 10.000,-
-        </div>
-        <p style="font-weight: bold; text-decoration: underline; margin: 0;">${spk.penyediaNamaPimpinan}</p>
-        <p style="margin: 0; font-size: 9.5pt;">${spk.penyediaJabatanPimpinan}</p>
-      </td>
-      <td style="width: 50%; vertical-align: top;">
-        <p style="font-weight: bold; margin: 0;">Untuk dan atas nama</p>
-        <p style="font-weight: bold; margin: 0 0 45pt 0;">DINAS PEKERJAAN UMUM DAN PENATAAN RUANG<br/>KABUPATEN TEGAL</p>
-        <div style="border: 1px dashed #999; width: 65pt; margin: 0 auto 5pt auto; padding: 2pt; font-size: 7.5pt; color: #666;">
-          MATERAI<br/>Rp 10.000,-
-        </div>
-        <p style="font-weight: bold; text-decoration: underline; margin: 0;">${spk.ppkNama}</p>
-        <p style="margin: 0; font-size: 9.5pt;">NIP. ${spk.ppkNip}</p>
-      </td>
-    </tr>
-  </table>
+    <table style="width: 100%; margin-top: 20pt; text-align: center; page-break-inside: avoid;">
+      <tr>
+        <td style="width: 50%; vertical-align: top;">
+          <p style="font-weight: bold; margin: 0;">Untuk dan atas nama</p>
+          <p style="font-weight: bold; margin: 0 0 45pt 0;">${spk.penyediaNamaBadanUsaha}</p>
+          <div style="border: 1px dashed #999; width: 65pt; margin: 0 auto 5pt auto; padding: 2pt; font-size: 7.5pt; color: #666;">
+            MATERAI<br/>Rp 10.000,-
+          </div>
+          <p style="font-weight: bold; text-decoration: underline; margin: 0;">${spk.penyediaNamaPimpinan}</p>
+          <p style="margin: 0; font-size: 9.5pt;">${spk.penyediaJabatanPimpinan}</p>
+        </td>
+        <td style="width: 50%; vertical-align: top;">
+          <p style="font-weight: bold; margin: 0;">Untuk dan atas nama</p>
+          <p style="font-weight: bold; margin: 0 0 45pt 0;">DINAS PEKERJAAN UMUM DAN PENATAAN RUANG<br/>KABUPATEN TEGAL</p>
+          <div style="border: 1px dashed #999; width: 65pt; margin: 0 auto 5pt auto; padding: 2pt; font-size: 7.5pt; color: #666;">
+            MATERAI<br/>Rp 10.000,-
+          </div>
+          <p style="font-weight: bold; text-decoration: underline; margin: 0;">${spk.ppkNama}</p>
+          <p style="margin: 0; font-size: 9.5pt;">NIP. ${spk.ppkNip}</p>
+        </td>
+      </tr>
+    </table>
+  </div>
 
   <!-- Running Footer Word Kotak Paraf Koordinasi (Cover Halaman 1 Kosong, Halaman 2+ Muncul) -->
   <div style="mso-element:footer" id="f0">

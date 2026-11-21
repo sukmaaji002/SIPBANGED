@@ -430,8 +430,12 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
               ))}
             </div>
 
-            {/* Bagian Penutup SPK: Mengalir alami langsung di bawah poin klausul terakhir tanpa jeda kosong */}
-            <div className="mt-6 pt-3 border-t border-slate-300 font-serif text-black leading-relaxed">
+            {/* Bagian Penutup & Tanda Tangan SPK: Satu kesatuan utuh tidak terpisahkan, tanda tangan tidak pernah berdiri sendiri */}
+            <div
+              className="spk-closing-container mt-6 pt-3 border-t border-slate-300 font-serif text-black leading-relaxed"
+              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+            >
+              {/* Penutup SPK */}
               <div className="text-xs text-justify leading-relaxed space-y-2">
                 <p>
                   SPK untuk melaksanakan Pekerjaan {spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
@@ -443,14 +447,9 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
                   Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani SPK ini pada tanggal tersebut di atas dan melaksanakan SPK sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia.
                 </p>
               </div>
-            </div>
 
-            {/* Bagian Tanda Tangan SPK: Utuh tidak terpotong, dengan spacer print agar kotak paraf selalu berada di footer dasar kertas */}
-            <div
-              className="spk-signature-block font-serif text-black leading-relaxed"
-              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-            >
-              <div className="grid grid-cols-2 gap-8 text-center pt-8 text-xs">
+              {/* Tanda Tangan Penutup Langsung Menyatu Di Bawah Kalimat Penutup */}
+              <div className="grid grid-cols-2 gap-8 text-center pt-6 text-xs">
                 <div>
                   <p className="font-normal text-[11px]">Untuk dan atas nama</p>
                   <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
@@ -469,9 +468,6 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
                   <p className="text-[10px] font-normal mt-0.5">{spk.penyediaJabatanPimpinan}</p>
                 </div>
               </div>
-
-              {/* Spacer khusus print: memastikan kotak paraf tfoot terdorong ke posisi footer paling bawah halaman */}
-              <div className="hidden print:block h-[185mm]" />
             </div>
           </div>
 
