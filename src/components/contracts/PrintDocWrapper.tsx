@@ -40,9 +40,9 @@ export const PrintDocWrapper: React.FC<Props> = ({
         )}
       </table>
 
-      {/* Screen Paraf Footer */}
+      {/* Screen Paraf Footer - posisi absolut di pojok kanan bawah halaman */}
       {showFooterParaf && (
-        <div className="mt-6 pt-2 flex justify-end print:hidden">
+        <div className="absolute bottom-3 right-4 print:hidden z-10">
           <ParafTable />
         </div>
       )}
