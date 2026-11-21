@@ -892,7 +892,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
           </tr>
         </table>
 
-        <p style="font-weight: bold; text-transform: uppercase; margin: 4pt 0 2pt 0; font-size: 8.5pt;">NOMOR DAN TANGGAL BERITA ACARA HASIL PENGADAAN LANGSUNG:</p>
+        <p style="font-weight: bold; text-transform: uppercase; margin: 4pt 0 2pt 0; font-size: 8.5pt;">NOMOR DAN TANGGAL BERITA ACARA HASIL PEMILIHAN:</p>
         <table style="border: none; margin: 0; padding: 0; font-size: 9pt; width: 100%;">
           <tr>
             <td style="width: 55pt; border: none; padding: 1pt 0;">Nomor</td>
@@ -973,10 +973,10 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   <!-- HALAMAN 3+: SYARAT UMUM SPK (27 PASAL)                   -->
   <!-- ======================================================== -->
   <div style="text-align: center; margin: 10pt 0 14pt 0;">
-    <p style="font-size: 11pt; font-weight: bold; text-transform: uppercase; margin: 0; text-decoration: underline; text-align: center;">
+    <p style="font-size: 11pt; font-weight: bold; text-transform: uppercase; margin: 0; text-align: center;">
       SYARAT UMUM
     </p>
-    <p style="font-size: 11pt; font-weight: bold; text-transform: uppercase; margin: 0; text-decoration: underline; text-align: center;">
+    <p style="font-size: 11pt; font-weight: bold; text-transform: uppercase; margin: 0; text-align: center;">
       SURAT PERINTAH KERJA (SPK)
     </p>
   </div>
@@ -1008,7 +1008,6 @@ export function generateSpkWordDoc(spk: SpkContract): void {
         </td>
         <td style="width: 50%; vertical-align: top; text-align: center;">
           <p style="font-size: 8.5pt; margin: 0 0 2pt 0; text-align: center;">Slawi, ${tanggalSpkFormatted}</p>
-          <p style="font-size: 8.5pt; font-style: italic; margin: 0 0 2pt 0; text-align: center;">Menerima dan Menyetujui :</p>
           <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama Penyedia</p>
           <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 45pt 0; text-align: center;">${cleanPenyediaNama}</p>
           <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.penyediaNamaPimpinan}</p>

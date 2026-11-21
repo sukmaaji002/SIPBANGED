@@ -99,14 +99,14 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
       }
       if (found.spkType === 'perencana') {
         const currentCount = (found.clauses || []).length;
-        if (currentCount < 27) {
+        const needsUpdate = currentCount < 27
+          || !(found.clauses?.find(c => c.pasal === 9)?.isi.includes('• Tahap Perencanaan Teknis'))
+          || !(found.clauses?.find(c => c.pasal === 23)?.isi.includes('Pembayaran terakhir'));
+        if (needsUpdate) {
           const activeMap = new Map((found.clauses || []).map(cl => [cl.id, cl.isActive]));
-          const customMap = new Map((found.clauses || []).filter(cl => cl.isi).map(cl => [cl.id, cl.isi]));
           const updatedClauses = DEFAULT_SPK_PERENCANA_CLAUSES.map(defaultClause => {
-            const existingText = customMap.get(defaultClause.id);
             return {
               ...defaultClause,
-              isi: existingText || defaultClause.isi,
               isActive: activeMap.has(defaultClause.id) ? (activeMap.get(defaultClause.id) ?? true) : true
             };
           });

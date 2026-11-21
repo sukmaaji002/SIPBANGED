@@ -248,7 +248,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
                           <div>
                             <div className="font-bold uppercase text-[10px] text-slate-800">
-                              NOMOR DAN TANGGAL BERITA ACARA HASIL PENGADAAN LANGSUNG:
+                              NOMOR DAN TANGGAL BERITA ACARA HASIL PEMILIHAN:
                             </div>
                             <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
                               <div>Nomor</div>
@@ -707,7 +707,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
                           <div>
                             <div className="font-bold uppercase text-[10px] text-slate-800">
-                              NOMOR DAN TANGGAL BERITA ACARA HASIL PENGADAAN LANGSUNG:
+                              NOMOR DAN TANGGAL BERITA ACARA HASIL PEMILIHAN:
                             </div>
                             <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
                               <div>Nomor</div>
@@ -799,10 +799,10 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
           {/* ======================================================== */}
           <div className="spk-page spk-clauses-doc font-serif text-black leading-relaxed pt-6">
             <div className="text-center my-6 space-y-1">
-              <h3 className="text-base font-bold uppercase tracking-wider underline">
+              <h3 className="text-base font-bold uppercase tracking-wider">
                 SYARAT UMUM
               </h3>
-              <h3 className="text-base font-bold uppercase tracking-wider underline">
+              <h3 className="text-base font-bold uppercase tracking-wider">
                 SURAT PERINTAH KERJA (SPK)
               </h3>
             </div>
@@ -851,8 +851,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
                 </div>
 
                 <div>
-                  <p className="text-[10px] mb-1 font-normal">Slawi, {tanggalSpkFormatted}</p>
-                  <p className="text-[10px] italic font-normal mb-0.5">Menerima dan Menyetujui :</p>
+                  <p className="text-[11px] mb-1 font-normal">Slawi, {tanggalSpkFormatted}</p>
                   <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
                   <p className="font-bold uppercase text-[11px] mb-16">{cleanPenyediaNama}</p>
                   <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
