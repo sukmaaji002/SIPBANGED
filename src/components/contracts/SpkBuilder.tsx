@@ -122,6 +122,35 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
           return;
         }
       }
+      if (found.spkType === 'pengawas') {
+        const currentCount = (found.clauses || []).length;
+        const needsUpdate = currentCount < 27
+          || !(found.clauses?.find(c => c.pasal === 9)?.isi.includes('• Tahap Pengawasan Teknis'))
+          || !(found.clauses?.find(c => c.pasal === 15)?.isi.includes('Laporan Pengawasan Teknis'));
+        if (needsUpdate) {
+          const activeMap = new Map((found.clauses || []).map(cl => [cl.id, cl.isActive]));
+          const updatedClauses = DEFAULT_SPK_PENGAWAS_CLAUSES.map(defaultClause => {
+            return {
+              ...defaultClause,
+              isActive: activeMap.has(defaultClause.id) ? (activeMap.get(defaultClause.id) ?? true) : true
+            };
+          });
+          const migratedFound = { 
+            ...found, 
+            clauses: updatedClauses,
+            jenisKontrak: found.jenisKontrak || 'Lumpsum',
+            sistemPembayaran: found.sistemPembayaran || 'Sekaligus (100% setelah selesai & PHO)',
+            dendaKeterlambatan: found.dendaKeterlambatan || '1/1000 (satu permil) dari nilai SPK (tidak termasuk PPN) untuk setiap hari keterlambatan.',
+            jangkaWaktuHari: found.jangkaWaktuHari || 65,
+            jangkaWaktuHuruf: found.jangkaWaktuHuruf || 'Enam Puluh Lima',
+            masaPemeliharaanHari: found.masaPemeliharaanHari || 180,
+            masaPemeliharaanHuruf: found.masaPemeliharaanHuruf || 'Seratus Delapan Puluh'
+          };
+          setSpkData(migratedFound);
+          updateSpkContract(migratedFound);
+          return;
+        }
+      }
       setSpkData(found);
     } else {
       const defaultSpk = createDefaultSpkForProject(selectedProject, activeSpkType);
