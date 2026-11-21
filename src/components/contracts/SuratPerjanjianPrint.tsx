@@ -36,7 +36,7 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
   const tanggalSPPBJFormatted = contract.tanggalSPPBJ ? formatTanggalIndo(contract.tanggalSPPBJ) : '-';
 
   return (
-    <PrintDocWrapper>
+    <PrintDocWrapper showFooterParaf={false}>
       <KopSurat />
 
       {/* Judul Kontrak Sesuai Format Word DPUPR */}

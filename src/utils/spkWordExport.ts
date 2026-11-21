@@ -84,17 +84,40 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   </xml>
   <![endif]-->
   <style>
-    @page Section1 {
+    @page SectionCover {
+      size: 21.5cm 33.0cm;
+      margin: 2.0cm 2.0cm 2.0cm 2.0cm;
+      mso-page-orientation: portrait;
+      mso-footer: f0;
+    }
+    div.SectionCover { page: SectionCover; }
+
+    @page SectionForm {
+      size: 21.5cm 33.0cm;
+      margin: 2.0cm 2.0cm 2.0cm 2.0cm;
+      mso-page-orientation: portrait;
+      mso-footer: f0;
+    }
+    div.SectionForm { page: SectionForm; }
+
+    @page SectionClauses {
       size: 21.5cm 33.0cm;
       margin: 2.0cm 2.0cm 2.0cm 2.0cm;
       mso-page-orientation: portrait;
       mso-header-margin: 1.0cm;
       mso-footer-margin: 1.0cm;
-      mso-title-page: yes;
       mso-footer: f1;
-      mso-first-footer: f0;
     }
-    div.Section1 { page: Section1; }
+    div.SectionClauses { page: SectionClauses; }
+
+    @page SectionClosing {
+      size: 21.5cm 33.0cm;
+      margin: 2.0cm 2.0cm 2.0cm 2.0cm;
+      mso-page-orientation: portrait;
+      mso-footer: f0;
+    }
+    div.SectionClosing { page: SectionClosing; }
+
     body {
       font-family: 'Times New Roman', Times, serif;
       font-size: 10pt;
@@ -108,7 +131,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   </style>
 </head>
 <body>
-<div class="Section1">
+<div class="SectionCover">
 
   <!-- ========================================== -->
   <!-- HALAMAN 1: COVER / LEMBAR MUKA SPK FISIK   -->
@@ -206,9 +229,11 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     <p style="font-weight: bold; font-size: 11pt; margin: 0 0 3pt 0; text-transform: uppercase; text-align: center;">${cleanPenyediaNama}</p>
     <p style="font-size: 9.5pt; margin: 0; text-align: center;">${spk.penyediaAlamat}</p>
   </div>
+</div>
 
   <br clear="all" style="page-break-before: always; mso-break-type: section-break;" />
 
+<div class="SectionForm">
   <!-- ========================================== -->
   <!-- HALAMAN 2: LEMBAR TABEL FORMULIR SPK UTUH  -->
   <!-- ========================================== -->
@@ -490,9 +515,11 @@ export function generateSpkWordDoc(spk: SpkContract): void {
       </td>
     </tr>
   </table>
+</div>
 
   <br clear="all" style="page-break-before: always; mso-break-type: section-break;" />
 
+<div class="SectionClauses">
   <!-- ========================================== -->
   <!-- HALAMAN 3+: SYARAT UMUM SPK (31 PASAL)     -->
   <!-- ========================================== -->
@@ -506,9 +533,13 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   </div>
 
   ${clausesHtml}
+</div>
 
+  <br clear="all" style="page-break-before: always; mso-break-type: section-break;" />
+
+<div class="SectionClosing">
   <!-- Penutup & Tanda Tangan SPK (Satu Kesatuan Utuh di Word, Tidak Terpisah) -->
-  <div style="page-break-inside: avoid; mso-pagination: widow-orphan; margin-top: 14pt; padding-top: 8pt; border-top: 1px solid #000000;">
+  <div style="page-break-inside: avoid; mso-pagination: widow-orphan; margin-top: 14pt; padding-top: 0; border: none;">
     <p style="font-size: 9.5pt; text-align: justify; margin-bottom: 4pt; page-break-after: avoid;">
       SPK untuk melaksanakan Pekerjaan ${spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
     </p>
@@ -541,6 +572,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
       </tr>
     </table>
   </div>
+</div>
 
   <!-- Running Footer Word Kotak Paraf Koordinasi (Cover Halaman 1 Kosong, Halaman 2+ Muncul) -->
   <div style="mso-element:footer" id="f0">
@@ -565,7 +597,6 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </p>
   </div>
 
-</div>
 </body>
 </html>
     `;

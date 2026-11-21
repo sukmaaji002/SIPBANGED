@@ -505,9 +505,6 @@ export function generateContractWordDoc(contract: ProjectContract): void {
             </td>
           </tr>
         </table>
-
-        <!-- Kotak Paraf Koordinasi Footer -->
-        ${parafFooterHtml}
       </div>
 
       <!-- ========================================== -->
