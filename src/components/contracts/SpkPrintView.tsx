@@ -470,7 +470,404 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
     );
   }
 
-  // Format Konsultan Pengawas / Konsultan Perencana
+  // =========================================================================
+  // FORMAT KONSULTAN PERENCANA BAKU DPUPR KAB. TEGAL (SESUAI DOKUMEN RESMI)
+  // =========================================================================
+  if (spk.spkType === 'perencana') {
+    const cleanPenyediaNama = (spk.penyediaNamaBadanUsaha || '').replace(/:\s*$/, '').trim();
+
+    return (
+      <div className="spk-perencana-container">
+        {/* ======================================================== */}
+        {/* LEMBAR 1: COVER / LEMBAR MUKA SPK KONSULTAN PERENCANA   */}
+        {/* Bebas dari paraf box                                     */}
+        {/* ======================================================== */}
+        <div
+          className="spk-page spk-cover-sheet font-serif text-black leading-relaxed bg-white p-4 sm:p-8 md:p-10 mb-8 max-w-[215mm] mx-auto text-xs flex flex-col justify-between min-h-[960px] shadow-sm"
+          style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
+        >
+          <div>
+            <KopSurat />
+
+            {/* Judul SPK */}
+            <div className="text-center my-6 space-y-1">
+              <h2 className="text-base sm:text-lg font-bold uppercase tracking-wider underline">
+                SURAT PERINTAH KERJA
+              </h2>
+              <p className="text-xs font-normal">
+                Nomor : {spk.nomorSpk || '000.3.2/PBLT/05.03/SPK/VI/2026'}
+              </p>
+              <p className="text-xs font-normal">
+                Tanggal {tanggalSpkFormatted}
+              </p>
+            </div>
+
+            {/* Uraian Kegiatan & Paket Pekerjaan */}
+            <div className="text-center my-6 space-y-2 uppercase font-bold text-xs max-w-2xl mx-auto px-4">
+              <p className="leading-snug">
+                {spk.kegiatan || 'KEGIATAN PENYELENGGARAAN BANGUNAN GEDUNG DI WILAYAH DAERAH KABUPATEN/KOTA, PEMBERIAN IZIN MENDIRIKAN BANGUNAN (IMB) DAN SERTIFIKAT LAIK FUNGSI BANGUNAN GEDUNG'}
+              </p>
+              <p className="leading-snug">
+                PAKET PEKERJAAN {spk.namaPaket.toUpperCase()}
+              </p>
+              <p className="leading-snug">
+                {spk.perubahanAnggaran || `TAHUN ANGGARAN ${spk.tahunAnggaran || 2026}`}
+              </p>
+            </div>
+
+            {/* Ringkasan Data Kontrak Cover */}
+            <div className="my-6 max-w-2xl mx-auto">
+              <table className="w-full text-xs border-collapse border-none">
+                <tbody>
+                  <tr>
+                    <td className="w-44 py-1.5 font-normal align-top border-none text-black">Lokasi Pekerjaan</td>
+                    <td className="w-5 py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{spk.lokasiPekerjaan}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Sumber Dana</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{spk.sumberDana || 'APBD DAU Kabupaten Tegal'}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Tahun Anggaran</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{spk.tahunAnggaran || 2026}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Nilai Kontrak</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">
+                      <span className="font-bold">{formatRupiah(spk.nilaiKontrak)}</span><br />
+                      <span className="italic text-slate-800">({spk.nilaiKontrakTerbilang})</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Masa pelaksanaan</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'}) Hari Kalender</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Mulai</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{tanggalMulaiFormatted}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 font-normal align-top border-none text-black">Sampai Dengan</td>
+                    <td className="py-1.5 text-center align-top border-none font-normal text-black">:</td>
+                    <td className="py-1.5 align-top border-none text-black">{tanggalSelesaiFormatted}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Garis Pembatas & Penyedia Cover */}
+          <div className="w-full">
+            <div className="border-t-2 border-black mb-8" />
+            <div className="text-center font-serif pb-4">
+              <p className="font-normal tracking-wider uppercase text-xs mb-1">PENYEDIA :</p>
+              <p className="font-bold text-sm uppercase">{cleanPenyediaNama}</p>
+              <p className="text-xs text-slate-800 max-w-lg mx-auto mt-0.5">{spk.penyediaAlamat}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* LEMBAR 2, 3+, & PENUTUP: SATU KESATUAN DENGAN PARAF     */}
+        {/* ======================================================== */}
+        <PrintDocWrapper showFooterParaf={true}>
+          {/* ======================================================== */}
+          {/* LEMBAR 2: FORMULIR TABEL SPK KONSULTAN PERENCANA         */}
+          {/* ======================================================== */}
+          <div
+            className="spk-page spk-main-form font-serif text-black leading-relaxed flex flex-col justify-between pt-6"
+            style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
+          >
+            <div>
+              <KopSurat />
+
+              <div className="my-4">
+                <table className="w-full border-collapse border border-black text-[11px] leading-snug">
+                  <tbody>
+                    {/* Baris 1: Header SPK & Dinas */}
+                    <tr>
+                      <td rowSpan={2} className="w-[32%] border border-black p-2.5 font-bold uppercase align-middle text-left leading-snug">
+                        SURAT PERINTAH KERJA<br />(SPK)
+                      </td>
+                      <td className="w-[68%] border border-black p-2.5 font-bold uppercase text-center align-middle leading-snug">
+                        DINAS PEKERJAAN UMUM DAN PENATAAN RUANG KABUPATEN TEGAL
+                      </td>
+                    </tr>
+
+                    {/* Baris 2: Nomor & Tanggal */}
+                    <tr>
+                      <td className="border border-black p-2.5 align-top">
+                        <div className="font-bold uppercase mb-1">NOMOR DAN TANGGAL SPK:</div>
+                        <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
+                          <div>Nomor</div>
+                          <div>:</div>
+                          <div>{spk.nomorSpk || '000.3.2/PBLT/05.03/SPK/VI/2026'}</div>
+                          <div>Tanggal</div>
+                          <div>:</div>
+                          <div>{tanggalSpkFormatted}</div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Baris 3: Pejabat Penandatangan Kontrak */}
+                    <tr>
+                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                        NAMA PEJABAT PENANDATANGAN KONTRAK
+                      </td>
+                      <td className="border border-black p-2.5 align-top">
+                        <div className="grid grid-cols-[110px_10px_1fr] text-[11px] mb-2">
+                          <div>Nama</div>
+                          <div>:</div>
+                          <div className="font-bold">{spk.ppkNama}</div>
+                          <div>NIP</div>
+                          <div>:</div>
+                          <div>{spk.ppkNip}</div>
+                          <div>Jabatan</div>
+                          <div>:</div>
+                          <div>{spk.ppkJabatan}</div>
+                          <div>Berkedudukan di</div>
+                          <div>:</div>
+                          <div>{spk.ppkAlamat || 'Jl. Cut Nyak Dien Slawi'}</div>
+                        </div>
+                        <p className="text-justify text-[10.5px] leading-relaxed">
+                          yang bertindak untuk dan atas nama*) Pemerintah Indonesia c.q. Pemerintah Kabupaten Tegal c.q. Satuan Kerja Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal. berdasarkan {spk.ppkSkPengangkatanText || 'Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor 07 Tahun 2026 tanggal 12 Januari 2026 tentang Penunjukan Pejabat Pembuat Komitmen (PPKom) Pada Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal Tahun Anggaran 2026'} selanjutnya disebut “Pejabat Penandatangan Kontrak”, dengan:
+                        </p>
+                      </td>
+                    </tr>
+
+                    {/* Baris 4: Nama Penyedia */}
+                    <tr>
+                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                        NAMA PENYEDIA
+                      </td>
+                      <td className="border border-black p-2.5 align-top">
+                        <div className="grid grid-cols-[130px_10px_1fr] text-[11px] mb-2">
+                          <div>Nama</div>
+                          <div>:</div>
+                          <div className="font-bold">{spk.penyediaNamaPimpinan}</div>
+                          <div>Jabatan</div>
+                          <div>:</div>
+                          <div>{spk.penyediaJabatanPimpinan}</div>
+                          <div>Berkedudukan di</div>
+                          <div>:</div>
+                          <div>{spk.penyediaAlamat}</div>
+                          <div>Akta Notaris Nomor</div>
+                          <div>:</div>
+                          <div>{spk.penyediaAktaNotarisNomor || '25'}</div>
+                          <div>Tanggal</div>
+                          <div>:</div>
+                          <div>{spk.penyediaAktaNotarisTanggal || '31 Agustus 2021'}</div>
+                          <div>Notaris</div>
+                          <div>:</div>
+                          <div>{spk.penyediaAktaNotarisNama || 'UNTUNG DWIKORIANTO, SH., SpN'}</div>
+                        </div>
+                        <p className="text-justify text-[10.5px] leading-relaxed">
+                          yang bertindak untuk dan atas nama <strong>{spk.penyediaNamaBadanUsaha}</strong> selanjutnya disebut “Penyedia”.
+                        </p>
+                      </td>
+                    </tr>
+
+                    {/* Baris 5: Wakil Sah */}
+                    <tr>
+                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                        WAKIL SAH PEJABAT PENANDATANGAN KONTRAK
+                      </td>
+                      <td className="border border-black p-2.5 align-top">
+                        <p className="font-bold mb-1">Wakil Sah Pejabat Penandatangan Kontrak</p>
+                        <p>Untuk Pejabat Penandatangan Kontrak: <strong>{spk.wakilSahPpk || 'Tidak ada'}</strong></p>
+                      </td>
+                    </tr>
+
+                    {/* Baris 6: Paket Pengadaan */}
+                    <tr>
+                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                        PAKET PENGADAAN: {spk.namaPaket.toUpperCase()}
+                      </td>
+                      <td className="border border-black p-2.5 align-top">
+                        <div className="space-y-2">
+                          <div>
+                            <div className="font-bold uppercase text-[10px] text-slate-800">
+                              NOMOR DAN TANGGAL SURAT UNDANGAN PENGADAAN LANGSUNG:
+                            </div>
+                            <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
+                              <div>Nomor</div>
+                              <div>:</div>
+                              <div>{spk.nomorUndanganPengadaan || '003.2/DPUPR/Prc.Brigif/PP/03/2026'}</div>
+                              <div>Tanggal</div>
+                              <div>:</div>
+                              <div>{spk.tanggalUndanganPengadaan ? formatTanggalIndo(spk.tanggalUndanganPengadaan) : '11 Juni 2026'}</div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <div className="font-bold uppercase text-[10px] text-slate-800">
+                              NOMOR DAN TANGGAL BERITA ACARA HASIL PENGADAAN LANGSUNG:
+                            </div>
+                            <div className="grid grid-cols-[70px_10px_1fr] text-[11px]">
+                              <div>Nomor</div>
+                              <div>:</div>
+                              <div>{spk.nomorBahpl || '003.2/DPUPR/Prc.Brigif/PP/07/2026'}</div>
+                              <div>Tanggal</div>
+                              <div>:</div>
+                              <div>{spk.tanggalBahpl ? formatTanggalIndo(spk.tanggalBahpl) : '17 Juni 2026'}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Baris 7: Sumber Dana */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5 text-justify leading-relaxed">
+                        <strong>SUMBER DANA :</strong> {spk.sumberDana || 'APBD DAU Kabupaten Tegal'} "dibebankan atas DIPA/DPA {spk.dppaNomor || 'DPPA/A.2/1.03.0.00.0.01.0000/001/2026'} {spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`} untuk mata anggaran kegiatan {spk.mataAnggaran || spk.kegiatan || 'Penyelenggaraan Bangunan Gedung Di Wilayah Daerah Kabupaten/Kota, Pemberian Izin Mendirikan Bangunan (IMB) dan Sertifikat Laik Fungsi Bangunan Gedung'}
+                      </td>
+                    </tr>
+
+                    {/* Baris 8: Harga Kontrak */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5 text-justify">
+                        Harga Kontrak termasuk Pajak Pertambahan Nilai (PPN) adalah sebesar <strong>{formatRupiah(spk.nilaiKontrak)}</strong> ({spk.nilaiKontrakTerbilang})
+                      </td>
+                    </tr>
+
+                    {/* Baris 9: Sistem Pembayaran */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5 space-y-1">
+                        <p className="font-bold mb-0.5">SISTEM PEMBAYARAN</p>
+                        <p>
+                          1. Pembayaran untuk kontrak ini dilakukan ke <strong>{spk.penyediaBank || 'Bank Jateng Cabang Slawi'}</strong> rekening nomor : <strong>{spk.penyediaNomorRekening || '1035-01626-7'}</strong> atas nama Penyedia : <strong>{spk.penyediaNamaRekening || cleanPenyediaNama}</strong>
+                        </p>
+                        <p>
+                          2. Pembayaran dilakukan dengan pembayaran secara <strong>{spk.sistemPembayaran.toLowerCase().includes('termin') ? 'termin' : 'sekaligus'}</strong>.
+                        </p>
+                      </td>
+                    </tr>
+
+                    {/* Baris 10: Jenis Kontrak */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5">
+                        <strong>Jenis Kontrak:</strong> {spk.jenisKontrak || 'Lumpsum'}
+                      </td>
+                    </tr>
+
+                    {/* Baris 11: Waktu Pelaksanaan Pekerjaan */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-2.5">
+                        <strong>WAKTU PELAKSANAAN PEKERJAAN:</strong> {spk.jangkaWaktuHari} ({spk.jangkaWaktuHuruf || '-'}) hari kalender
+                      </td>
+                    </tr>
+
+                    {/* Baris 12: Kolom Tanda Tangan Formulir Tabel */}
+                    <tr>
+                      <td colSpan={2} className="border border-black p-0">
+                        <table className="w-full border-collapse">
+                          <tbody>
+                            <tr>
+                              <td className="w-1/2 border-r border-black p-4 text-center align-top">
+                                <p className="font-normal text-[11px]">Untuk dan atas nama</p>
+                                <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
+                                <p className="font-bold italic text-[10.5px] mb-16">{spk.ppkJabatan}<br />Selaku Pejabat Penandatangan Kontrak</p>
+                                <p className="font-bold underline text-xs">{spk.ppkNama}</p>
+                                <p className="font-normal text-[10px] mt-0.5">NIP. {spk.ppkNip}</p>
+                              </td>
+                              <td className="w-1/2 p-4 text-center align-top">
+                                <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
+                                <p className="font-bold uppercase text-[11px] mb-1">{cleanPenyediaNama}</p>
+                                <div className="h-20" />
+                                <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
+                                <p className="font-normal text-[10px] mt-0.5">{spk.penyediaJabatanPimpinan}</p>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          {/* ======================================================== */}
+          {/* LEMBAR 3+: SYARAT UMUM SURAT PERINTAH KERJA (SPK)        */}
+          {/* ======================================================== */}
+          <div className="spk-page spk-clauses-doc font-serif text-black leading-relaxed pt-6">
+            <div className="text-center my-6 space-y-1">
+              <h3 className="text-base font-bold uppercase tracking-wider underline">
+                SYARAT UMUM
+              </h3>
+              <h3 className="text-base font-bold uppercase tracking-wider underline">
+                SURAT PERINTAH KERJA (SPK)
+              </h3>
+            </div>
+
+            <div className="space-y-3.5 text-xs font-serif">
+              {(spk.clauses || []).filter(c => c.isActive).map((c) => (
+                <div key={c.id} className="text-justify clause-item">
+                  <div className="flex items-start text-justify mb-1" style={{ breakAfter: 'avoid', pageBreakAfter: 'avoid' }}>
+                    <span className="shrink-0 w-7 font-bold text-left">{c.pasal}.</span>
+                    <span className="flex-1 font-bold uppercase">{c.judul}</span>
+                  </div>
+                  <div className="pl-7">
+                    <FormattedLegalText text={c.isi} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bagian Penutup & Tanda Tangan SPK: Satu kesatuan utuh */}
+            <div
+              className="spk-closing-container mt-6 font-serif text-black leading-relaxed"
+              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+            >
+              {/* Penutup SPK */}
+              <div className="text-xs text-justify leading-relaxed space-y-2">
+                <p>
+                  SPK untuk melaksanakan Pekerjaan {spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (Tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
+                </p>
+                <p>
+                  SPK ini mulai berlaku efektif terhitung sejak tanggal yang ditetapkan dalam SPK dengan tanggal mulai dan penyelesaian keseluruhan pekerjaan sebagaimana diatur dalam SPMK.
+                </p>
+                <p>
+                  Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani SPK ini pada tanggal tersebut di atas dan melaksanakan SPK sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia.
+                </p>
+              </div>
+
+              {/* Tanda Tangan Penutup */}
+              <div className="grid grid-cols-2 gap-8 text-center pt-6 text-xs">
+                <div>
+                  <p className="font-normal text-[11px]">Untuk dan atas nama</p>
+                  <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
+                  <p className="text-[10px] font-normal mb-1">{spk.ppkJabatan}</p>
+                  <p className="text-[10.5px] font-bold italic mb-16">Selaku Pejabat Penandatangan Kontrak</p>
+                  <p className="font-bold underline text-xs">{spk.ppkNama}</p>
+                  <p className="text-[10px] font-normal mt-0.5">NIP. {spk.ppkNip}</p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] mb-1 font-normal">Slawi, {tanggalSpkFormatted}</p>
+                  <p className="text-[10px] italic font-normal mb-0.5">Menerima dan Menyetujui :</p>
+                  <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
+                  <p className="font-bold uppercase text-[11px] mb-16">{cleanPenyediaNama}</p>
+                  <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
+                  <p className="text-[10px] font-normal mt-0.5">{spk.penyediaJabatanPimpinan}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </PrintDocWrapper>
+      </div>
+    );
+  }
+
+  // Format Konsultan Pengawas / Konsultan Lainnya
   const jenisSpkJudul =
     spk.spkType === 'pengawas'
       ? 'JASA KONSULTANSI PENGAWASAN TEKNIS'

@@ -584,6 +584,481 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   }
 
   // =========================================================================
+  // EXPORT SPK KONSULTAN PERENCANA (FORMAT BAKU DPUPR KAB. TEGAL)
+  // =========================================================================
+  if (spk.spkType === 'perencana') {
+    const cleanPenyediaNama = (spk.penyediaNamaBadanUsaha || '').replace(/:\s*$/, '').trim();
+
+    const clausesHtml = (spk.clauses || []).filter(c => c.isActive).map(c => `
+      <div style="margin-top: 8pt; margin-bottom: 6pt;">
+        <p style="margin: 8pt 0 2pt 20pt; text-indent: -20pt; font-weight: bold; font-size: 10pt; text-transform: uppercase; text-align: justify; line-height: 1.35;">
+          ${c.pasal}.&nbsp;&nbsp;${c.judul}
+        </p>
+        <div>
+          ${formatCustomClauseForWord(c.isi)}
+        </div>
+      </div>
+    `).join('');
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+  <meta charset='utf-8'>
+  <title>SPK KONSULTAN PERENCANA - ${spk.namaPaket}</title>
+  <!--[if gte mso 9]>
+  <xml>
+    <w:WordDocument>
+      <w:View>Print</w:View>
+      <w:Zoom>100</w:Zoom>
+      <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+  </xml>
+  <![endif]-->
+  <style>
+    @page Section1 {
+      size: 21.5cm 33.0cm;
+      margin: 2.0cm 2.0cm 2.0cm 2.0cm;
+      mso-page-orientation: portrait;
+      mso-header-margin: 1.0cm;
+      mso-footer-margin: 1.0cm;
+      mso-title-page: yes;
+      mso-footer: f1;
+      mso-first-footer: f0;
+    }
+    div.Section1 { page: Section1; }
+
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 10pt;
+      line-height: 1.3;
+      color: #000000;
+    }
+    p { margin: 0 0 4pt 0; text-align: justify; }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { vertical-align: top; }
+  </style>
+</head>
+<body>
+<div class="Section1">
+
+  <!-- ======================================================= -->
+  <!-- HALAMAN 1: COVER / LEMBAR MUKA SPK KONSULTAN PERENCANA  -->
+  <!-- ======================================================= -->
+  
+  <!-- Kop Surat DPUPR Kab. Tegal -->
+  <table style="width: 100%; border-bottom: 3px double #000000; padding-bottom: 4pt; margin-bottom: 12pt;">
+    <tr>
+      <td style="width: 70pt; text-align: center; vertical-align: middle;">
+        <img src="${LOGO_KAB_TEGAL_BASE64}" width="65" height="80" alt="Logo Kab Tegal" />
+      </td>
+      <td style="text-align: center; vertical-align: middle;">
+        <p style="margin: 0; font-size: 13pt; font-weight: bold; text-transform: uppercase; text-align: center;">PEMERINTAH KABUPATEN TEGAL</p>
+        <p style="margin: 0; font-size: 13.5pt; font-weight: bold; text-transform: uppercase; white-space: nowrap; text-align: center;">DINAS PEKERJAAN UMUM DAN PENATAAN RUANG (DPUPR)</p>
+        <p style="margin: 1pt 0 0 0; font-size: 8.5pt; text-align: center;">Jl. Cut Nyak Dhien No. 13 Ds. Kalisapu Kec. Slawi Kab. Tegal &ndash; Kode Pos 52416</p>
+        <p style="margin: 0; font-size: 8.5pt; text-align: center;">Telepon (0283) 6197673 &ndash; Email: dpupr@tegalkab.go.id</p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Judul Dokumen SPK -->
+  <div style="text-align: center; margin: 16pt 0 12pt 0;">
+    <p style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin: 0; text-align: center; text-decoration: underline;">
+      SURAT PERINTAH KERJA
+    </p>
+    <p style="font-size: 10pt; font-weight: normal; margin: 2pt 0 0 0; text-align: center;">
+      Nomor : ${spk.nomorSpk || '000.3.2/PBLT/05.03/SPK/VI/2026'}
+    </p>
+    <p style="font-size: 10pt; font-weight: normal; margin: 2pt 0 0 0; text-align: center;">
+      Tanggal ${tanggalSpkFormatted}
+    </p>
+  </div>
+
+  <!-- Uraian Kegiatan & Paket Pekerjaan -->
+  <div style="text-align: center; margin: 16pt auto; font-size: 10pt; font-weight: bold; text-transform: uppercase; line-height: 1.35; max-width: 480pt;">
+    <p style="margin: 0 0 4pt 0; text-align: center;">
+      ${spk.kegiatan || 'KEGIATAN PENYELENGGARAAN BANGUNAN GEDUNG DI WILAYAH DAERAH KABUPATEN/KOTA, PEMBERIAN IZIN MENDIRIKAN BANGUNAN (IMB) DAN SERTIFIKAT LAIK FUNGSI BANGUNAN GEDUNG'}
+    </p>
+    <p style="margin: 0 0 4pt 0; text-align: center;">
+      PAKET PEKERJAAN ${spk.namaPaket.toUpperCase()}
+    </p>
+    <p style="margin: 0; text-align: center;">
+      ${spk.perubahanAnggaran || `TAHUN ANGGARAN ${spk.tahunAnggaran || 2026}`}
+    </p>
+  </div>
+
+  <!-- Ringkasan Data Kontrak Cover -->
+  <div style="margin: 18pt 0 18pt 10pt;">
+    <table style="width: 100%; font-size: 10pt; border-collapse: collapse; border: none;">
+      <tr>
+        <td style="width: 140pt; padding: 2.5pt 0; vertical-align: top; border: none;">Lokasi Pekerjaan</td>
+        <td style="width: 12pt; padding: 2.5pt 0; text-align: center; vertical-align: top; border: none;">:</td>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">${spk.lokasiPekerjaan}</td>
+      </tr>
+      <tr>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">Sumber Dana</td>
+        <td style="padding: 2.5pt 0; text-align: center; vertical-align: top; border: none;">:</td>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">${spk.sumberDana || 'APBD DAU Kabupaten Tegal'}</td>
+      </tr>
+      <tr>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">Tahun Anggaran</td>
+        <td style="padding: 2.5pt 0; text-align: center; vertical-align: top; border: none;">:</td>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">${spk.tahunAnggaran || 2026}</td>
+      </tr>
+      <tr>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">Nilai Kontrak</td>
+        <td style="padding: 2.5pt 0; text-align: center; vertical-align: top; border: none;">:</td>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">
+          <strong>${formatRupiah(spk.nilaiKontrak)}</strong><br />
+          <span style="font-style: italic;">(${spk.nilaiKontrakTerbilang})</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">Masa pelaksanaan</td>
+        <td style="padding: 2.5pt 0; text-align: center; vertical-align: top; border: none;">:</td>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">${spk.jangkaWaktuHari} (${spk.jangkaWaktuHuruf || '-'}) Hari Kalender</td>
+      </tr>
+      <tr>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">Mulai</td>
+        <td style="padding: 2.5pt 0; text-align: center; vertical-align: top; border: none;">:</td>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">${tanggalMulaiFormatted}</td>
+      </tr>
+      <tr>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">Sampai Dengan</td>
+        <td style="padding: 2.5pt 0; text-align: center; vertical-align: top; border: none;">:</td>
+        <td style="padding: 2.5pt 0; vertical-align: top; border: none;">${tanggalSelesaiFormatted}</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Garis Pembatas & Bagian Penyedia Cover -->
+  <div style="margin-top: 40pt; border-top: 2px solid #000000; padding-top: 20pt; text-align: center;">
+    <p style="font-size: 10pt; letter-spacing: 1pt; text-transform: uppercase; margin: 0 0 3pt 0; text-align: center;">PENYEDIA :</p>
+    <p style="font-size: 11pt; font-weight: bold; text-transform: uppercase; margin: 0 0 3pt 0; text-align: center;">${cleanPenyediaNama}</p>
+    <p style="font-size: 9.5pt; margin: 0; text-align: center;">${spk.penyediaAlamat}</p>
+  </div>
+
+  <div style="page-break-before: always; mso-break-type: section-break;"></div>
+
+  <!-- ======================================================== -->
+  <!-- HALAMAN 2: FORMULIR TABEL SPK KONSULTAN PERENCANA        -->
+  <!-- ======================================================== -->
+
+  <!-- Kop Surat DPUPR Kab. Tegal -->
+  <table style="width: 100%; border-bottom: 3px double #000000; padding-bottom: 4pt; margin-bottom: 10pt;">
+    <tr>
+      <td style="width: 70pt; text-align: center; vertical-align: middle;">
+        <img src="${LOGO_KAB_TEGAL_BASE64}" width="65" height="80" alt="Logo Kab Tegal" />
+      </td>
+      <td style="text-align: center; vertical-align: middle;">
+        <p style="margin: 0; font-size: 13pt; font-weight: bold; text-transform: uppercase; text-align: center;">PEMERINTAH KABUPATEN TEGAL</p>
+        <p style="margin: 0; font-size: 13.5pt; font-weight: bold; text-transform: uppercase; white-space: nowrap; text-align: center;">DINAS PEKERJAAN UMUM DAN PENATAAN RUANG (DPUPR)</p>
+        <p style="margin: 1pt 0 0 0; font-size: 8.5pt; text-align: center;">Jl. Cut Nyak Dhien No. 13 Ds. Kalisapu Kec. Slawi Kab. Tegal &ndash; Kode Pos 52416</p>
+        <p style="margin: 0; font-size: 8.5pt; text-align: center;">Telepon (0283) 6197673 &ndash; Email: dpupr@tegalkab.go.id</p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Formulir Tabel SPK Utuh -->
+  <table style="width: 100%; border: 1px solid #000000; font-size: 9pt; border-collapse: collapse; margin-bottom: 8pt;">
+    <tr>
+      <td rowspan="2" style="width: 32%; border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase; vertical-align: middle;">
+        SURAT PERINTAH KERJA<br />(SPK)
+      </td>
+      <td style="width: 68%; border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: middle;">
+        DINAS PEKERJAAN UMUM DAN PENATAAN RUANG KABUPATEN TEGAL
+      </td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #000000; padding: 6pt;">
+        <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 2pt 0;">NOMOR DAN TANGGAL SPK:</p>
+        <table style="border: none; margin: 0; padding: 0; font-size: 9pt; width: 100%;">
+          <tr>
+            <td style="width: 55pt; border: none; padding: 1pt 0;">Nomor</td>
+            <td style="width: 8pt; border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.nomorSpk || '000.3.2/PBLT/05.03/SPK/VI/2026'}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">Tanggal</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${tanggalSpkFormatted}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase;">
+        NAMA PEJABAT PENANDATANGAN KONTRAK
+      </td>
+      <td style="border: 1px solid #000000; padding: 6pt;">
+        <table style="border: none; margin: 0 0 4pt 0; padding: 0; font-size: 9pt; width: 100%;">
+          <tr>
+            <td style="width: 90pt; border: none; padding: 1pt 0;">Nama</td>
+            <td style="width: 8pt; border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0; font-weight: bold;">${spk.ppkNama}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">NIP</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.ppkNip}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">Jabatan</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.ppkJabatan}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">Berkedudukan di</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.ppkAlamat || 'Jl. Cut Nyak Dien Slawi'}</td>
+          </tr>
+        </table>
+        <p style="text-align: justify; margin: 0; font-size: 8.5pt; line-height: 1.35;">
+          yang bertindak untuk dan atas nama*) Pemerintah Indonesia c.q. Pemerintah Kabupaten Tegal c.q. Satuan Kerja Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal. berdasarkan ${spk.ppkSkPengangkatanText || 'Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor 07 Tahun 2026 tanggal 12 Januari 2026 tentang Penunjukan Pejabat Pembuat Komitmen (PPKom) Pada Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal Tahun Anggaran 2026'} selanjutnya disebut &ldquo;Pejabat Penandatangan Kontrak&rdquo;, dengan:
+        </p>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase;">
+        NAMA PENYEDIA
+      </td>
+      <td style="border: 1px solid #000000; padding: 6pt;">
+        <table style="border: none; margin: 0 0 4pt 0; padding: 0; font-size: 9pt; width: 100%;">
+          <tr>
+            <td style="width: 105pt; border: none; padding: 1pt 0;">Nama</td>
+            <td style="width: 8pt; border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0; font-weight: bold;">${spk.penyediaNamaPimpinan}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">Jabatan</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.penyediaJabatanPimpinan}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">Berkedudukan di</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.penyediaAlamat}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">Akta Notaris Nomor</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.penyediaAktaNotarisNomor || '25'}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">Tanggal</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.penyediaAktaNotarisTanggal || '31 Agustus 2021'}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">Notaris</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.penyediaAktaNotarisNama || 'UNTUNG DWIKORIANTO, SH., SpN'}</td>
+          </tr>
+        </table>
+        <p style="text-align: justify; margin: 0; font-size: 8.5pt;">
+          yang bertindak untuk dan atas nama <strong>${cleanPenyediaNama}</strong> selanjutnya disebut &ldquo;Penyedia&rdquo;.
+        </p>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase;">
+        WAKIL SAH PEJABAT PENANDATANGAN KONTRAK
+      </td>
+      <td style="border: 1px solid #000000; padding: 6pt;">
+        <p style="font-weight: bold; margin: 0 0 2pt 0;">Wakil Sah Pejabat Penandatangan Kontrak</p>
+        <p style="margin: 0;">Untuk Pejabat Penandatangan Kontrak: <strong>${spk.wakilSahPpk || 'Tidak ada'}</strong></p>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase;">
+        PAKET PENGADAAN: ${spk.namaPaket.toUpperCase()}
+      </td>
+      <td style="border: 1px solid #000000; padding: 6pt;">
+        <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 2pt 0; font-size: 8.5pt;">NOMOR DAN TANGGAL SURAT UNDANGAN PENGADAAN LANGSUNG:</p>
+        <table style="border: none; margin: 0 0 4pt 0; padding: 0; font-size: 9pt; width: 100%;">
+          <tr>
+            <td style="width: 55pt; border: none; padding: 1pt 0;">Nomor</td>
+            <td style="width: 8pt; border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.nomorUndanganPengadaan || '003.2/DPUPR/Prc.Brigif/PP/03/2026'}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">Tanggal</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.tanggalUndanganPengadaan ? formatTanggalIndo(spk.tanggalUndanganPengadaan) : '11 Juni 2026'}</td>
+          </tr>
+        </table>
+
+        <p style="font-weight: bold; text-transform: uppercase; margin: 4pt 0 2pt 0; font-size: 8.5pt;">NOMOR DAN TANGGAL BERITA ACARA HASIL PENGADAAN LANGSUNG:</p>
+        <table style="border: none; margin: 0; padding: 0; font-size: 9pt; width: 100%;">
+          <tr>
+            <td style="width: 55pt; border: none; padding: 1pt 0;">Nomor</td>
+            <td style="width: 8pt; border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.nomorBahpl || '003.2/DPUPR/Prc.Brigif/PP/07/2026'}</td>
+          </tr>
+          <tr>
+            <td style="border: none; padding: 1pt 0;">Tanggal</td>
+            <td style="border: none; padding: 1pt 0;">:</td>
+            <td style="border: none; padding: 1pt 0;">${spk.tanggalBahpl ? formatTanggalIndo(spk.tanggalBahpl) : '17 Juni 2026'}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="2" style="border: 1px solid #000000; padding: 6pt; text-align: justify;">
+        <strong>SUMBER DANA :</strong> ${spk.sumberDana || 'APBD DAU Kabupaten Tegal'} "dibebankan atas DIPA/DPA ${spk.dppaNomor || 'DPPA/A.2/1.03.0.00.0.01.0000/001/2026'} ${spk.perubahanAnggaran || `Tahun Anggaran ${spk.tahunAnggaran || 2026}`} untuk mata anggaran kegiatan ${spk.mataAnggaran || spk.kegiatan || 'Penyelenggaraan Bangunan Gedung Di Wilayah Daerah Kabupaten/Kota, Pemberian Izin Mendirikan Bangunan (IMB) dan Sertifikat Laik Fungsi Bangunan Gedung'}
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="2" style="border: 1px solid #000000; padding: 6pt; text-align: justify;">
+        Harga Kontrak termasuk Pajak Pertambahan Nilai (PPN) adalah sebesar <strong>${formatRupiah(spk.nilaiKontrak)}</strong> (${spk.nilaiKontrakTerbilang})
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="2" style="border: 1px solid #000000; padding: 6pt;">
+        <p style="font-weight: bold; margin: 0 0 2pt 0;">SISTEM PEMBAYARAN</p>
+        <p style="margin: 0 0 2pt 0;">
+          1. Pembayaran untuk kontrak ini dilakukan ke <strong>${spk.penyediaBank || 'Bank Jateng Cabang Slawi'}</strong> rekening nomor : <strong>${spk.penyediaNomorRekening || '1035-01626-7'}</strong> atas nama Penyedia : <strong>${spk.penyediaNamaRekening || cleanPenyediaNama}</strong>
+        </p>
+        <p style="margin: 0;">
+          2. Pembayaran dilakukan dengan pembayaran secara <strong>${spk.sistemPembayaran.toLowerCase().includes('termin') ? 'termin' : 'sekaligus'}</strong>.
+        </p>
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="2" style="border: 1px solid #000000; padding: 6pt;">
+        <strong>Jenis Kontrak:</strong> ${spk.jenisKontrak || 'Lumpsum'}
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="2" style="border: 1px solid #000000; padding: 6pt;">
+        <strong>WAKTU PELAKSANAAN PEKERJAAN:</strong> ${spk.jangkaWaktuHari} (${spk.jangkaWaktuHuruf || '-'}) hari kalender
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="2" style="border: 1px solid #000000; padding: 0;">
+        <table style="width: 100%; border-collapse: collapse; margin: 0; padding: 0;">
+          <tr>
+            <td style="width: 50%; border-right: 1px solid #000000; padding: 8pt 6pt; text-align: center; vertical-align: top;">
+              <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama</p>
+              <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Dinas PUPR Kabupaten Tegal</p>
+              <p style="font-weight: bold; font-style: italic; font-size: 8.5pt; margin: 0 0 45pt 0; text-align: center;">${spk.ppkJabatan}<br />Selaku Pejabat Penandatangan Kontrak</p>
+              <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.ppkNama}</p>
+              <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">NIP. ${spk.ppkNip}</p>
+            </td>
+            <td style="width: 50%; padding: 8pt 6pt; text-align: center; vertical-align: top;">
+              <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama Penyedia</p>
+              <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 55pt 0; text-align: center;">${cleanPenyediaNama}</p>
+              <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.penyediaNamaPimpinan}</p>
+              <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">${spk.penyediaJabatanPimpinan}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <div style="page-break-before: always; mso-break-type: section-break;"></div>
+
+  <!-- ======================================================== -->
+  <!-- HALAMAN 3+: SYARAT UMUM SPK (27 PASAL)                   -->
+  <!-- ======================================================== -->
+  <div style="text-align: center; margin: 10pt 0 14pt 0;">
+    <p style="font-size: 11pt; font-weight: bold; text-transform: uppercase; margin: 0; text-decoration: underline; text-align: center;">
+      SYARAT UMUM
+    </p>
+    <p style="font-size: 11pt; font-weight: bold; text-transform: uppercase; margin: 0; text-decoration: underline; text-align: center;">
+      SURAT PERINTAH KERJA (SPK)
+    </p>
+  </div>
+
+  ${clausesHtml}
+
+  <!-- Penutup & Tanda Tangan SPK (Satu Kesatuan Utuh di Word, Tidak Terpisah) -->
+  <div style="page-break-inside: avoid; mso-pagination: widow-orphan; margin-top: 14pt; padding-top: 0; border: none;">
+    <p style="font-size: 9.5pt; text-align: justify; margin-bottom: 4pt; page-break-after: avoid;">
+      SPK untuk melaksanakan Pekerjaan ${spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (Tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
+    </p>
+    <p style="font-size: 9.5pt; text-align: justify; margin-bottom: 4pt; page-break-after: avoid;">
+      SPK ini mulai berlaku efektif terhitung sejak tanggal yang ditetapkan dalam SPK dengan tanggal mulai dan penyelesaian keseluruhan pekerjaan sebagaimana diatur dalam SPMK.
+    </p>
+    <p style="font-size: 9.5pt; text-align: justify; margin-bottom: 6pt; page-break-after: avoid;">
+      Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani SPK ini pada tanggal tersebut di atas dan melaksanakan SPK sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia.
+    </p>
+
+    <!-- Tanda Tangan Penutup -->
+    <table style="width: 100%; margin-top: 14pt; font-size: 10pt; text-align: center; page-break-inside: avoid;">
+      <tr>
+        <td style="width: 50%; vertical-align: top; text-align: center;">
+          <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama</p>
+          <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Dinas PUPR Kabupaten Tegal</p>
+          <p style="font-weight: normal; font-size: 8.5pt; margin: 0 0 2pt 0; text-align: center;">${spk.ppkJabatan}</p>
+          <p style="font-weight: bold; font-style: italic; font-size: 8.5pt; margin: 0 0 45pt 0; text-align: center;">Selaku Pejabat Penandatangan Kontrak</p>
+          <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.ppkNama}</p>
+          <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">NIP. ${spk.ppkNip}</p>
+        </td>
+        <td style="width: 50%; vertical-align: top; text-align: center;">
+          <p style="font-size: 8.5pt; margin: 0 0 2pt 0; text-align: center;">Slawi, ${tanggalSpkFormatted}</p>
+          <p style="font-size: 8.5pt; font-style: italic; margin: 0 0 2pt 0; text-align: center;">Menerima dan Menyetujui :</p>
+          <p style="font-weight: normal; margin: 0 0 2pt 0; text-align: center;">Untuk dan atas nama Penyedia</p>
+          <p style="font-weight: bold; text-transform: uppercase; margin: 0 0 45pt 0; text-align: center;">${cleanPenyediaNama}</p>
+          <p style="font-weight: bold; text-decoration: underline; margin: 0; text-align: center;">${spk.penyediaNamaPimpinan}</p>
+          <p style="font-weight: normal; font-size: 8.5pt; margin: 2pt 0 0 0; text-align: center;">${spk.penyediaJabatanPimpinan}</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+  <!-- Running Footer Word Kotak Paraf Koordinasi (Cover Halaman 1 Kosong, Halaman 2+ Muncul) -->
+  <div style="mso-element:footer" id="f0">
+    <p class="MsoFooter" style="margin: 0;"></p>
+  </div>
+  <div style="mso-element:footer" id="f1">
+    <p class="MsoFooter" style="margin: 0; text-align: right;">
+      <table align="right" style="width: 170pt; border-collapse: collapse; border: 1px solid #000000; font-family: 'Times New Roman', serif; font-size: 8.5pt;">
+        <tr>
+          <td style="border: 1px solid #000000; padding: 2pt 5pt; font-weight: bold; width: 130pt; text-align: left; background-color: #ffffff;">
+            Pejabat Penandatangan Kontrak
+          </td>
+          <td style="border: 1px solid #000000; width: 40pt; height: 16pt; background-color: #ffffff;">&nbsp;</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000000; padding: 2pt 5pt; font-weight: bold; width: 130pt; text-align: left; background-color: #ffffff;">
+            Penyedia
+          </td>
+          <td style="border: 1px solid #000000; width: 40pt; height: 16pt; background-color: #ffffff;">&nbsp;</td>
+        </tr>
+      </table>
+    </p>
+  </div>
+
+</body>
+</html>
+    `;
+
+    const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `SPK_PERENCANA_${safeDocName}.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    return;
+  }
+
+  // =========================================================================
   // EXPORT SPK PENGAWAS & PERENCANA
   // =========================================================================
   const jenisSpkJudul = 

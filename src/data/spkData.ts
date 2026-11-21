@@ -291,57 +291,190 @@ export const DEFAULT_SPK_PERENCANA_CLAUSES: SpkClauseItem[] = [
   {
     id: 'spk-prc-1',
     pasal: 1,
-    judul: 'LINGKUP LAYANAN PERENCANAAN TEKNIS',
-    isi: 'Konsultan Perencana bertugas menyusun perencanaan teknis bangunan gedung (Detail Engineering Design/DED, RAB, dan RKS) yang andal, fungsional, memenuhi kaidah keselamatan struktur, efisien, ramah lingkungan, serta sesuai Peraturan Bangunan Gedung (UU No. 28/2002 jo UU Cipta Kerja).',
+    judul: 'LINGKUP PEKERJAAN',
+    isi: 'Penyedia yang ditunjuk berkewajiban untuk menyelesaikan pekerjaan dalam jangka waktu yang ditentukan, dengan mutu sesuai Kerangka Acuan Kerja dan harga sesuai SPK.',
     isActive: true
   },
   {
     id: 'spk-prc-2',
     pasal: 2,
-    judul: 'TAHAPAN DAN LINGKUP PEKERJAAN',
-    isi: '1. Survey lokasi, pengukuran topografi batas lahan, dan penyelidikan tanah (Sondir/Soil Test);\n2. Penyusunan Pra-Rencana Desain (Konsep Arsitektur dan Skematik Layout Ruang);\n3. Pengembangan Rancangan dan Penyusunan Gambar Detail Engineering Design (DED) lengkap: Arsitektur, Struktur Bawah/Atas, Mekanikal, Elektrikal, dan Plumbing (MEP);\n4. Perhitungan analisis struktur dan beban gempa gedung sesuai SNI Gedung terbaru;\n5. Penyusunan Rencana Anggaran Biaya (RAB/EE) lengkap dengan Analisis Harga Satuan Pekerjaan (AHSP);\n6. Penyusunan Rencana Kerja dan Syarat-Syarat (RKS) serta Spesifikasi Teknis Material;\n7. Memberikan penjelasan teknis (Aanwijzing) saat tender konstruksi fisik;\n8. Memberikan pengawasan berkala (Periodic Supervision) saat pelaksanaan konstruksi fisik.',
+    judul: 'HUKUM YANG BERLAKU',
+    isi: 'Keabsahan, interpretasi, dan pelaksanaan SPK ini didasarkan kepada hukum Republik Indonesia.',
     isActive: true
   },
   {
     id: 'spk-prc-3',
     pasal: 3,
-    judul: 'DOKUMEN KELUARAN YANG WAJIB DISERAHKAN',
-    isi: '1. Album Gambar DED Format Cetak A3 yang ditandatangani Ahli Perencana Berlisensi;\n2. Buku Dokumen Rencana Anggaran Biaya (RAB) dan Bill of Quantity (BQ);\n3. Buku Dokumen RKS / Spesifikasi Teknis dan Metode Pelaksanaan;\n4. Laporan Penyelidikan Tanah (Soil Test) dan Nota Perhitungan Struktur Bangunan Gedung;\n5. Softcopy lengkap dalam Flashdisk (CAD .dwg, Excel RAB, Word Dokumen Spesifikasi, dan PDF).',
+    judul: 'PENYEDIA JASA KONSULTANSI MANDIRI',
+    isi: 'Penyedia berdasarkan SPK ini bertanggung jawab penuh terhadap personel serta pekerjaan yang dilakukan.',
     isActive: true
   },
   {
     id: 'spk-prc-4',
     pasal: 4,
-    judul: 'HAK DAN KEWAJIBAN PPK',
-    isi: '1. Menyediakan data Kerangka Acuan Kerja (KAK) dan memfasilitasi koordinasi lintas instansi pengguna gedung;\n2. Melakukan review, asistensi, dan pengesahan terhadap produk dokumen perencanaan;\n3. Melakukan pembayaran imbalan jasa konsultansi perencanaan sesuai tahapan yang disepakati.',
+    judul: 'BIAYA SPK',
+    isi: 'a. Biaya SPK telah memperhitungkan keuntungan, beban pajak dan biaya overhead serta biaya asuransi.\nb. Rincian biaya SPK sesuai dengan rincian yang tercantum dalam daftar kuantitas dan harga/rincian biaya hasil negosiasi.',
     isActive: true
   },
   {
     id: 'spk-prc-5',
     pasal: 5,
-    judul: 'TANGGUNG JAWAB ATAS KEGAGALAN BANGUNAN',
-    isi: 'Konsultan Perencana bertanggung jawab secara hukum dan profesi atas hasil perancangan. Apabila terjadi kegagalan bangunan yang terbukti disebabkan oleh cacat perencanaan, Konsultan Perencana wajib bertanggung jawab sesuai UU Jasa Konstruksi No. 2 Tahun 2017.',
+    judul: 'HAK KEPEMILIKAN',
+    isi: 'a. Pejabat Penandatangan Kontrak berhak atas kepemilikan semua barang/bahan yang terkait langsung atau disediakan sehubungan dengan jasa yang diberikan oleh Penyedia kepada Pejabat Penandatangan Kontrak. Jika diminta oleh Pejabat Penandatangan Kontrak maka Penyedia berkewajiban untuk membantu secara optimal pengalihan hak kepemilikan tersebut kepada Pejabat Penandatangan Kontrak sesuai dengan hukum yang berlaku.\nb. Hak kepemilikan atas peralatan dan barang/bahan yang disediakan oleh Pejabat Penandatangan Kontrak tetap pada Pejabat Penandatangan Kontrak, dan semua peralatan tersebut harus dikembalikan kepada Pejabat Penandatangan Kontrak pada saat SPK berakhir atau jika tidak diperlukan lagi oleh Penyedia. Semua peralatan tersebut harus dikembalikan dalam kondisi yang sama pada saat diberikan kepada Penyedia dengan pengecualian keausan akibat pemakaian yang wajar.',
     isActive: true
   },
   {
     id: 'spk-prc-6',
     pasal: 6,
-    judul: 'HAK CIPTA DAN KEPEMILIKAN DOKUMEN',
-    isi: 'Hak cipta dan kepemilikan atas seluruh dokumen perencanaan, gambar kerja, dan laporan yang dihasilkan menjadi milik Pemerintah Kabupaten Tegal c.q. Dinas PUPR Kabupaten Tegal.',
+    judul: 'WAKIL SAH PEJABAT PENANDATANGAN KONTRAK',
+    isi: 'a. Setiap tindakan yang disyaratkan atau diperbolehkan untuk dilakukan, dan setiap dokumen yang disyaratkan atau diperbolehkan untuk dibuat berdasarkan Kontrak ini oleh Pejabat Penandatangan Kontrak hanya dapat dilakukan atau dibuat oleh Wakil Sah Pejabat Penandatangan Kontrak yang disebutkan dalam SPK.\nb. Kewenangan Wakil Sah Pejabat Penandatangan Kontrak diatur dalam Surat Keputusan dari Pejabat Penandatangan Kontrak dan harus disampaikan kepada Penyedia.',
     isActive: true
   },
   {
     id: 'spk-prc-7',
     pasal: 7,
-    judul: 'DENDA KETERLAMBATAN',
-    isi: 'Keterlambatan penyerahan produk akhir perencanaan dikenakan denda sebesar 1/1000 (satu perseribu) dari nilai SPK per hari keterlambatan.',
+    judul: 'PERPAJAKAN',
+    isi: 'Penyedia berkewajiban untuk membayar semua pajak, bea, retribusi, dan pungutan lain yang sah yang dibebankan oleh hukum yang berlaku atas pelaksanaan SPK. Semua pengeluaran perpajakan ini dianggap telah termasuk dalam biaya SPK.',
     isActive: true
   },
   {
     id: 'spk-prc-8',
     pasal: 8,
+    judul: 'PENGALIHAN DAN/ATAU SUBKONTRAK',
+    isi: 'Penyedia dilarang untuk mengalihkan dan/atau mensubkontrakkan sebagian atau seluruh pekerjaan. Pengalihan seluruh pekerjaan hanya diperbolehkan dalam hal pergantian nama Penyedia, baik sebagai akibat peleburan (merger) atau akibat lainnya.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-9',
+    pasal: 9,
+    judul: 'JADWAL',
+    isi: 'a. SPK ini berlaku efektif pada tanggal penandatanganan oleh para pihak atau pada tanggal yang ditetapkan dalam Surat Perintah Mulai Kerja (SPMK).\nb. Waktu pelaksanaan SPK adalah sejak tanggal mulai kerja yang tercantum dalam SPMK.\n   Pelaksanaan pekerjaan harus selesai 100% dalam jangka waktu yang ditentukan hari kalender terhitung sejak Surat Perintah Mulai Kerja (SPMK) sampai dengan Serah Terima Pekerjaan oleh Penyedia kepada Pejabat Penandatangan Kontrak terdiri dari :\n   - Tahap Perencanaan Teknis : sesuai jangka waktu pelaksanaan hari kalender;\n   - Tahap Pendampingan Tender dan/atau Pengawasan Berkala : 120 (Seratus Dua Puluh) hari kalender / sampai berakhirnya kontrak pelaksanaan pekerjaan konstruksi Provisional Hand Over (PHO) sebagai tanggung jawab profesional konsultan perencana (Mandatory)\nc. Waktu penyelesaian pekerjaan tidak dapat diubah oleh Penyedia, kecuali Pejabat Penandatangan Kontrak telah memberikan persetujuan tertulis dan diatur dalam perjanjian tambahan (Addendum).\nd. Penyedia harus menyelesaikan pekerjaan sesuai jadwal yang ditentukan.\ne. Apabila Penyedia tidak dapat menyelesaikan pekerjaan sesuai jadwal karena keadaan diluar pengendaliannya dan Penyedia telah melaporkan kejadian tersebut kepada Pejabat Penandatangan Kontrak, maka Pejabat Penandatangan Kontrak dapat melakukan penjadwalan kembali pelaksanaan tugas Penyedia dengan adendum SPK.\nf. Penjadwalan ulang yang disepakati oleh kedua belah pihak, maka Penyedia tidak dapat menuntut kepada Pejabat Penandatangan Kontrak adanya penambahan nilai SPK.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-10',
+    pasal: 10,
+    judul: 'PEMBERIAN KESEMPATAN',
+    isi: 'a. Dalam hal diperkirakan Penyedia gagal menyelesaikan pekerjaan sampai Waktu Penyelesaian Pekerjaan berakhir, namun Pejabat Penandatangan Kontrak menilai bahwa Penyedia mampu menyelesaikan pekerjaan, Pejabat Penandatangan Kontrak dapat memberikan kesempatan kepada Penyedia untuk menyelesaikan pekerjaan.\nb. Pemberian kesempatan kepada Penyedia untuk menyelesaikan pekerjaan dimuat dalam adendum SPK yang didalamnya mengatur:\n   1) waktu pemberian kesempatan penyelesaian pekerjaan;\n   2) pengenaan sanksi denda keterlambatan kepada Penyedia;\nc. Pemberian kesempatan kepada Penyedia menyelesaikan pekerjaan dengan diikuti pengenaan denda keterlambatan.\nd. Pemberian kesempatan kepada Penyedia untuk menyelesaikan pekerjaan dapat melampaui tahun anggaran.\ne. Dalam hal Penyedia gagal menyelesaikan pekerjaan sampai masa pelaksanaan kontrak berakhir, Pejabat Penandatangan Kontrak melakukan penilaian atas kemajuan pelaksanaan pekerjaan. Hasil penilaian menjadi dasar bagi PPK untuk:\n   1) Memberikan kesempatan kepada Penyedia untuk menyelesaikan pekerjaannya dengan ketentuan sebagai berikut:\n      a) Pemberian kesempatan kepada Penyedia menyelesaikan pekerjaan sampai dengan 50 (lima puluh) hari kalender.\n      b) Dalam hal setelah diberikan kesempatan sebagaimana angka 1 diatas, Penyedia masih belum dapat menyelesaikan pekerjaan, PPK dapat:\n         i. Memberikan kesempatan kedua untuk penyelesaian sisa pekerjaan dengan jangka waktu sesuai kebutuhan; atau\n         ii. Melakukan pemutusan Kontrak dalam hal Penyedia dinilai tidak akan sanggup menyelesaikan pekerjaannya.\n   2) Pemberian kesempatan kepada Penyedia sebagaimana dimaksud pada angka 1 dan angka 2 huruf a), dituangkan dalam adendum kontrak yang didalamnya mengatur pengenaan sanksi denda keterlambatan kepada Penyedia dan perpanjangan masa berlaku Jaminan Pelaksanaan (apabila ada).\n   3) Pemberian kesempatan kepada Penyedia untuk menyelesaikan pekerjaan dapat melampaui tahun anggaran.\n   4) Tidak memberikan kesempatan kepada Penyedia dan dilanjutkan dengan pemutusan kontrak serta pengenaan sanksi administratif dalam hal antara lain:\n      a) Penyedia dinilai tidak dapat menyelesaikan pekerjaan;\n      b) Pekerjaan yang harus segera dipenuhi dan tidak dapat ditunda; atau\n      c) Penyedia menyatakan tidak sanggup menyelesaikan pekerjaan.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-11',
+    pasal: 11,
+    judul: 'ASURANSI',
+    isi: 'a. Penyedia wajib menyediakan asuransi sejak SPMK sampai dengan berakhirnya masa pemeliharaan untuk:\n   1) semua barang dan peralatan yang mempunyai risiko tinggi terjadinya kecelakaan, pelaksanaan pekerjaan, serta pekerja untuk pelaksanaan pekerjaan, atas segala risiko terhadap kecelakaan, kerusakan, kehilangan, serta risiko lain yang tidak dapat diduga; dan\n   2) tanggung jawab hukum terhadap pihak ketiga atas kerugian yang timbul akibat kejadian yang terjadi di lokasi pekerjaan.\nb. Penyedia wajib memberikan perlindungan kepada seluruh tenaga kerja melalui kepesertaan program jaminan sosial ketenagakerjaan pada BPJS Ketenagakerjaan berupa Jaminan Keselamatan Kerja (JKK) dan Jaminan Kematian (JKM) sesuai ketentuan peraturan perundang-undangan;\nc. Penyedia wajib menyerahkan bukti kepesertaan dan pembayaran iuran program jaminan sosial ketenagakerjaan pada BPJS Ketenagakerjaan paling lambat 14 (empat belas) hari kalender sejak SPMK kepada PA/KPA;\nd. Seluruh biaya terkait dengan Asuransi dan/atau Perlindungan Tenaga Kerja telah diperhitungkan dalam penawaran dan menjadi bagian dari nilai SPK yang tidak terpisahkan.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-12',
+    pasal: 12,
+    judul: 'PENUGASAN PERSONEL',
+    isi: 'Penyedia tidak diperbolehkan menugaskan personel selain personel yang telah disetujui oleh Pejabat Penandatangan Kontrak untuk melaksanakan pekerjaan berdasarkan SPK ini.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-13',
+    pasal: 13,
+    judul: 'PENANGGUNGAN DAN RISIKO',
+    isi: 'a. Penyedia berkewajiban untuk melindungi, membebaskan, dan menanggung tanpa batas Pejabat Penandatangan Kontrak beserta instansinya terhadap semua bentuk tuntutan, tanggung jawab, kewajiban, kehilangan, kerugian, denda, gugatan atau tuntutan hukum, proses pemeriksaan hukum, dan biaya yang dikenakan terhadap Pejabat Penandatangan Kontrak beserta instansinya sehubungan dengan klaim yang timbul dari hal-hal berikut terhitung sejak tanggal mulai kerja sampai dengan tanggal penandatanganan berita acara penyerahan akhir:\n   1) kehilangan atau kerusakan peralatan dan harta benda Penyedia dan Personel;\n   2) cidera tubuh, sakit atau kematian Personel; dan/atau\n   3) kehilangan atau kerusakan harta benda, cidera tubuh, sakit atau kematian pihak lain.\nb. Terhitung sejak tanggal mulai kerja sampai dengan tanggal penandatanganan berita acara serah terima, semua risiko kehilangan atau kerusakan hasil pekerjaan ini merupakan risiko Penyedia, kecuali kerugian atau kerusakan tersebut diakibatkan oleh kesalahan atau kelalaian Pejabat Penandatangan Kontrak.\nc. Pertanggungan asuransi yang dimiliki oleh Penyedia tidak membatasi kewajiban penanggungan dalam syarat ini.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-14',
+    pasal: 14,
+    judul: 'PENGAWASAN DAN PEMERIKSAAN',
+    isi: 'Pejabat Penandatangan Kontrak berwenang melakukan pengawasan dan pemeriksaan terhadap pelaksanaan pekerjaan yang dilaksanakan oleh Penyedia. Pejabat Penandatangan Kontrak dapat memerintahkan kepada pihak lain untuk melakukan pengawasan dan pemeriksaan atas semua pelaksanaan pekerjaan yang dilaksanakan oleh Penyedia.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-15',
+    pasal: 15,
+    judul: 'LAPORAN HASIL PEKERJAAN',
+    isi: 'Laporan Hasil Pekerjaan Jasa konsultansi diserahkan oleh penyedia jasa meliputi:\nA. Laporan Akhir/ Rancangan Detail, terdiri atas :\n   1. Detail Engineering Design (DED);\n   2. Rencana Anggaran Biaya (RAB) keseluruhan kebutuhan biaya konstruksi & Back Up Perhitungan Volume;\n   3. Rencana Anggaran Biaya (RAB) sesuai pagu anggaran yang tersedia & Back Up Perhitungan Volume;\n   4. Daftar kuantitas atau daftar keluaran (Bill of Quantity/BoQ);\n   5. Spesifikasi teknis;\n   6. Jadwal Pelaksanaan/Time Schedule Pekerjaan Konstruksi;\n   7. Executive Summary;\n   8. Foto Dokumentasi;\n   9. Dokumen Identifikasi Bahaya dan Penilaian Risiko;\n   10. Dokumen perhitungan Tingkat Komponen Dalam Negeri (TKDN);\n   11. Video animasi 3D berdurasi 3-5 menit dengan format AVI atau MP4 dengan resolusi Full HD 1080 pixel sebanyak 1 unit. Rendering Animasi 3D maupun sequence minimal standar 3Dmax dan V-ray/ Lumion. Video Animasi ini berisi animasi sequence dan perspektif yang informatif.\n   Semua dokumen tersebut di atas disajikan dalam bentuk softcopy dalam format ms. office, pdf, autoCad, disimpan dalam media penyimpanan digital / Flashdisk 32 GB dan hardcopy rangkap 3 (tiga) dokumen dalam format F4 untuk konsep/ dokumen & A3 untuk gambar disimpan dalam box container\nB. Laporan Pendampingan Tender dan/atau Laporan Pengawasan Berkala Pengawasan Berkala (sebagai mandatory), terdiri atas :\n   1. Laporan hasil survei harga upah tenaga kerja dan bahan/material konstruksi yang akan digunakan, sebagai bahan/ pendukung bagi Pejabat Pembuat Komitmen (PPK) dalam penyusunan Harga Perkiraan Sendiri (HPS);\n   2. Surat Penjaminan atas kegagalan bangunan;\n   3. Laporan Akhir pengawasan berkala termasuk perubahan perencanaan (apabila ada).',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-16',
+    pasal: 16,
+    judul: 'WAKTU PENYELESAIAN PEKERJAAN',
+    isi: 'a. Kecuali SPK diputuskan lebih awal, Penyedia berkewajiban untuk memulai pelaksanaan pekerjaan pada tanggal mulai kerja, dan melaksanakan pekerjaan sesuai dengan program mutu, serta menyelesaikan pekerjaan selambat-lambatnya pada tanggal penyelesaian yang ditetapkan dalam SPMK.\nb. Jika pekerjaan tidak selesai pada tanggal penyelesaian disebabkan karena kesalahan atau kelalaian Penyedia maka Penyedia dikenakan sanksi berupa denda keterlambatan.\nc. Jika keterlambatan tersebut disebabkan oleh Peristiwa Kompensasi maka Pejabat Penandatangan Kontrak memberikan tambahan perpanjangan waktu penyelesaian pekerjaan.\nd. Tanggal penyelesaian yang dimaksud dalam ketentuan ini adalah tanggal penyelesaian semua pekerjaan.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-17',
+    pasal: 17,
+    judul: 'SERAH TERIMA PEKERJAAN',
+    isi: 'a. Setelah pekerjaan selesai 100% (seratus persen), Penyedia mengajukan permintaan secara tertulis kepada Pejabat Penandatangan Kontrak untuk penyerahan pekerjaan.\nb. Sebelum dilakukan serah terima, Pejabat Penandatangan Kontrak melakukan pemeriksaan terhadap hasil pekerjaan.\nc. Pejabat Penandatangan Kontrak dalam melakukan pemeriksaan hasil pekerjaan dapat dibantu oleh pengawas pekerjaan dan/atau tim teknis.\nd. Apabila terdapat kekurangan-kekurangan dan/atau cacat hasil pekerjaan, Penyedia wajib memperbaiki/menyelesaikannya, atas perintah Pejabat Penandatangan Kontrak.\ne. Pejabat Penandatangan Kontrak menerima hasil pekerjaan setelah seluruh hasil pekerjaan dilaksanakan sesuai dengan ketentuan SPK.\nf. Pembayaran dilakukan sebesar 100% (seratus persen) dari biaya SPK setelah Tahap Perencanaan Teknis selesai dilaksanakan dengan menyerahkan Jaminan Pemeliharaan sebesar 20% (dua puluh persen) dari Harga Kontrak.\ng. Jaminan Pemeliharaan yang digunakan dalam pelaksanaan Kontrak ini dapat berupa bank garansi atau surety bond. Jaminan bersifat tidak bersyarat, mudah dicairkan, dan harus dicairkan oleh penerbit jaminan paling lambat 14 (empat belas) hari kerja setelah surat perintah pencairan dari Pejabat yang berwenang untuk menandatangani Kontrak atau pihak yang diberi kuasa oleh Pejabat Penandatangan Kontrak diterima.\nh. Penggunaan Jaminan Pemeliharaan sebagai berikut:\n   1) Bank Umum;\n   2) Perusahaan Asuransi;\n   3) Perusahaan Penjaminan; atau\n   4) Lembaga keuangan khusus yang menjalankan usaha di bidang pembiayaan, penjaminan, dan asuransi untuk mendorong ekspor Indonesia sesuai dengan ketentuan peraturan perundang-undangan di bidang lembaga pembiayaan ekspor Indonesia.\ni. Penerbit Jaminan selain Bank Umum harus telah ditetapkan/mendapat rekomendasi dari Otoritas Jasa Keuangan (OJK).',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-18',
+    pasal: 18,
+    judul: 'PERUBAHAN SPK',
+    isi: 'a. SPK hanya dapat diubah melalui adendum SPK.\nb. Perubahan SPK dapat dilaksanakan dalam hal terdapat perbedaan antara kondisi lapangan pada saat pelaksanaan dengan SPK dan disetujui oleh para pihak, meliputi:\n   1) menambah atau mengurangi volume yang tercantum dalam SPK;\n   2) menambah dan/atau mengurangi jenis kegiatan;\n   3) mengubah Kerangka Acuan Kerja sesuai dengan kondisi lapangan; dan/atau\n   4) mengubah jadwal pelaksanaan pekerjaan.\nc. Untuk kepentingan perubahan SPK, Pejabat Penandatangan Kontrak dapat membentuk Pejabat Peneliti Kontrak.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-19',
+    pasal: 19,
+    judul: 'KEADAAN KAHAR',
+    isi: 'a. Dalam hal terjadi keadaan kahar, Pejabat Penandatangan Kontrak atau Penyedia memberitahukan tentang terjadinya Keadaan Kahar kepada salah satu pihak secara tertulis dengan ketentuan:\n   1) dalam waktu paling lambat 14 (empat belas) hari kalender sejak menyadari atau seharusnya menyadari atas kejadian atau terjadinya Keadaan Kahar;\n   2) menyertakan bukti Keadaan Kahar; dan\n   3) menyerahkan hasil identifikasi kewajiban dan kinerja pelaksanaan yang terhambat dan/atau akan terhambat akibat Keadaan Kahar tersebut.\nb. Dalam Keadaan Kahar, kegagalan salah satu Pihak untuk memenuhi kewajibannya yang ditentukan dalam Kontrak bukan merupakan cidera janji atau wanprestasi apabila telah dilakukan sesuai pada huruf a. Kewajiban yang dimaksud adalah hanya kewajiban dan kinerja pelaksanaan terhadap pekerjaan/bagian pekerjaan yang terdampak dan/atau akan terdampak akibat dari Keadaan Kahar.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-20',
+    pasal: 20,
+    judul: 'PERISTIWA KOMPENSASI',
+    isi: 'a. Peristiwa Kompensasi dapat diberikan kepada Penyedia dalam hal sebagai berikut:\n   1) Pejabat Penandatangan Kontrak mengubah jadwal yang dapat mempengaruhi pelaksanaan pekerjaan;\n   2) keterlambatan pembayaran kepada Penyedia;\n   3) Pejabat Penandatangan Kontrak tidak memberikan gambar-gambar, Kerangka Acuan Kerja dan/atau instruksi sesuai jadwal yang dibutuhkan;\n   4) Penyedia belum bisa masuk ke lokasi sesuai jadwal;\n   5) Pejabat Penandatangan Kontrak memerintahkan penundaan pelaksanaan pekerjaan; atau\n   6) Pejabat Penandatangan Kontrak memerintahkan untuk mengatasi kondisi tertentu yang tidak dapat diduga sebelumnya dan disebabkan oleh Pejabat Penandatangan Kontrak.\nb. Jika Peristiwa Kompensasi mengakibatkan pengeluaran tambahan dan/atau keterlambatan penyelesaian pekerjaan maka Pejabat Penandatangan Kontrak berkewajiban untuk membayar ganti rugi dan/atau memberikan perpanjangan waktu penyelesaian pekerjaan.\nc. Ganti rugi hanya dapat dibayarkan jika berdasarkan data penunjang dan perhitungan kompensasi yang diajukan oleh Penyedia kepada Pejabat Penandatangan Kontrak, dapat dibuktikan kerugian nyata akibat Peristiwa Kompensasi.\nd. Perpanjangan waktu penyelesaian pekerjaan hanya dapat diberikan jika berdasarkan data penunjang dan perhitungan kompensasi yang diajukan oleh Penyedia kepada Pejabat Penandatangan Kontrak, dapat dibuktikan perlunya tambahan waktu akibat Peristiwa Kompensasi.\ne. Penyedia tidak berhak atas ganti rugi dan/atau perpanjangan waktu penyelesaian pekerjaan jika Penyedia gagal atau lalai untuk memberikan peringatan dini dalam mengantisipasi atau mengatasi dampak Peristiwa Kompensasi.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-21',
+    pasal: 21,
+    judul: 'PERPANJANGAN WAKTU',
+    isi: 'a. Jika terjadi Peristiwa Kompensasi sehingga penyelesaian pekerjaan akan melampaui tanggal penyelesaian maka Penyedia berhak untuk meminta perpanjangan tanggal penyelesaian berdasarkan data penunjang. Perpanjangan tanggal penyelesaian harus dilakukan melalui adendum SPK.\nb. Pejabat Penandatangan Kontrak dapat menyetujui perpanjangan waktu pelaksanaan setelah melakukan penelitian terhadap usulan tertulis yang diajukan oleh Penyedia.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-22',
+    pasal: 22,
+    judul: 'PENGHENTIAN DAN PEMUTUSAN SPK',
+    isi: 'a. Penghentian SPK dapat dilakukan karena terjadi Keadaan Kahar.\nb. Dalam hal SPK dihentikan, Pejabat Penandatangan Kontrak wajib membayar kepada Penyedia sesuai dengan prestasi pekerjaan yang telah dicapai, termasuk:\n   1) biaya langsung pengadaan bahan dan perlengkapan untuk pekerjaan ini. Bahan dan perlengkapan ini harus diserahkan oleh Penyedia kepada Pejabat Penandatangan Kontrak, dan selanjutnya menjadi hak milik Pejabat Penandatangan Kontrak;\n   2) biaya langsung demobilisasi personel.\nc. Pemutusan SPK dapat dilakukan oleh pihak Pejabat Penandatangan Kontrak atau pihak Penyedia.\nd. Mengesampingkan Pasal 1266 dan 1267 Kitab Undang-Undang Hukum Perdata, Pejabat Penandatangan Kontrak atau Penyedia melalui pemberitahuan tertulis dapat melakukan pemutusan SPK apabila:\n   1) Penyedia terbukti melakukan KKN, kecurangan dan/atau pemalsuan dalam proses Pengadaan yang diputuskan oleh instansi yang berwenang;\n   2) pengaduan tentang penyimpangan prosedur, dugaan KKN dan/atau pelanggaran persaingan sehat dalam pelaksanaan pengadaan dinyatakan benar oleh instansi yang berwenang;\n   3) Penyedia lalai/cidera janji dalam melaksanakan kewajibannya dan tidak memperbaiki kelalaiannya dalam jangka waktu yang telah ditetapkan;\n   4) Penyedia tanpa persetujuan Pejabat Penandatangan Kontrak, tidak memulai pelaksanaan pekerjaan;\n   5) Penyedia menghentikan pekerjaan dan penghentian ini tidak tercantum dalam program mutu serta tanpa persetujuan Pejabat Penandatangan Kontrak;\n   6) Penyedia berada dalam keadaan pailit yang diputuskan oleh pengadilan;\n   7) Penyedia gagal memperbaiki kinerja setelah mendapat Surat Peringatan sebanyak 3 (tiga) kali;\n   8) Penyedia selama Masa SPK gagal memperbaiki Cacat Mutu dalam jangka waktu yang ditetapkan oleh Pejabat Penandatangan Kontrak;\n   9) Pejabat Penandatangan Kontrak memerintahkan Penyedia untuk menunda pelaksanaan atau kelanjutan pekerjaan, dan perintah tersebut tidak ditarik selama 28 (dua puluh delapan) hari; atau\n   10) Pejabat Penandatangan Kontrak tidak menerbitkan surat perintah pembayaran untuk pembayaran tagihan angsuran sesuai dengan yang disepakati sebagaimana tercantum dalam SPK.\ne. Dalam hal pemutusan SPK dilakukan karena kesalahan Penyedia:\n   1) Penyedia membayar denda keterlambatan (apabila ada); dan\n   2) Penyedia dikenakan Sanksi Daftar Hitam.\nf. Dalam hal pemutusan SPK dilakukan karena Pejabat Penandatangan Kontrak terlibat penyimpangan prosedur, melakukan KKN dan/atau pelanggaran persaingan sehat dalam pelaksanaan pengadaan, maka Pejabat Penandatangan Kontrak dikenakan sanksi berdasarkan peraturan perundang-undangan.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-23',
+    pasal: 23,
+    judul: 'PEMBAYARAN',
+    isi: 'a. Pembayaran prestasi hasil pekerjaan yang disepakati dilakukan oleh Pejabat Penandatangan Kontrak, dengan ketentuan:\n   1) Penyedia telah mengajukan tagihan disertai laporan kemajuan hasil pekerjaan;\n   2) pembayaran harus dipotong denda (apabila ada), dan pajak.\nb. Pembayaran hanya dilakukan setelah pekerjaan selesai 100% (seratus persen) dan Berita Acara Serah Terima ditandatangani.\nc. Pejabat Penandatangan Kontrak dalam kurun waktu 14 (empat belas) hari kerja setelah pengajuan permintaan pembayaran dari Penyedia harus sudah mengajukan surat permintaan pembayaran kepada Pejabat Penandatangan Surat Perintah Membayar (PPSPM).\nd. Bila terdapat ketidaksesuaian dalam perhitungan angsuran, tidak akan menjadi alasan untuk menunda pembayaran. Pejabat Penandatangan Kontrak dapat meminta Penyedia untuk menyampaikan perhitungan prestasi sementara dengan mengesampingkan hal-hal yang sedang menjadi perselisihan.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-24',
+    pasal: 24,
+    judul: 'DENDA',
+    isi: 'a. Jika pada Tahap Perencanaan Teknis tidak dapat diselesaikan dalam jangka waktu yang telah ditentukan karena kesalahan atau kelalaian Penyedia maka Penyedia berkewajiban untuk membayar denda kepada Pejabat Penandatangan Kontrak sebesar 1/1000 (satu permil) dari nilai SPK (tidak termasuk PPN) untuk setiap hari keterlambatan pada masa Perencanaan Teknis.\nb. Pejabat Penandatangan Kontrak mengenakan Denda dengan cara Penyedia menyetor denda ke Kas Daerah Pemerintah Kabupaten Tegal atau Pejabat Penandatangan Kontrak memotong pembayaran prestasi pekerjaan Penyedia. Pembayaran Denda tidak mengurangi tanggung jawab kontraktual Penyedia.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-25',
+    pasal: 25,
     judul: 'PENYELESAIAN PERSELISIHAN',
-    isi: 'Perselisihan yang timbul dari pelaksanaan SPK ini diselesaikan secara musyawarah untuk mufakat, atau melalui Pengadilan Negeri Slawi Kabupaten Tegal.',
+    isi: 'Pejabat Penandatangan Kontrak dan penyedia berkewajiban untuk berupaya sungguh-sungguh menyelesaikan secara damai semua perselisihan yang timbul dari atau berhubungan dengan SPK ini atau interpretasinya selama atau setelah pelaksanaan pekerjaan. Jika perselisihan tidak dapat diselesaikan secara musyawarah maka perselisihan akan diselesaikan melalui Mediasi, Konsiliasi, atau arbitrase.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-26',
+    pasal: 26,
+    judul: 'LARANGAN PEMBERIAN KOMISI',
+    isi: 'Penyedia menjamin bahwa tidak satu pun personel satuan kerja Pejabat Penandatangan Kontrak telah atau akan menerima komisi atau keuntungan tidak sah lainnya baik langsung maupun tidak langsung dari SPK ini. Penyedia menyetujui bahwa pelanggaran syarat ini merupakan pelanggaran yang mendasar terhadap SPK ini.',
+    isActive: true
+  },
+  {
+    id: 'spk-prc-27',
+    pasal: 27,
+    judul: 'KETENTUAN PENUTUP',
+    isi: 'Dengan ditandatanganinya SPK ini oleh Pejabat Penandatangan Kontrak dan Penyedia maka ketentuan yang tercantum dalam dokumen SPK, termasuk lampiran-lampiran dan segala sanksinya, mempunyai kekuatan yang mengikat dan berlaku sebagai Undang-undang bagi kedua belah pihak berdasarkan ketentuan Pasal 1338 ayat (1) Kitab Undang-Undang Hukum Perdata, dengan dan karena ketentuan-ketentuan yang ditetapkan dalam SPK ini, maka ketentuan pada Pasal 1226 Kitab Undang-Undang Hukum Perdata tidak diberlakukan lagi dalam SPK ini, apabila Penyedia tidak memenuhi kewajiban menurut SPK.',
     isActive: true
   }
 ];
@@ -557,58 +690,72 @@ export function createDefaultSpkForProject(project: Project, spkType: SpkType): 
 
   // spkType === 'perencana'
   const isCustomPpk = project.paketPerencana?.usePpkAcuan === false && !!project.paketPerencana?.ppkNama;
-  const finalPpkNama = isCustomPpk ? project.paketPerencana!.ppkNama! : (project.ppkNama || 'Ahmad Fauzi, S.T., M.Eng.');
-  const finalPpkNip = isCustomPpk ? project.paketPerencana!.ppkNip! : (project.ppkNip || '19820719 200604 1 009');
-  const finalPpkJabatan = isCustomPpk ? (project.paketPerencana!.ppkJabatan || 'PPK Perencanaan') : (project.ppkJabatan || 'Pejabat Pembuat Komitmen (PPK) Bidang Bangunan Gedung dan Permukiman');
+  const finalPpkNama = isCustomPpk ? project.paketPerencana!.ppkNama! : (project.ppkNama || 'EKO KARYANTO, S.T., M.T.');
+  const finalPpkNip = isCustomPpk ? project.paketPerencana!.ppkNip! : (project.ppkNip || '19710620 199903 1 009');
+  const finalPpkJabatan = isCustomPpk ? (project.paketPerencana!.ppkJabatan || 'Plt. Kepala Bidang Penataan Bangunan, Lingkungan, dan Tata Ruang') : (project.ppkJabatan || 'Plt. Kepala Bidang Penataan Bangunan, Lingkungan, dan Tata Ruang');
 
-  const perencanaNama = project.paketPerencana?.namaPerusahaan || (project.perencanaNama && project.perencanaNama !== '-' ? project.perencanaNama : 'CV Arsitek Graha Desain Slawi');
-  const perencanaPimpinan = project.paketPerencana?.namaDirektur || project.perencanaDirektur || 'Aris Munandar, S.T., IAI';
+  const perencanaNama = project.paketPerencana?.namaPerusahaan || (project.perencanaNama && project.perencanaNama !== '-' ? project.perencanaNama : 'CV. TITIAN SEJAHTERA KONSULTAN');
+  const perencanaPimpinan = project.paketPerencana?.namaDirektur || project.perencanaDirektur || 'TONI SIGIT RADIKA, ST';
   const nilaiPerencanaan = project.paketPerencana?.nilaiKontrak || project.nilaiKontrakPerencana || Math.min(98000000, Math.round((project.nilaiKontrak || 2000000000) * 0.045));
-  const nomorSpkVal = project.paketPerencana?.nomorKontrak || project.nomorKontrakPerencana || `602.1/SPK-PRC/${project.kodePaket || '01'}/DPUPR/2026`;
+  const nomorSpkVal = project.paketPerencana?.nomorKontrak || project.nomorKontrakPerencana || `000.3.2/PBLT/05.03/SPK/VI/2026`;
 
   return {
     id: `spk-prc-${project.id}`,
     projectId: project.id,
     spkType: 'perencana',
     nomorSpk: nomorSpkVal,
-    tanggalSpk: '2026-01-15',
-    hariSpk: 'Kamis',
-    tanggalTeksSpk: 'lima belas',
-    bulanTeksSpk: 'Januari',
+    tanggalSpk: '2026-06-23',
+    hariSpk: 'Selasa',
+    tanggalTeksSpk: 'dua puluh tiga',
+    bulanTeksSpk: 'Juni',
     tahunSpk: 2026,
-    nomorSppbj: `602.1/SPPBJ-PRC/${project.kodePaket || '01'}/DPUPR/2026`,
-    tanggalSppbj: '2026-01-10',
+    nomorSppbj: `003.2/DPUPR/Prc.${project.kodePaket || 'PBLT'}/PP/03/2026`,
+    tanggalSppbj: '2026-06-11',
     metodePengadaan: 'Pengadaan Langsung',
     ppkNama: finalPpkNama,
     ppkNip: finalPpkNip,
     ppkJabatan: finalPpkJabatan,
-    ppkAlamat: 'Jl. Cut Nyak Dien No. 13, Kalisapu, Slawi, Kabupaten Tegal',
-    ppkNomorSk: '800.1.3/045/DPUPR/2026',
+    ppkAlamat: 'Jl. Cut Nyak Dien Slawi',
+    ppkNomorSk: '07 Tahun 2026',
+    ppkSkPengangkatanText: 'Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor 07 Tahun 2026 tanggal 12 Januari 2026 tentang Penunjukan Pejabat Pembuat Komitmen (PPKom) Pada Dinas Pekerjaan Umum Dan Penataan Ruang Kabupaten Tegal Tahun Anggaran 2026',
     ppkTahunAnggaran: project.tahunAnggaran || 2026,
+    wakilSahPpk: 'Tidak ada',
     penyediaNamaBadanUsaha: perencanaNama,
-    penyediaBentukUsaha: perencanaNama.startsWith('CV') ? 'CV' : 'PT',
+    penyediaBentukUsaha: perencanaNama.startsWith('PT') ? 'PT' : 'CV',
     penyediaNamaPimpinan: perencanaPimpinan,
-    penyediaJabatanPimpinan: 'Direktur / Team Leader',
-    penyediaAlamat: 'Jl. Dr. Soetomo No. 12, Kalisapu, Slawi, Kabupaten Tegal',
+    penyediaJabatanPimpinan: 'Direktur',
+    penyediaAlamat: 'Desa Kendalserut RT 02 RW 05 Kec. Pangkah, Kab. Tegal',
+    penyediaAktaNotarisNomor: '25',
+    penyediaAktaNotarisTanggal: '31 Agustus 2021',
+    penyediaAktaNotarisNama: 'UNTUNG DWIKORIANTO, SH., SpN',
     penyediaNpwp: '03.789.123.4-501.000',
     penyediaBank: 'Bank Jateng Cabang Slawi',
-    penyediaNomorRekening: '1-023-77665-2',
+    penyediaNomorRekening: '1035-01626-7',
     penyediaNamaRekening: perencanaNama,
-    namaPaket: `Perencanaan Teknis (DED & RAB) ${project.nama}`,
-    lokasiPekerjaan: project.lokasi,
+    namaPaket: `JASA KONSULTANSI PERENCANAAN PEMBANGUNAN GEDUNG SERBA GUNA BRIGADE INFANTERI 4/DEWA RATNA`,
+    kegiatan: 'KEGIATAN PENYELENGGARAAN BANGUNAN GEDUNG DI WILAYAH DAERAH KABUPATEN/KOTA, PEMBERIAN IZIN MENDIRIKAN BANGUNAN (IMB) DAN SERTIFIKAT LAIK FUNGSI BANGUNAN GEDUNG',
+    lokasiPekerjaan: 'Kecamatan Slawi Kab. Tegal',
     tahunAnggaran: project.tahunAnggaran || 2026,
-    sumberDana: project.sumberDana || 'APBD Kab. Tegal',
+    sumberDana: 'APBD DAU Kabupaten Tegal',
+    dppaNomor: 'DPPA/A.2/1.03.0.00.0.01.0000/001/2026',
+    mataAnggaran: 'Penyelenggaraan Bangunan Gedung Di Wilayah Daerah Kabupaten/Kota, Pemberian Izin Mendirikan Bangunan (IMB) dan Sertifikat Laik Fungsi Bangunan Gedung',
+    perubahanAnggaran: `Tahun Anggaran ${project.tahunAnggaran || 2026}`,
+    nomorUndanganPengadaan: `003.2/DPUPR/Prc.Brigif/PP/03/2026`,
+    tanggalUndanganPengadaan: '2026-06-11',
+    nomorBahpl: `003.2/DPUPR/Prc.Brigif/PP/07/2026`,
+    tanggalBahpl: '2026-06-17',
     kodeRekeningKegiatan: '1.03.02.2.01.0005.5.2.03.02.01.0001',
     nilaiKontrak: nilaiPerencanaan,
     nilaiKontrakTerbilang: angkaKeTerbilang(nilaiPerencanaan),
     termasukPpn: true,
-    jangkaWaktuHari: 45,
-    jangkaWaktuHuruf: 'Empat Puluh Lima',
-    tanggalMulai: '2026-01-15',
-    tanggalSelesai: '2026-02-28',
-    sistemPembayaran: 'Termin / Prestasi Kerja',
-    keteranganPembayaran: 'Termin 1 (30%): Setelah penyerahan Laporan Antara & Konsep Desain disetujui. Termin 2 (70%): Setelah penyerahan seluruh produk DED, RAB, RKS dan berkas lelang lengkap.',
-    dendaKeterlambatan: '1/1000 (satu perseribu) dari nilai SPK Perencanaan per hari keterlambatan.',
+    jangkaWaktuHari: 30,
+    jangkaWaktuHuruf: 'Tiga Puluh',
+    tanggalMulai: '2026-06-23',
+    tanggalSelesai: '2026-07-22',
+    jenisKontrak: 'Lumpsum',
+    sistemPembayaran: 'Sekaligus (100% setelah selesai & PHO)',
+    keteranganPembayaran: 'Pembayaran dilakukan dengan pembayaran secara sekaligus ke rekening Penyedia.',
+    dendaKeterlambatan: '1/1000 (satu permil) dari nilai SPK (tidak termasuk PPN) untuk setiap hari keterlambatan pada masa Perencanaan Teknis.',
     ruangLingkup: [
       'Survey lapangan, pengukuran topografi lahan & penyelidikan tanah (Sondir/Soil Test)',
       'Penyusunan Konsep Rancangan Arsitektur dan Pra-Rencana Skematik',

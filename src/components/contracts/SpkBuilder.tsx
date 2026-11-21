@@ -97,6 +97,31 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
           return;
         }
       }
+      if (found.spkType === 'perencana') {
+        const currentCount = (found.clauses || []).length;
+        if (currentCount < 27) {
+          const activeMap = new Map((found.clauses || []).map(cl => [cl.id, cl.isActive]));
+          const customMap = new Map((found.clauses || []).filter(cl => cl.isi).map(cl => [cl.id, cl.isi]));
+          const updatedClauses = DEFAULT_SPK_PERENCANA_CLAUSES.map(defaultClause => {
+            const existingText = customMap.get(defaultClause.id);
+            return {
+              ...defaultClause,
+              isi: existingText || defaultClause.isi,
+              isActive: activeMap.has(defaultClause.id) ? (activeMap.get(defaultClause.id) ?? true) : true
+            };
+          });
+          const migratedFound = { 
+            ...found, 
+            clauses: updatedClauses,
+            jenisKontrak: found.jenisKontrak || 'Lumpsum',
+            sistemPembayaran: found.sistemPembayaran || 'Sekaligus (100% setelah selesai & PHO)',
+            dendaKeterlambatan: found.dendaKeterlambatan || '1/1000 (satu permil) dari nilai SPK (tidak termasuk PPN) untuk setiap hari keterlambatan pada masa Perencanaan Teknis.'
+          };
+          setSpkData(migratedFound);
+          updateSpkContract(migratedFound);
+          return;
+        }
+      }
       setSpkData(found);
     } else {
       const defaultSpk = createDefaultSpkForProject(selectedProject, activeSpkType);
