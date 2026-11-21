@@ -13,10 +13,10 @@ function formatCustomClauseForWord(rawText: string): string {
     const leadingSpaces = line.match(/^(\s*)/)?.[1].length || 0;
 
     // 1. Roman numerals: i., ii., iii., iv., v. (gambar 2)
-    // Aligns with first letter of 1) / 2) -> margin-left 74pt, text-indent -18pt (marker at 56pt)
+    // Aligns with first letter of 1) / 2) -> margin-left 92pt, text-indent -18pt (marker at 74pt)
     const romanMatch = trimmed.match(/^(i{1,3}|iv|v|vi{0,3}|ix|x)\.\s+(.*)$/i);
     if (romanMatch) {
-      return `<p style="margin: 0 0 3pt 74pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${romanMatch[1].toLowerCase()}.&nbsp;&nbsp;${parseRichTextToHtml(romanMatch[2])}</p>`;
+      return `<p style="margin: 0 0 3pt 92pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${romanMatch[1].toLowerCase()}.&nbsp;&nbsp;${parseRichTextToHtml(romanMatch[2])}</p>`;
     }
 
     // 2. Bullet points: •, -, * (gambar 1)

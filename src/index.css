@@ -141,12 +141,16 @@
     page-break-after: avoid !important;
   }
 
-  /* Bagian Penutup & Tanda Tangan SPK: anti-potong halaman agar selalu utuh */
+  /* Bagian Penutup & Tanda Tangan SPK: anti-potong halaman agar selalu utuh dan mengisi halaman penutup */
   .spk-closing-container,
   .spk-signature-block,
   .signature-section {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    min-height: 250mm !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
   }
 
   /* Table wrapper for print pagination to reserve bottom space for repeating paraf footer */
@@ -181,19 +185,6 @@
 
   .print-footer-space {
     display: none !important;
-  }
-
-  /* 
-    Tabel paraf cetak resmi di pojok kanan bawah otomatis di-pin ke halaman paling bawah
-    Sembunyikan elemen paraf manual layar saat mencetak agar tidak terduplikasi.
-  */
-  .fixed-print-paraf {
-    display: block !important;
-    position: fixed !important;
-    bottom: 0mm !important;
-    right: 0mm !important;
-    z-index: 9999 !important;
-    background-color: transparent !important;
   }
 
   .contract-footer-paraf-screen {

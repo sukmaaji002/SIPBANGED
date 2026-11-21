@@ -28,11 +28,11 @@ export const FormattedLegalText: React.FC<FormattedLegalTextProps> = ({
         const leadingSpaces = rawLine.match(/^(\s*)/)?.[1].length || 0;
 
         // 1. Roman numerals: i., ii., iii., iv., v. (gambar 2)
-        // Must align with the first letter of parent number 1) / 2) -> pl-12
+        // Must align with the first letter of parent number 2) -> pl-[4.5rem] (72px)
         const romanMatch = trimmed.match(/^(i{1,3}|iv|v|vi{0,3}|ix|x)\.\s+(.*)$/i);
         if (romanMatch) {
           return (
-            <div key={idx} className="flex items-start text-justify pl-12" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+            <div key={idx} className="flex items-start text-justify pl-[4.5rem]" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
               <span className="shrink-0 w-6 font-serif font-medium text-left">{romanMatch[1].toLowerCase()}.</span>
               <div className="flex-1 text-justify leading-relaxed">
                 <RichSpan text={romanMatch[2]} />
