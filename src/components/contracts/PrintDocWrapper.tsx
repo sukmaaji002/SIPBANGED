@@ -13,7 +13,7 @@ export const PrintDocWrapper: React.FC<Props> = ({
   showFooterParaf = true 
 }) => {
   return (
-    <div className={`font-serif text-black text-xs leading-relaxed print-page bg-white p-4 sm:p-8 md:p-10 mb-8 border-0 shadow-none rounded-none max-w-[215mm] mx-auto relative ${className}`}>
+    <div className={`font-serif text-black text-xs leading-relaxed print-page bg-white p-4 sm:p-8 md:p-10 mb-8 border-0 shadow-none rounded-none max-w-[215mm] mx-auto ${className}`}>
       {/* 
         Native HTML Table Wrapper for Print:
         Ensures tfoot automatically repeats on every printed page as an official footer.
@@ -40,9 +40,9 @@ export const PrintDocWrapper: React.FC<Props> = ({
         )}
       </table>
 
-      {/* Screen Paraf Footer - posisi absolut di pojok kanan bawah halaman */}
+      {/* Screen Paraf Footer - posisi FIXED di pojok kanan bawah viewport (tidak tumpang tindih TTD) */}
       {showFooterParaf && (
-        <div className="absolute bottom-3 right-4 print:hidden z-10">
+        <div className="fixed bottom-4 right-4 print:hidden z-50">
           <ParafTable />
         </div>
       )}
