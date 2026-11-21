@@ -141,8 +141,10 @@
     page-break-after: avoid !important;
   }
 
-  /* Bagian Penutup & Tanda Tangan SPK: anti-potong halaman agar selalu utuh dalam satu halaman */
-  .spk-closing-container {
+  /* Bagian Penutup & Tanda Tangan SPK: anti-potong halaman agar selalu utuh */
+  .spk-closing-container,
+  .spk-signature-block,
+  .signature-section {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
