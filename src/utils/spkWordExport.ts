@@ -10,32 +10,53 @@ function formatCustomClauseForWord(rawText: string): string {
     const trimmed = line.trim();
     if (!trimmed) return '<div style="height: 3pt;"></div>';
 
-    // 1. Sub-paren like 1), 2), a), b)
+    const leadingSpaces = line.match(/^(\s*)/)?.[1].length || 0;
+
+    // 1. Roman numerals: i., ii., iii., iv., v. (gambar 2)
+    // Aligns with first letter of 1) / 2) -> margin-left 74pt, text-indent -18pt (marker at 56pt)
+    const romanMatch = trimmed.match(/^(i{1,3}|iv|v|vi{0,3}|ix|x)\.\s+(.*)$/i);
+    if (romanMatch) {
+      return `<p style="margin: 0 0 3pt 74pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${romanMatch[1].toLowerCase()}.&nbsp;&nbsp;${parseRichTextToHtml(romanMatch[2])}</p>`;
+    }
+
+    // 2. Bullet points: •, -, * (gambar 1)
+    // Aligns bullet with first letter of letter item a., b., c. -> margin-left 52pt, text-indent -14pt (bullet at 38pt)
+    const bulletMatch = trimmed.match(/^([•\-\*])\s+(.*)$/);
+    if (bulletMatch) {
+      return `<p style="margin: 0 0 3pt 52pt; text-indent: -14pt; font-size: 10pt; line-height: 1.35; text-align: justify;">&bull;&nbsp;&nbsp;${parseRichTextToHtml(bulletMatch[2])}</p>`;
+    }
+
+    // 3. Sub-paren like 1), 2), a), b)
     const parenMatch = trimmed.match(/^(\d+|[a-zA-Z])\)\s+(.*)$/);
     if (parenMatch) {
-      return `<p style="margin: 0 0 3pt 56pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${parenMatch[1]})&nbsp;&nbsp;${parseRichTextToHtml(parenMatch[2])}</p>`;
+      const marginPt = leadingSpaces >= 6 ? 74 : 56;
+      return `<p style="margin: 0 0 3pt ${marginPt}pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${parenMatch[1]})&nbsp;&nbsp;${parseRichTextToHtml(parenMatch[2])}</p>`;
     }
 
-    // 2. (1), (a)
+    // 4. (1), (a)
     const fullParenMatch = trimmed.match(/^\(([a-zA-Z0-9]+)\)\s+(.*)$/);
     if (fullParenMatch) {
-      return `<p style="margin: 0 0 3pt 56pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">(${fullParenMatch[1]})&nbsp;&nbsp;${parseRichTextToHtml(fullParenMatch[2])}</p>`;
+      const marginPt = leadingSpaces >= 6 ? 74 : 56;
+      return `<p style="margin: 0 0 3pt ${marginPt}pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">(${fullParenMatch[1]})&nbsp;&nbsp;${parseRichTextToHtml(fullParenMatch[2])}</p>`;
     }
 
-    // 3. Numbered with dot like 1. , 14.1.
-    const numDotMatch = trimmed.match(/^(\d+(?:\.\d+)*)\.\s+(.*)$/);
-    if (numDotMatch) {
-      return `<p style="margin: 0 0 3pt 56pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${numDotMatch[1]}.&nbsp;&nbsp;${parseRichTextToHtml(numDotMatch[2])}</p>`;
-    }
-
-    // 4. Letter with dot like a., b., c.
+    // 5. Letter with dot like a., b., c.
     const letterDotMatch = trimmed.match(/^([a-zA-Z])\.\s+(.*)$/);
     if (letterDotMatch) {
-      return `<p style="margin: 0 0 3pt 38pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${letterDotMatch[1]}.&nbsp;&nbsp;${parseRichTextToHtml(letterDotMatch[2])}</p>`;
+      const marginPt = leadingSpaces >= 2 ? 56 : 38;
+      return `<p style="margin: 0 0 3pt ${marginPt}pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${letterDotMatch[1]}.&nbsp;&nbsp;${parseRichTextToHtml(letterDotMatch[2])}</p>`;
     }
 
-    // 5. Standard paragraph (flush with title text at 20pt)
-    return `<p style="margin: 0 0 3pt 20pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${parseRichTextToHtml(trimmed)}</p>`;
+    // 6. Numbered with dot like 1., 2., 3. (gambar 3)
+    const numDotMatch = trimmed.match(/^(\d+(?:\.\d+)*)\.\s+(.*)$/);
+    if (numDotMatch) {
+      const marginPt = leadingSpaces >= 2 ? 56 : 38;
+      return `<p style="margin: 0 0 3pt ${marginPt}pt; text-indent: -18pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${numDotMatch[1]}.&nbsp;&nbsp;${parseRichTextToHtml(numDotMatch[2])}</p>`;
+    }
+
+    // 7. Standard paragraph / continuation text
+    const marginPt = leadingSpaces >= 2 ? 38 : 20;
+    return `<p style="margin: 0 0 3pt ${marginPt}pt; font-size: 10pt; line-height: 1.35; text-align: justify;">${parseRichTextToHtml(trimmed)}</p>`;
   }).join('');
 }
 

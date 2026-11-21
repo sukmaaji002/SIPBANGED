@@ -184,9 +184,18 @@
   }
 
   /* 
-    Tabel paraf cetak resmi di pojok kanan bawah otomatis ditangani oleh tfoot
+    Tabel paraf cetak resmi di pojok kanan bawah otomatis di-pin ke halaman paling bawah
     Sembunyikan elemen paraf manual layar saat mencetak agar tidak terduplikasi.
   */
+  .fixed-print-paraf {
+    display: block !important;
+    position: fixed !important;
+    bottom: 0mm !important;
+    right: 0mm !important;
+    z-index: 9999 !important;
+    background-color: transparent !important;
+  }
+
   .contract-footer-paraf-screen {
     display: none !important;
   }
