@@ -115,10 +115,9 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
         </div>
 
         {/* ======================================================== */}
-        {/* LEMBAR 2: FORMULIR TABEL SPK UTUH (LKPP / DPUPR)         */}
-        {/* Lembar ini bertandatangan, sehingga TIDAK ada paraf      */}
+        {/* LEMBAR 2, 3+, & PENUTUP: SATU KESATUAN DENGAN PARAF     */}
         {/* ======================================================== */}
-        <PrintDocWrapper showFooterParaf={false}>
+        <PrintDocWrapper showFooterParaf={true}>
           {/* ======================================================== */}
           {/* LEMBAR 2: FORMULIR TABEL SPK UTUH (LKPP / DPUPR)         */}
           {/* ======================================================== */}
@@ -397,13 +396,10 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
               </div>
             </div>
           </div>
-        </PrintDocWrapper>
 
-        {/* ======================================================== */}
-        {/* LEMBAR 3+: SYARAT UMUM SURAT PERINTAH KERJA (SPK)        */}
-        {/* Memuat klausul pasal 1 s.d. 31 dengan paraf koordinasi   */}
-        {/* ======================================================== */}
-        <PrintDocWrapper showFooterParaf={true}>
+          {/* ======================================================== */}
+          {/* LEMBAR 3+: SYARAT UMUM SURAT PERINTAH KERJA (SPK)        */}
+          {/* ======================================================== */}
           <div className="spk-page spk-clauses-doc font-serif text-black leading-relaxed pt-6">
             <div className="text-center my-6 space-y-1">
               <h3 className="text-base font-bold uppercase tracking-wider underline">
@@ -427,52 +423,48 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
                 </div>
               ))}
             </div>
-          </div>
-        </PrintDocWrapper>
 
-        {/* ======================================================== */}
-        {/* LEMBAR PENUTUP & TANDA TANGAN SPK                       */}
-        {/* Lembar ini bertandatangan, sehingga TIDAK ada paraf      */}
-        {/* ======================================================== */}
-        <PrintDocWrapper showFooterParaf={false}>
-          <div
-            className="spk-closing-container font-serif text-black leading-relaxed border-none"
-            style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-          >
-            {/* Penutup SPK */}
-            <div className="text-xs text-justify leading-relaxed space-y-2">
-              <p>
-                SPK untuk melaksanakan Pekerjaan {spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
-              </p>
-              <p>
-                SPK ini mulai berlaku efektif terhitung sejak tanggal yang ditetapkan dalam SPK dengan tanggal mulai dan penyelesaian keseluruhan pekerjaan sebagaimana diatur dalam SPMK.
-              </p>
-              <p>
-                Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani SPK ini pada tanggal tersebut di atas dan melaksanakan SPK sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia.
-              </p>
-            </div>
-
-            {/* Tanda Tangan Penutup Langsung Menyatu Di Bawah Kalimat Penutup */}
-            <div className="grid grid-cols-2 gap-8 text-center pt-6 text-xs">
-              <div>
-                <p className="font-normal text-[11px]">Untuk dan atas nama</p>
-                <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
-                <p className="text-[10px] font-normal mb-1">{spk.ppkJabatan}</p>
-                <p className="text-[10.5px] font-bold italic mb-16">Selaku Pejabat Penandatangan Kontrak</p>
-                <p className="font-bold underline text-xs">{spk.ppkNama}</p>
-                <p className="text-[10px] font-normal mt-0.5">NIP. {spk.ppkNip}</p>
+            {/* Bagian Penutup & Tanda Tangan SPK: Satu kesatuan utuh */}
+            <div
+              className="spk-closing-container mt-6 font-serif text-black leading-relaxed"
+              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+            >
+              {/* Penutup SPK */}
+              <div className="text-xs text-justify leading-relaxed space-y-2">
+                <p>
+                  SPK untuk melaksanakan Pekerjaan {spk.namaPaket} ini, beserta lampiran-lampiranya merupakan bagian tak terpisahkan, dibuat dalam rangkap 3 (tiga) bermaterai untuk Pejabat Penandatangan Kontrak dan Penyedia serta masing-masing mempunyai kekuatan hukum yang sama.
+                </p>
+                <p>
+                  SPK ini mulai berlaku efektif terhitung sejak tanggal yang ditetapkan dalam SPK dengan tanggal mulai dan penyelesaian keseluruhan pekerjaan sebagaimana diatur dalam SPMK.
+                </p>
+                <p>
+                  Dengan demikian, Pejabat Penandatangan Kontrak dan Penyedia telah bersepakat untuk menandatangani SPK ini pada tanggal tersebut di atas dan melaksanakan SPK sesuai dengan ketentuan peraturan perundang-undangan di Republik Indonesia.
+                </p>
               </div>
 
-              <div>
-                <p className="text-[10px] mb-1 font-normal">Slawi, {tanggalSpkFormatted}</p>
-                <p className="text-[10px] italic font-normal mb-0.5">Menerima dan Menyetujui :</p>
-                <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
-                <p className="font-bold uppercase text-[11px] mb-16">{spk.penyediaNamaBadanUsaha}</p>
-                <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
-                <p className="text-[10px] font-normal mt-0.5">{spk.penyediaJabatanPimpinan}</p>
+              {/* Tanda Tangan Penutup */}
+              <div className="grid grid-cols-2 gap-8 text-center pt-6 text-xs">
+                <div>
+                  <p className="font-normal text-[11px]">Untuk dan atas nama</p>
+                  <p className="font-normal text-[11px]">Dinas PUPR Kabupaten Tegal</p>
+                  <p className="text-[10px] font-normal mb-1">{spk.ppkJabatan}</p>
+                  <p className="text-[10.5px] font-bold italic mb-16">Selaku Pejabat Penandatangan Kontrak</p>
+                  <p className="font-bold underline text-xs">{spk.ppkNama}</p>
+                  <p className="text-[10px] font-normal mt-0.5">NIP. {spk.ppkNip}</p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] mb-1 font-normal">Slawi, {tanggalSpkFormatted}</p>
+                  <p className="text-[10px] italic font-normal mb-0.5">Menerima dan Menyetujui :</p>
+                  <p className="font-normal text-[11px]">Untuk dan atas nama Penyedia</p>
+                  <p className="font-bold uppercase text-[11px] mb-16">{spk.penyediaNamaBadanUsaha}</p>
+                  <p className="font-bold underline text-xs">{spk.penyediaNamaPimpinan}</p>
+                  <p className="text-[10px] font-normal mt-0.5">{spk.penyediaJabatanPimpinan}</p>
+                </div>
               </div>
             </div>
           </div>
+
         </PrintDocWrapper>
       </div>
     );
@@ -485,7 +477,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
       : 'JASA KONSULTANSI PERENCANAAN TEKNIS (DED)';
 
   return (
-    <PrintDocWrapper showFooterParaf={false}>
+    <PrintDocWrapper showFooterParaf={true}>
       <KopSurat />
 
       {/* Judul Dokumen SPK */}
