@@ -133,7 +133,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
                   <tbody>
                     {/* Baris 1: Header SPK & Dinas */}
                     <tr>
-                      <td rowSpan={2} className="w-[32%] border border-black p-2.5 font-bold uppercase align-middle text-left leading-snug">
+                      <td rowSpan={2} className="w-[32%] border border-black p-2.5 font-bold uppercase text-center align-top leading-snug">
                         SURAT PERINTAH<br />KERJA (SPK)
                       </td>
                       <td className="w-[68%] border border-black p-2.5 font-bold uppercase text-center align-middle leading-snug">
@@ -158,7 +158,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
                     {/* Baris 3: Pejabat Penandatangan Kontrak */}
                     <tr>
-                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                      <td className="w-[32%] border border-black p-2.5 font-bold uppercase text-center align-top leading-snug">
                         NAMA PEJABAT PENANDATANGAN KONTRAK
                       </td>
                       <td className="border border-black p-2.5 align-top">
@@ -184,7 +184,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
                     {/* Baris 4: Nama Penyedia */}
                     <tr>
-                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                      <td className="w-[32%] border border-black p-2.5 font-bold uppercase text-center align-top leading-snug">
                         NAMA PENYEDIA
                       </td>
                       <td className="border border-black p-2.5 align-top">
@@ -216,7 +216,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
                     {/* Baris 5: Wakil Sah */}
                     <tr>
-                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                      <td className="w-[32%] border border-black p-2.5 font-bold uppercase text-center align-top leading-snug">
                         WAKIL SAH PEJABAT PENANDATANGAN KONTRAK
                       </td>
                       <td className="border border-black p-2.5 align-top">
@@ -227,7 +227,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
                     {/* Baris 6: Paket Pengadaan */}
                     <tr>
-                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                      <td className="w-[32%] border border-black p-2.5 font-bold uppercase text-center align-top leading-snug">
                         PAKET PENGADAAN: {spk.namaPaket.toUpperCase()}
                       </td>
                       <td className="border border-black p-2.5 align-top">
@@ -592,7 +592,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
                   <tbody>
                     {/* Baris 1: Header SPK & Dinas */}
                     <tr>
-                      <td rowSpan={2} className="w-[32%] border border-black p-2.5 font-bold uppercase align-middle text-left leading-snug">
+                      <td rowSpan={2} className="w-[32%] border border-black p-2.5 font-bold uppercase text-center align-top leading-snug">
                         SURAT PERINTAH KERJA<br />(SPK)
                       </td>
                       <td className="w-[68%] border border-black p-2.5 font-bold uppercase text-center align-middle leading-snug">
@@ -617,7 +617,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
                     {/* Baris 3: Pejabat Penandatangan Kontrak */}
                     <tr>
-                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                      <td className="w-[32%] border border-black p-2.5 font-bold uppercase text-center align-top leading-snug">
                         NAMA PEJABAT PENANDATANGAN KONTRAK
                       </td>
                       <td className="border border-black p-2.5 align-top">
@@ -643,7 +643,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
                     {/* Baris 4: Nama Penyedia */}
                     <tr>
-                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                      <td className="w-[32%] border border-black p-2.5 font-bold uppercase text-center align-top leading-snug">
                         NAMA PENYEDIA
                       </td>
                       <td className="border border-black p-2.5 align-top">
@@ -675,7 +675,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
                     {/* Baris 5: Wakil Sah */}
                     <tr>
-                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                      <td className="w-[32%] border border-black p-2.5 font-bold uppercase text-center align-top leading-snug">
                         WAKIL SAH PEJABAT PENANDATANGAN KONTRAK
                       </td>
                       <td className="border border-black p-2.5 align-top">
@@ -686,7 +686,7 @@ export const SpkPrintView: React.FC<SpkPrintViewProps> = ({ spk }) => {
 
                     {/* Baris 6: Paket Pengadaan */}
                     <tr>
-                      <td className="border border-black p-2.5 font-bold uppercase align-top">
+                      <td className="w-[32%] border border-black p-2.5 font-bold uppercase text-center align-top leading-snug">
                         PAKET PENGADAAN: {spk.namaPaket.toUpperCase()}
                       </td>
                       <td className="border border-black p-2.5 align-top">

@@ -39,13 +39,6 @@ export const PrintDocWrapper: React.FC<Props> = ({
           </tfoot>
         )}
       </table>
-
-      {/* Screen Paraf Footer - posisi FIXED di pojok kanan bawah viewport (tidak tumpang tindih TTD) */}
-      {showFooterParaf && (
-        <div className="fixed bottom-4 right-4 print:hidden z-50">
-          <ParafTable />
-        </div>
-      )}
     </div>
   );
 };

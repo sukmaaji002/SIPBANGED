@@ -232,7 +232,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   <!-- Tabel Formulir Berbingkai LKPP/DPUPR -->
   <table style="width: 100%; border: 1px solid #000000; font-size: 9.5pt; line-height: 1.25; margin-bottom: 14pt;">
     <tr>
-      <td rowspan="2" style="width: 32%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; vertical-align: middle; text-align: left;">
+      <td rowspan="2" style="width: 32%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-align: center; vertical-align: top;">
         SURAT PERINTAH<br/>KERJA (SPK)
       </td>
       <td style="width: 68%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-align: center; vertical-align: middle;">
@@ -259,7 +259,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
 
     <tr>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-transform: uppercase;">
+      <td style="width: 32%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: top;">
         NAMA PEJABAT PENANDATANGAN KONTRAK
       </td>
       <td style="border: 1px solid #000000; padding: 4pt 6pt;">
@@ -292,7 +292,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
 
     <tr>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-transform: uppercase;">
+      <td style="width: 32%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: top;">
         NAMA PENYEDIA
       </td>
       <td style="border: 1px solid #000000; padding: 4pt 6pt;">
@@ -335,7 +335,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
 
     <tr>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-transform: uppercase;">
+      <td style="width: 32%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: top;">
         WAKIL SAH PEJABAT PENANDATANGAN KONTRAK
       </td>
       <td style="border: 1px solid #000000; padding: 4pt 6pt;">
@@ -345,7 +345,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
 
     <tr>
-      <td style="border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-transform: uppercase;">
+      <td style="width: 32%; border: 1px solid #000000; padding: 4pt 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: top;">
         PAKET PENGADAAN: ${spk.namaPaket.toUpperCase()}
       </td>
       <td style="border: 1px solid #000000; padding: 4pt 6pt;">
@@ -762,7 +762,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
   <!-- Formulir Tabel SPK Utuh -->
   <table style="width: 100%; border: 1px solid #000000; font-size: 9pt; border-collapse: collapse; margin-bottom: 8pt;">
     <tr>
-      <td rowspan="2" style="width: 32%; border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase; vertical-align: middle;">
+      <td rowspan="2" style="width: 32%; border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: top;">
         SURAT PERINTAH KERJA<br />(SPK)
       </td>
       <td style="width: 68%; border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: middle;">
@@ -788,7 +788,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
 
     <tr>
-      <td style="border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase;">
+      <td style="width: 32%; border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: top;">
         NAMA PEJABAT PENANDATANGAN KONTRAK
       </td>
       <td style="border: 1px solid #000000; padding: 6pt;">
@@ -821,7 +821,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
 
     <tr>
-      <td style="border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase;">
+      <td style="width: 32%; border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: top;">
         NAMA PENYEDIA
       </td>
       <td style="border: 1px solid #000000; padding: 6pt;">
@@ -864,7 +864,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
 
     <tr>
-      <td style="border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase;">
+      <td style="width: 32%; border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: top;">
         WAKIL SAH PEJABAT PENANDATANGAN KONTRAK
       </td>
       <td style="border: 1px solid #000000; padding: 6pt;">
@@ -874,7 +874,7 @@ export function generateSpkWordDoc(spk: SpkContract): void {
     </tr>
 
     <tr>
-      <td style="border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase;">
+      <td style="width: 32%; border: 1px solid #000000; padding: 6pt; font-weight: bold; text-transform: uppercase; text-align: center; vertical-align: top;">
         PAKET PENGADAAN: ${spk.namaPaket.toUpperCase()}
       </td>
       <td style="border: 1px solid #000000; padding: 6pt;">
