@@ -11,6 +11,7 @@ import { SpkBuilder } from '../contracts/SpkBuilder';
 import { ExecutionPhase } from '../phases/ExecutionPhase';
 import { PlanningPhase } from '../phases/PlanningPhase';
 import { SupervisionPhase } from '../phases/SupervisionPhase';
+import { ProjectDocumentTabs } from './ProjectDocumentTabs';
 
 export type ProjectPage = 'detail' | 'kategori' | SpkType;
 
@@ -118,7 +119,6 @@ function ConsultantProgressPanel({ project, category }: { project: Project; cate
 
 function ConsultantAddendums({ project, category }: { project: Project; category: ConsultantSpkType }) {
   const { currentUser, updateProject } = useApp();
-  const [formOpen, setFormOpen] = useState(false);
   const work = project.progresKonsultan?.[category];
   const addendums = work?.addendums ?? [];
   const canEdit = hasPermission(currentUser?.role, 'edit_contract');
@@ -127,7 +127,7 @@ function ConsultantAddendums({ project, category }: { project: Project; category
     <section className={panelClass + " no-print"}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold text-slate-900">Addendum kontrak</h3>
-        {canEdit && !formOpen && <button type="button" className={buttonClass} onClick={() => setFormOpen(true)}>Catat addendum</button>}
+        {!canEdit && <p className="text-sm text-slate-600">Peran Anda tidak memiliki izin membuat addendum.</p>}
       </div>
       {addendums.length === 0 ? (
         <p className="text-sm text-slate-600">Belum ada addendum untuk kategori ini.</p>
@@ -141,7 +141,7 @@ function ConsultantAddendums({ project, category }: { project: Project; category
           ))}
         </ul>
       )}
-      {canEdit && formOpen && (
+      {canEdit && (
         <form className="grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2" onSubmit={event => {
           event.preventDefault();
           const fields = new FormData(event.currentTarget);
@@ -156,41 +156,15 @@ function ConsultantAddendums({ project, category }: { project: Project; category
               [category]: { ...work, addendums: [{ id: crypto.randomUUID(), nomor, tanggal, uraian }, ...addendums] },
             },
           });
-          setFormOpen(false);
+          event.currentTarget.reset();
         }}>
           <label className="text-sm font-medium text-slate-700">Nomor addendum<input required name="nomor" className={inputClass} /></label>
           <label className="text-sm font-medium text-slate-700">Tanggal<input required type="date" name="tanggal" className={inputClass} /></label>
           <label className="text-sm font-medium text-slate-700 sm:col-span-2">Uraian<textarea required name="uraian" rows={2} className={inputClass} /></label>
           <div className="flex gap-2 sm:col-span-2">
             <button type="submit" className={buttonClass}>Simpan addendum</button>
-            <button type="button" className="rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100" onClick={() => setFormOpen(false)}>Batal</button>
           </div>
         </form>
-      )}
-    </section>
-  );
-}
-
-function PhysicalAddendums({ project, openProgress }: { project: Project; openProgress: () => void }) {
-  const { scheduleAddendums, currentUser } = useApp();
-  const addendums = scheduleAddendums.filter(item => item.projectId === project.id && !item.isKontrakAwal && item.jenisPerubahan !== 'Kontrak Awal');
-  return (
-    <section className={panelClass + " no-print"}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-semibold text-slate-900">Addendum kontrak fisik</h3>
-        {hasPermission(currentUser?.role, 'submit_progress') && (
-          <button type="button" onClick={openProgress} className="text-sm font-semibold text-emerald-800 hover:underline">Kelola addendum di Kurva S</button>
-        )}
-      </div>
-      {addendums.length === 0 ? <p className="text-sm text-slate-600">Belum ada addendum fisik.</p> : (
-        <ul className="divide-y divide-slate-100 text-sm">
-          {addendums.map(item => (
-            <li key={item.id} className="space-y-1 py-2">
-              <p className="font-semibold text-slate-900">{item.nomorAddendum} · {item.judul}</p>
-              <p className="text-slate-600">{formatTanggalIndo(item.tanggal)} · {item.jenisPerubahan}{item.isAktif && ' · Jadwal aktif'}</p>
-            </li>
-          ))}
-        </ul>
       )}
     </section>
   );
@@ -276,20 +250,24 @@ export function ProjectWorkspace({ project, page, onPageChange }: ProjectWorkspa
       ) : tab === 'progres' ? (
         category === 'fisik' ? <ExecutionPhase /> : <ConsultantProgressPanel project={project} category={category} />
       ) : tab === 'kontrak' ? (
-        <div className="space-y-4">
-          {category === 'fisik' ? (
-            <>
-              <PhysicalAddendums project={project} openProgress={() => setTab('progres')} />
-              <KontrakModularContainer fixedSpkType="fisik" />
-            </>
-          ) : (
-            <>
-              <ConsultantAddendums project={project} category={category} />
-              <SpkBuilder currentSpkType={category} lockSpkType />
-            </>
-          )}
-        </div>
-      ) : tab === 'berita-acara' ? <BeritaAcaraList packageType={category} /> : null)}
+        <ProjectDocumentTabs
+          key="kontrak"
+          scope={{ projectId: project.id, category, group: 'kontrak' }}
+          renderCreateDocument={() => category === 'fisik'
+            ? <KontrakModularContainer fixedSpkType="fisik" />
+            : <SpkBuilder currentSpkType={category} lockSpkType />}
+          createAddendum={category === 'fisik'
+            ? <ExecutionPhase mode="addendum" />
+            : <ConsultantAddendums project={project} category={category} />}
+        />
+      ) : tab === 'berita-acara' ? (
+        <ProjectDocumentTabs
+          key="berita-acara"
+          scope={{ projectId: project.id, category, group: 'berita-acara' }}
+          renderCreateDocument={onCreated => <BeritaAcaraList packageType={category} view="create" onCreated={onCreated} />}
+          savedDocuments={<BeritaAcaraList packageType={category} view="records" />}
+        />
+      ) : null)}
     </section>
   );
 }

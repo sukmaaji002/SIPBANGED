@@ -35,7 +35,13 @@ const consultantTemplates: { type: BAType; label: string }[] = [
   { type: 'BAP-TERMIN', label: 'BA Pembayaran Konsultansi' },
 ];
 
-export function BeritaAcaraList({ packageType = 'fisik' }: { packageType?: SpkType }) {
+interface BeritaAcaraListProps {
+  packageType?: SpkType;
+  view?: 'create' | 'records' | 'all';
+  onCreated?: () => void;
+}
+
+export function BeritaAcaraList({ packageType = 'fisik', view = 'all', onCreated }: BeritaAcaraListProps) {
   const { selectedProject, beritaAcaraList, addBeritaAcara, deleteBeritaAcara, currentUser } = useApp();
   
   const [selectedBA, setSelectedBA] = useState<BeritaAcara | null>(null);
@@ -136,6 +142,7 @@ export function BeritaAcaraList({ packageType = 'fisik' }: { packageType?: SpkTy
 
     addBeritaAcara(newBA);
     setIsCreateModalOpen(false);
+    onCreated?.();
   };
 
   const handlePrintBA = (ba: BeritaAcara) => {
@@ -146,6 +153,7 @@ export function BeritaAcaraList({ packageType = 'fisik' }: { packageType?: SpkTy
   return (
     <div className="space-y-6">
       
+      {view !== 'records' && <>
       {/* Header */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
         <div>
@@ -206,7 +214,10 @@ export function BeritaAcaraList({ packageType = 'fisik' }: { packageType?: SpkTy
         </div>
       )}
 
+      </>}
+
       {/* BA Table List */}
+      {view !== 'create' && (
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden no-print">
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -293,6 +304,8 @@ export function BeritaAcaraList({ packageType = 'fisik' }: { packageType?: SpkTy
           </div>
         )}
       </div>
+
+      )}
 
       {/* Modal Cetak Format Resmi Berita Acara */}
       {isPrintModalOpen && selectedBA && (

@@ -94,7 +94,7 @@ const PRESET_COLORS = [
   { label: 'Abu-abu (Baseline)', value: '#94a3b8' }
 ];
 
-export const ExecutionPhase: React.FC = () => {
+export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ mode = 'progress' }) => {
   const { 
     selectedProject, 
     weeklyProgressList, 
@@ -502,7 +502,7 @@ export const ExecutionPhase: React.FC = () => {
     setAddJudul('');
     setAddTanggal(new Date().toISOString().split('T')[0]);
     setAddJenis('Perpanjangan Waktu');
-    setAddNomorSurat(`600.2/ADD-0${addCount + 1}/${selectedProject.kodePaket}/2026`);
+    setAddNomorSurat(`600.2/ADD-0${addCount + 1}/${selectedProject.kodePaket}/${selectedProject.tahunAnggaran}`);
     setAddDurasiBaru(selectedProject.durasiHari + 14);
     setAddTanggalSelesaiBaru(addDays(selectedProject.tanggalSelesai, 14));
     setAddNilaiKontrakBaru(selectedProject.nilaiKontrak);
@@ -550,6 +550,8 @@ export const ExecutionPhase: React.FC = () => {
   const handleSaveAddendum = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!canSubmit) return;
+
     const isOriginal = editingAddendumId ? projectAddendums.find(a => a.id === editingAddendumId)?.isKontrakAwal : false;
 
     const newAddendumData: ScheduleAddendum = {
@@ -567,7 +569,7 @@ export const ExecutionPhase: React.FC = () => {
       warnaGaris: addWarnaGaris,
       isAktif: addIsAktif,
       isKontrakAwal: Boolean(isOriginal),
-      targetMingguan: addTargetMingguan.sort((a, b) => getWeekOrder(a.mingguKe) - getWeekOrder(b.mingguKe))
+      targetMingguan: [...addTargetMingguan].sort((a, b) => getWeekOrder(a.mingguKe) - getWeekOrder(b.mingguKe))
     };
 
     if (editingAddendumId) {
@@ -698,6 +700,7 @@ export const ExecutionPhase: React.FC = () => {
     ? allPhotos 
     : allPhotos.filter(p => p.stage === activePhotoTab);
 
+  const contractAddendums = projectAddendums.filter(item => !item.isKontrakAwal && item.jenisPerubahan !== 'Kontrak Awal');
   const currentDeviasi = Number((selectedProject.progresFisikRealisasi - selectedProject.progresFisikRencana).toFixed(2));
   const modalDeviasi = Number((kumulatifRealisasi - kumulatifRencana).toFixed(2));
   const durasiMingguIni = getDurasiHari(periodeMulai, periodeSelesai);
@@ -705,6 +708,36 @@ export const ExecutionPhase: React.FC = () => {
   return (
     <div className="space-y-6">
       
+      {mode === 'addendum' ? (
+        <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="font-semibold text-slate-900">Addendum kontrak fisik</h3>
+            {canSubmit && (
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={handleOpenAddAddendum} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
+                  <Plus aria-hidden="true" className="size-4" /> Tambah addendum
+                </button>
+                <button type="button" onClick={() => setShowAddendumListModal(true)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  Kelola jadwal dan addendum
+                </button>
+              </div>
+            )}
+          </div>
+          {!canSubmit && <p className="text-sm text-slate-600">Peran Anda tidak memiliki izin membuat addendum fisik.</p>}
+          {contractAddendums.length === 0 ? (
+            <p className="text-sm text-slate-600">Belum ada addendum fisik.</p>
+          ) : (
+            <ul className="divide-y divide-slate-100 text-sm">
+              {contractAddendums.map(item => (
+                <li key={item.id} className="space-y-1 py-2">
+                  <p className="font-semibold text-slate-900">{item.nomorAddendum} · {item.judul}</p>
+                  <p className="text-slate-600">{formatTanggalIndo(item.tanggal)} · {item.jenisPerubahan}{item.isAktif && ' · Jadwal aktif'}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : <>
       {/* Phase Header */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -1323,6 +1356,8 @@ export const ExecutionPhase: React.FC = () => {
           </div>
         )}
       </div>
+
+      </>}
 
       {/* MODAL 1: Input / Edit Laporan Progres Mingguan */}
       {showModal && (
