@@ -103,11 +103,11 @@ export const supabaseSync = {
     }
   },
 
-  async upsertProject(project: Project): Promise<void> {
+  async upsertProject(project: Project): Promise<boolean> {
     const sb = getSupabase();
-    if (!sb) return;
+    if (!sb) return false;
     try {
-      await sb.from('sipbanged_projects').upsert({
+      const { error } = await sb.from('sipbanged_projects').upsert({
         id: project.id,
         kode_paket: project.kodePaket || '',
         nama: project.nama,
@@ -118,8 +118,11 @@ export const supabaseSync = {
         data: project,
         updated_at: new Date().toISOString()
       });
+      if (error) throw error;
+      return true;
     } catch (err) {
       console.warn('Supabase upsertProject failed:', err);
+      return false;
     }
   },
 

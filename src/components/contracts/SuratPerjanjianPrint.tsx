@@ -1,7 +1,8 @@
 import React from 'react';
 import { ProjectContract } from '../../types';
 import { KopSurat } from '../common/KopSurat';
-import { parseKomponenTanggalKontrak, formatTanggalIndo, formatRupiah, angkaKeTerbilang, angkaKeTerbilangHari, resolveContractPlaceholders } from '../../utils/formatters';
+import { parseKomponenTanggalKontrak, formatTanggalIndo, formatRupiah, angkaKeTerbilang, resolveContractPlaceholders } from '../../utils/formatters';
+import { activeAgreementArticles, agreementArticleText, agreementScope, getPelaksanaanHuruf } from '../../utils/contractAddendum';
 import { parseRuangLingkup } from '../../utils/ruangLingkupParser';
 import { PrintDocWrapper } from './PrintDocWrapper';
 import { FormattedLegalText } from '../common/FormattedLegalText';
@@ -10,21 +11,10 @@ interface Props {
   contract: ProjectContract;
 }
 
-const getPelaksanaanHuruf = (hari: number, huruf?: string) => {
-  const terbilangAuto = angkaKeTerbilangHari(hari);
-  if (!huruf) return terbilangAuto;
-  if (huruf.toLowerCase() === 'seratus delapan puluh' && hari !== 180 && terbilangAuto) {
-    return terbilangAuto;
-  }
-  return huruf;
-};
-
 export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
   const konsideransClause = (contract.clauses || []).find(c => c.id === 'sp-konsiderans');
   const premisClause = (contract.clauses || []).find(c => c.id === 'sp-premis');
-  const activePasalClauses = (contract.clauses || []).filter(
-    c => c.isActive && c.kategori === 'Surat Perjanjian' && c.id !== 'sp-konsiderans' && c.id !== 'sp-premis'
-  );
+  const activePasalClauses = activeAgreementArticles(contract);
 
   const comp = parseKomponenTanggalKontrak(contract.tanggal);
   const hariSesuaiTanggal = contract.hari || comp.hari;
@@ -178,13 +168,7 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
         {activePasalClauses.length > 0 ? (
           activePasalClauses.map((clause, idx) => {
             if (clause.id === 'sp-pasal-2') {
-              const rawData = clause.kontenCustom !== undefined
-                ? clause.kontenCustom
-                : (contract.ruangLingkupUtama && contract.ruangLingkupUtama.length > 0
-                  ? contract.ruangLingkupUtama
-                  : ['Pekerjaan Persiapan & SMKK', 'Pekerjaan Pondasi & Struktur Beton', 'Pekerjaan Pasangan Dinding & Plesteran', 'Pekerjaan Penutup Lantai & Atap', 'Pekerjaan Mekanikal Elektrikal']);
-              
-              const parsedItems = parseRuangLingkup(rawData);
+              const parsedItems = agreementScope(contract, clause);
 
               return (
                 <div key={clause.id} className="space-y-1">
@@ -220,13 +204,7 @@ export const SuratPerjanjianPrint: React.FC<Props> = ({ contract }) => {
               );
             }
 
-            let content = clause.kontenCustom !== undefined ? clause.kontenCustom : clause.kontenDefault;
-
-            if (clause.id === 'sp-pasal-3') {
-              content = `1. Harga Kontrak termasuk Pajak Pertambahan Nilai (PPN) yang diperoleh berdasarkan total harga penawaran sebagaimana tercantum dalam Daftar Kuantitas dan Harga adalah sebesar ${formatRupiah(contract.nilaiKontrakAngka)} (${angkaKeTerbilang(contract.nilaiKontrakAngka)}) dengan kode akun kegiatan ${contract.kodeAkunKegiatan};\n2. Kontrak ini dibiayai dari ${contract.sumberPembiayaan};\n3. Pembayaran untuk kontrak ini dilakukan ke ${contract.bankNamaDanCabang} rekening nomor ${contract.nomorRekeningPenyedia} atas nama Penyedia ${contract.namaRekeningPenyedia}.`;
-            } else if (clause.id === 'sp-pasal-5') {
-              content = `1. Masa Kontrak adalah jangka waktu berlakunya Kontrak ini terhitung sejak tanggal penandatanganan Kontrak sampai dengan Tanggal Penyerahan Akhir Pekerjaan (FHO);\n2. Masa Pelaksanaan ditentukan dalam Syarat-Syarat Khusus Kontrak, dihitung sejak Tanggal Mulai Kerja yang tercantum dalam SPMK sampai dengan Tanggal Penyerahan Pertama Pekerjaan selama ${contract.jangkaWaktuPelaksanaanHari} (${getPelaksanaanHuruf(contract.jangkaWaktuPelaksanaanHari, contract.jangkaWaktuPelaksanaanHuruf)}) hari kalender;\n3. Masa Pemeliharaan ditentukan dalam Syarat-Syarat Khusus Kontrak dihitung sejak Tanggal Penyerahan Pertama Pekerjaan sampai dengan Tanggal Penyerahan Akhir Pekerjaan selama ${contract.jangkaWaktuPemeliharaanHari} (${getPelaksanaanHuruf(contract.jangkaWaktuPemeliharaanHari, contract.jangkaWaktuPemeliharaanHuruf)}) hari kalender.`;
-            }
+            const content = agreementArticleText(contract, clause);
 
             return (
               <div key={clause.id} className="space-y-1">

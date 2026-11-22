@@ -6,6 +6,7 @@ import { formatRupiah, formatTanggalIndo } from '../../utils/formatters';
 import { hasPermission } from '../../utils/permissions';
 import { getProjectPackage, projectPackageLabels } from '../../utils/projectPackages';
 import { BeritaAcaraList } from '../beritaAcara/BeritaAcaraList';
+import { ContractAddendumBuilder } from '../contracts/ContractAddendumBuilder';
 import { KontrakModularContainer } from '../contracts/KontrakModularContainer';
 import { SpkBuilder } from '../contracts/SpkBuilder';
 import { ExecutionPhase } from '../phases/ExecutionPhase';
@@ -117,59 +118,6 @@ function ConsultantProgressPanel({ project, category }: { project: Project; cate
   );
 }
 
-function ConsultantAddendums({ project, category }: { project: Project; category: ConsultantSpkType }) {
-  const { currentUser, updateProject } = useApp();
-  const work = project.progresKonsultan?.[category];
-  const addendums = work?.addendums ?? [];
-  const canEdit = hasPermission(currentUser?.role, 'edit_contract');
-
-  return (
-    <section className={panelClass + " no-print"}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-semibold text-slate-900">Addendum kontrak</h3>
-        {!canEdit && <p className="text-sm text-slate-600">Peran Anda tidak memiliki izin membuat addendum.</p>}
-      </div>
-      {addendums.length === 0 ? (
-        <p className="text-sm text-slate-600">Belum ada addendum untuk kategori ini.</p>
-      ) : (
-        <ul className="divide-y divide-slate-100 text-sm">
-          {addendums.map(addendum => (
-            <li key={addendum.id} className="space-y-1 py-2">
-              <p className="font-semibold text-slate-900">{addendum.nomor} · {formatTanggalIndo(addendum.tanggal)}</p>
-              <p className="whitespace-pre-wrap break-words text-slate-600">{addendum.uraian}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-      {canEdit && (
-        <form className="grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2" onSubmit={event => {
-          event.preventDefault();
-          const fields = new FormData(event.currentTarget);
-          const nomor = String(fields.get('nomor') ?? '').trim();
-          const tanggal = String(fields.get('tanggal') ?? '');
-          const uraian = String(fields.get('uraian') ?? '').trim();
-          if (!nomor || !tanggal || !uraian) return;
-          updateProject({
-            ...project,
-            progresKonsultan: {
-              ...project.progresKonsultan,
-              [category]: { ...work, addendums: [{ id: crypto.randomUUID(), nomor, tanggal, uraian }, ...addendums] },
-            },
-          });
-          event.currentTarget.reset();
-        }}>
-          <label className="text-sm font-medium text-slate-700">Nomor addendum<input required name="nomor" className={inputClass} /></label>
-          <label className="text-sm font-medium text-slate-700">Tanggal<input required type="date" name="tanggal" className={inputClass} /></label>
-          <label className="text-sm font-medium text-slate-700 sm:col-span-2">Uraian<textarea required name="uraian" rows={2} className={inputClass} /></label>
-          <div className="flex gap-2 sm:col-span-2">
-            <button type="submit" className={buttonClass}>Simpan addendum</button>
-          </div>
-        </form>
-      )}
-    </section>
-  );
-}
-
 interface ProjectWorkspaceProps {
   project: Project;
   page: ProjectPage;
@@ -256,9 +204,13 @@ export function ProjectWorkspace({ project, page, onPageChange }: ProjectWorkspa
           renderCreateDocument={() => category === 'fisik'
             ? <KontrakModularContainer fixedSpkType="fisik" />
             : <SpkBuilder currentSpkType={category} lockSpkType />}
-          createAddendum={category === 'fisik'
-            ? <ExecutionPhase mode="addendum" />
-            : <ConsultantAddendums project={project} category={category} />}
+          createAddendum={(
+            <>
+              <ContractAddendumBuilder project={project} category={category} />
+              {category === 'fisik' && <ExecutionPhase mode="addendum" />}
+            </>
+          )}
+          savedDocuments={<ContractAddendumBuilder project={project} category={category} recordsOnly />}
         />
       ) : tab === 'berita-acara' ? (
         <ProjectDocumentTabs

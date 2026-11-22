@@ -44,6 +44,36 @@ export interface ConsultantAddendum {
   nomor: string;
   tanggal: string;
   uraian: string;
+  dokumenKontrak?: ContractAddendumDocument;
+}
+
+export interface ContractAddendumClause {
+  id: string;
+  label: string;
+  judul: string;
+  sebelumnya: string;
+  perubahan?: string;
+}
+
+export interface ContractAddendumSource {
+  id: string;
+  jenis: ContractDocType;
+  nomor: string;
+  tanggal: string;
+  nomorKontrakAwal: string;
+  tanggalKontrakAwal: string;
+  namaPaket: string;
+  ppk: string;
+  penyedia: string;
+  penandaTanganPenyedia: string;
+  pasal: ContractAddendumClause[];
+}
+
+export interface ContractAddendumDocument {
+  nomor: string;
+  tanggal: string;
+  uraian: string;
+  sumber: ContractAddendumSource;
 }
 
 export interface ConsultantProgress {
@@ -228,6 +258,7 @@ export interface ScheduleAddendum {
   isAktif: boolean; // Apakah menjadi jadwal acuan aktif saat ini
   isKontrakAwal?: boolean; // Penanda kurva S awal / baseline original
   targetMingguan: ScheduleAddendumPoint[];
+  dokumenKontrak?: ContractAddendumDocument;
 }
 
 // 3. TAHAP PENGAWASAN

@@ -12,6 +12,8 @@ import {
   PaymentTerm,
   ScheduleAddendum,
   ContractDocType,
+  ConsultantAddendum,
+  ConsultantSpkType,
   SpkType,
   SpkContract,
   MasterPpk
@@ -53,6 +55,7 @@ interface AppContextType {
   selectedProject: Project | undefined;
   addProject: (p: Project) => void;
   updateProject: (p: Project) => void;
+  saveConsultantAddendum: (projectId: string, category: ConsultantSpkType, addendum: ConsultantAddendum) => Promise<boolean>;
   deleteProject: (id: string) => void;
   
   // Phase 1: Perencanaan
@@ -497,6 +500,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     supabaseSync.deleteProject(id);
   };
 
+  const saveConsultantAddendum = async (projectId: string, category: ConsultantSpkType, addendum: ConsultantAddendum) => {
+    const project = projects.find(item => item.id === projectId);
+    if (!project) return false;
+    const work = project.progresKonsultan?.[category];
+    const nextWork = { ...work, addendums: [addendum, ...(work?.addendums ?? [])] };
+    const progressed = { ...project.progresKonsultan, [category]: nextWork };
+    if (!await supabaseSync.upsertProject({ ...project, progresKonsultan: progressed })) return false;
+    setProjects(current => current.map(item => item.id === projectId
+      ? { ...item, progresKonsultan: { ...item.progresKonsultan, [category]: { ...item.progresKonsultan?.[category], addendums: nextWork.addendums } } }
+      : item));
+    return true;
+  };
+
   // Phase 1: Planning
   const addPlanningDoc = (doc: PlanningDocument) => {
     setPlanningDocs(prev => [doc, ...prev]);
@@ -535,6 +551,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteScheduleAddendum = async (id: string) => {
+    if (scheduleAddendums.some(version => version.id === id && version.dokumenKontrak)) return false;
     if (!await supabaseSync.deleteScheduleAddendum(id)) return false;
     changedScheduleIds.current.add(id);
     setScheduleAddendums(previous => previous.filter(version => version.id !== id));
@@ -673,6 +690,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       selectedProject,
       addProject,
       updateProject,
+      saveConsultantAddendum,
       deleteProject,
       planningDocs,
       addPlanningDoc,

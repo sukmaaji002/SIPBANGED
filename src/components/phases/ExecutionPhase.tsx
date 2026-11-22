@@ -965,11 +965,11 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       {mode === 'addendum' ? (
         <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="font-semibold text-slate-900">Addendum kontrak fisik</h3>
+            <h3 className="font-semibold text-slate-900">Data addendum untuk Kurva S</h3>
             {canSubmit && (
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={handleOpenAddAddendum} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
-                  <Plus aria-hidden="true" className="size-4" /> Tambah addendum
+                  <Plus aria-hidden="true" className="size-4" /> Catat data jadwal
                 </button>
                 <button type="button" onClick={() => handleOpenCurve()} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                   Atur Kurva S Addendum
@@ -1858,7 +1858,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                             <span>{isOriginalSchedule(add) ? 'Isi Kurva S Awal' : 'Atur Kurva S'}</span>
                           </button>}
                           
-                          {canSubmit && !isOriginalSchedule(add) && !scheduleEffectiveDate(add) && !projectReports.some(report => reportedScheduleId(report) === add.id) && (
+                          {canSubmit && !add.dokumenKontrak && !isOriginalSchedule(add) && !scheduleEffectiveDate(add) && !projectReports.some(report => reportedScheduleId(report) === add.id) && (
                             <button
                               type="button"
                               onClick={() => handleDeleteAddendum(add)}
