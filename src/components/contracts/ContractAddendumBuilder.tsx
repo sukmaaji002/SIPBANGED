@@ -65,7 +65,12 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
       ? [sourceFromAddendum(item.id, item.dokumenKontrak)] : []),
   ];
   const [sourceId, setSourceId] = useState('');
-  const source = completing?.dokumenKontrak ? completing.dokumenKontrak.sumber : sources.find(item => item.id === sourceId) ?? sources[0];
+  const [refreshedSource, setRefreshedSource] = useState<ContractAddendumDocument['sumber']>();
+  const source = refreshedSource ?? (completing?.dokumenKontrak ? completing.dokumenKontrak.sumber : sources.find(item => item.id === sourceId) ?? sources[0]);
+  const sourceRecord = completing?.dokumenKontrak?.sumber.id.startsWith('addendum:')
+    ? records.find(record => 'addendum:' + record.id === completing.dokumenKontrak?.sumber.id)
+    : undefined;
+  const latestSource = sourceRecord?.dokumenKontrak ? sourceFromAddendum(sourceRecord.id, sourceRecord.dokumenKontrak) : undefined;
   const [edits, setEdits] = useState<Record<string, string | undefined>>({});
   const [preview, setPreview] = useState<ContractAddendumDocument>();
   const [saving, setSaving] = useState(false);
@@ -77,6 +82,7 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
         !window.confirm('Buang isian perubahan pasal yang belum disimpan?')) return;
     setCompletingId(id);
     setSourceId('');
+    setRefreshedSource(undefined);
     const selected = records.find(record => record.id === id);
     setEdits(Object.fromEntries((selected?.dokumenKontrak?.sumber.pasal ?? []).map(item => [item.id, item.perubahan])));
     setPreview(undefined);
@@ -134,6 +140,7 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
       }
       form.reset();
       setCompletingId(undefined);
+      setRefreshedSource(undefined);
       setEdits({});
       setPreview(document);
       setStatus({ text: 'Addendum tersimpan dan tersedia sebagai sumber untuk addendum berikutnya.' });
@@ -196,6 +203,21 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
                   </select>
                 </label>
                 {completing && <p className="text-xs text-slate-600">{completing.dokumenKontrak ? 'Isi sumber tersimpan digunakan untuk koreksi naskah ini.' : 'Pilih kontrak awal atau addendum yang mendahului catatan ini, kemudian isi pasal yang berubah.'}</p>}
+                {latestSource && completing?.dokumenKontrak && (
+                  <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+                    <p className="text-slate-700">Perbarui isi sumber dari {latestSource.nomor}. Klausul perubahan yang sudah diisi tetap tersedia untuk diperiksa.</p>
+                    <button type="button" className={action} onClick={() => {
+                      const saved = completing.dokumenKontrak!.sumber.pasal;
+                      const prior = new Map(saved.map(item => [item.id, item]));
+                      const incoming = new Set(latestSource.pasal.map(item => item.id));
+                      const pasal: ContractAddendumDocument['sumber']['pasal'] = latestSource.pasal.map(item => ({ ...item, perubahan: prior.get(item.id)?.perubahan }));
+                      for (const item of saved) if (!incoming.has(item.id)) pasal.push(item);
+                      setRefreshedSource({ ...latestSource, pasal });
+                      setPreview(undefined);
+                      setStatus({ text: 'Sumber diperbarui di formulir. Periksa perubahan lalu simpan naskah.' });
+                    }}>Perbarui sumber dari {latestSource.nomor}</button>
+                  </div>
+                )}
                 <dl className="grid gap-3 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-3">
                   <div><dt className="text-slate-600">Paket pekerjaan</dt><dd className="font-medium text-slate-900">{source.namaPaket || '—'}</dd></div>
                   <div><dt className="text-slate-600">Pejabat penandatangan kontrak</dt><dd className="font-medium text-slate-900">{source.ppk || '—'}</dd></div>
