@@ -14,6 +14,7 @@ import {
   Wrench, 
   AlertCircle,
   ShieldCheck,
+  ChevronLeft,
   ChevronRight,
   Layers,
   Edit3,
@@ -135,7 +136,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
   // Preview Document Modal State
   const [viewedReportId, setViewedReportId] = useState<string>();
-  const [viewedPhoto, setViewedPhoto] = useState<WeeklyProgress['fotoDokumentasi'][number]>();
+  const [viewedPhotoIndex, setViewedPhotoIndex] = useState<number>();
   const [previewFile, setPreviewFile] = useState<ProgressAttachment | null>(null);
 
   // Addendum Management Modal States
@@ -729,6 +730,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const reportDateLabel = (date: string) => formatTanggalIndo(/^\d{4}-\d{2}-\d{2}$/.test(date) ? date + 'T00:00:00' : date);
 
   const viewedReport = projectReports.find(report => report.id === viewedReportId);
+  const viewedReportPhotos = viewedReport?.fotoDokumentasi ?? [];
+  const viewedPhoto = viewedPhotoIndex === undefined ? undefined : viewedReportPhotos[viewedPhotoIndex];
 
   const renderReportCard = (report: WeeklyProgress, inDetail = false) => {
     const weekLabel = typeof report.mingguKe === 'number' || !isNaN(Number(report.mingguKe))
@@ -2226,15 +2229,15 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
             {renderReportCard(viewedReport, true)}
             <section aria-labelledby="weekly-report-photos" className="space-y-3 border-t border-slate-200 p-4">
               <h3 id="weekly-report-photos" className="text-sm font-bold text-slate-900">Foto Dokumentasi</h3>
-              {viewedReport.fotoDokumentasi?.length ? (
+              {viewedReportPhotos.length > 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {viewedReport.fotoDokumentasi.map((photo, index) => (
+                  {viewedReportPhotos.map((photo, index) => (
                     <figure key={index} className="overflow-hidden rounded-xl border border-slate-200">
                       <button
                         type="button"
                         aria-haspopup="dialog"
                         aria-label={'Perbesar foto ' + (photo.caption || index + 1)}
-                        onClick={() => setViewedPhoto(photo)}
+                        onClick={() => setViewedPhotoIndex(index)}
                         className="relative block w-full cursor-zoom-in bg-slate-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-emerald-700"
                       >
                         <img src={photo.url} alt={photo.caption || 'Foto dokumentasi lapangan'} loading="lazy" className="h-52 w-full object-contain" />
@@ -2253,8 +2256,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
         </ReportDialog>
       )}
 
-      {viewedReport && viewedPhoto && (
-        <ReportDialog wide titleId="report-photo-preview-title" onClose={() => setViewedPhoto(undefined)}>
+      {viewedPhotoIndex !== undefined && viewedPhoto && (
+        <ReportDialog wide titleId="report-photo-preview-title" onClose={() => setViewedPhotoIndex(undefined)}>
           <header className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 px-4 py-3">
             <h2 id="report-photo-preview-title" className="text-sm font-bold text-slate-900">Pratinjau Foto Dokumentasi</h2>
             <form method="dialog">
@@ -2274,6 +2277,27 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
               <p>Tahap {viewedPhoto.stage} · {reportDateLabel(viewedPhoto.tanggal)}</p>
             </figcaption>
           </figure>
+          {viewedReportPhotos.length > 1 && (
+            <nav aria-label="Navigasi foto dokumentasi" className="flex shrink-0 items-center justify-between gap-2 border-t border-slate-200 px-3 py-2 text-xs sm:px-4 sm:text-sm">
+              <button
+                type="button"
+                onClick={() => setViewedPhotoIndex(viewedPhotoIndex - 1)}
+                disabled={viewedPhotoIndex === 0}
+                className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2 py-2 font-semibold text-slate-800 hover:bg-slate-100 disabled:opacity-40 sm:px-3"
+              >
+                <ChevronLeft aria-hidden="true" className="size-4" /> Sebelumnya
+              </button>
+              <span role="status" className="shrink-0 tabular-nums text-slate-600">{viewedPhotoIndex + 1} dari {viewedReportPhotos.length}</span>
+              <button
+                type="button"
+                onClick={() => setViewedPhotoIndex(viewedPhotoIndex + 1)}
+                disabled={viewedPhotoIndex === viewedReportPhotos.length - 1}
+                className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2 py-2 font-semibold text-slate-800 hover:bg-slate-100 disabled:opacity-40 sm:px-3"
+              >
+                Berikutnya <ChevronRight aria-hidden="true" className="size-4" />
+              </button>
+            </nav>
+          )}
         </ReportDialog>
       )}
 
