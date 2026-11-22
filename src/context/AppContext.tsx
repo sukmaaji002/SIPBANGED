@@ -499,32 +499,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Phase 2: Progress
   const addWeeklyProgress = (prog: WeeklyProgress) => {
     setWeeklyProgressList(prev => [prog, ...prev]);
-    // Auto update project physical progress
-    setProjects(prev => prev.map(p => {
-      if (p.id === prog.projectId) {
-        return {
-          ...p,
-          progresFisikRealisasi: prog.kumulatifRealisasi,
-          progresFisikRencana: prog.kumulatifRencana
-        };
-      }
-      return p;
-    }));
     supabaseSync.upsertWeeklyProgress(prog);
   };
 
   const updateWeeklyProgress = (prog: WeeklyProgress) => {
     setWeeklyProgressList(prev => prev.map(p => p.id === prog.id ? prog : p));
-    setProjects(prev => prev.map(p => {
-      if (p.id === prog.projectId) {
-        return {
-          ...p,
-          progresFisikRealisasi: prog.kumulatifRealisasi,
-          progresFisikRencana: prog.kumulatifRencana
-        };
-      }
-      return p;
-    }));
     supabaseSync.upsertWeeklyProgress(prog);
   };
 

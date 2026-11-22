@@ -50,11 +50,13 @@ import {
   Legend 
 } from 'recharts';
 import { formatTanggalIndo, formatTanggalSingkat, formatRentangTanggal, formatRupiah } from '../../utils/formatters';
+import { getProjectPackage } from '../../utils/projectPackages';
+import { buildReportingWeeks, getReportingTarget, reportingWeekNumber } from '../../utils/reportingSchedule';
 
 const addDays = (dateStr: string, days: number): string => {
   try {
     const d = new Date(dateStr);
-    d.setDate(d.getDate() + days);
+    d.setUTCDate(d.getUTCDate() + days);
     return d.toISOString().split('T')[0];
   } catch {
     return dateStr;
@@ -124,13 +126,11 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const [editingAddendumId, setEditingAddendumId] = useState<string | null>(null);
 
   // Form State for Weekly Progress
-  const [mingguKe, setMingguKe] = useState<string>('21');
-  const [periodeMulai, setPeriodeMulai] = useState('2026-07-22');
-  const [periodeSelesai, setPeriodeSelesai] = useState('2026-07-28');
-  const [bobotRencana, setBobotRencana] = useState<number>(3.5);
-  const [bobotRealisasi, setBobotRealisasi] = useState<number>(3.8);
-  const [kumulatifRencana, setKumulatifRencana] = useState<number>(69.7);
-  const [kumulatifRealisasi, setKumulatifRealisasi] = useState<number>(72.3);
+  const [weekSelection, setWeekSelection] = useState('');
+  const [manualTarget, setManualTarget] = useState({ cumulative: '', weight: '' });
+  const [reportError, setReportError] = useState('');
+  const [bobotRealisasi, setBobotRealisasi] = useState(0);
+  const [kumulatifRealisasi, setKumulatifRealisasi] = useState(0);
   const [kondisiCuaca, setKondisiCuaca] = useState<WeeklyProgress['kondisiCuaca']>('Cerah Mayoritas');
   const [jumlahTenagaKerja, setJumlahTenagaKerja] = useState<number>(50);
   const [materialMasuk, setMaterialMasuk] = useState('');
@@ -221,61 +221,90 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     }));
   };
 
-  // Filter and sort reports for the selected project
   const projectReports = weeklyProgressList
-    .filter(w => w.projectId === selectedProject.id)
+    .filter(report => report.projectId === selectedProject.id)
     .sort((a, b) => {
-      const numA = typeof a.mingguKe === 'number' ? a.mingguKe : (parseFloat(String(a.mingguKe).replace(/[^\d.-]/g, '')) || 0);
-      const numB = typeof b.mingguKe === 'number' ? b.mingguKe : (parseFloat(String(b.mingguKe).replace(/[^\d.-]/g, '')) || 0);
-      if (numB !== numA) return numB - numA;
-      return new Date(b.periodeMulai).getTime() - new Date(a.periodeMulai).getTime();
+      const weekA = reportingWeekNumber(a.mingguKe);
+      const weekB = reportingWeekNumber(b.mingguKe);
+      if (weekA !== undefined && weekB !== undefined && weekA !== weekB) return weekB - weekA;
+      return (b.periodeSelesai || b.periodeMulai || '').localeCompare(a.periodeSelesai || a.periodeMulai || '');
     });
 
   const canSubmit = hasPermission(currentUser?.role, 'submit_progress');
+  const physicalPackage = getProjectPackage(selectedProject, 'fisik');
+  const registeredAddendum = scheduleAddendums.find(addendum => addendum.id === activeAddendum?.id);
+  const reportingWeeks = physicalPackage.active
+    ? buildReportingWeeks(physicalPackage.start, registeredAddendum?.tanggalSelesaiBaru || physicalPackage.end)
+    : [];
+  const getReportWeek = (report: WeeklyProgress) => {
+    const end = report.periodeSelesai || report.periodeMulai;
+    return reportingWeekNumber(report.mingguKe) ??
+      reportingWeeks.find(week => week.start <= end && end <= week.end)?.number;
+  };
+  const editingReport = projectReports.find(report => report.id === editingReportId);
+  const savedPeriod = weekSelection === 'saved' ? editingReport : undefined;
+  const selectedWeek = reportingWeeks.find(week => String(week.number) === weekSelection);
+  const mingguKe = savedPeriod?.mingguKe ?? selectedWeek?.number;
+  const periodeMulai = savedPeriod?.periodeMulai ?? selectedWeek?.start ?? '';
+  const periodeSelesai = savedPeriod?.periodeSelesai ?? selectedWeek?.end ?? '';
+  const otherReports = projectReports.filter(report => report.id !== editingReportId);
+  const reportedWeeks = new Set(otherReports.map(getReportWeek));
+  const scheduledTarget = getReportingTarget(registeredAddendum?.targetMingguan ?? [], selectedWeek?.number);
+  const lockedCumulative = savedPeriod?.kumulatifRencana ?? scheduledTarget.cumulative;
+  const lockedWeight = savedPeriod?.bobotRencana ?? scheduledTarget.weight;
+  const kumulatifRencana = lockedCumulative ?? manualTarget.cumulative;
+  const bobotRencana = lockedWeight ?? manualTarget.weight;
+  const reportReference = savedPeriod
+    ? scheduleAddendums.find(addendum => addendum.id === savedPeriod.addendumId)
+    : registeredAddendum;
 
-  // Baseline previous cumulative progress for new entry
-  const lastReport = projectReports[0];
-  const baselineKumRencana = lastReport ? lastReport.kumulatifRencana : selectedProject.progresFisikRencana;
-  const baselineKumRealisasi = lastReport ? lastReport.kumulatifRealisasi : selectedProject.progresFisikRealisasi;
+  const previousReportFor = (number: number, reports: WeeklyProgress[]) =>
+    reports.reduce<WeeklyProgress | undefined>((closest, report) => {
+      const week = getReportWeek(report);
+      return week !== undefined && week < number && (!closest || week > (getReportWeek(closest) ?? 0)) ? report : closest;
+    }, undefined);
+  const previousReport = selectedWeek ? previousReportFor(selectedWeek.number, otherReports) : undefined;
+  const baselineKumRencana = savedPeriod
+    ? Number((savedPeriod.kumulatifRencana - savedPeriod.bobotRencana).toFixed(2))
+    : previousReport?.kumulatifRencana ?? 0;
+  const baselineKumRealisasi = savedPeriod
+    ? Number((savedPeriod.kumulatifRealisasi - savedPeriod.bobotRealisasi).toFixed(2))
+    : previousReport?.kumulatifRealisasi ?? 0;
+  const weekNumber = savedPeriod ? getReportWeek(savedPeriod) : selectedWeek?.number;
+  const hasLaterReport = otherReports.some(report => {
+    const otherWeek = getReportWeek(report);
+    return weekNumber !== undefined && otherWeek !== undefined
+      ? otherWeek > weekNumber
+      : report.periodeSelesai > periodeSelesai;
+  });
+
+  const selectReportingWeek = (selection: string, reports: WeeklyProgress[], existing?: WeeklyProgress) => {
+    setWeekSelection(selection);
+    setReportError('');
+    setManualTarget({ cumulative: '', weight: '' });
+    const previous = previousReportFor(Number(selection), reports);
+    const priorActual = previous?.kumulatifRealisasi ?? 0;
+    if (existing && selection === 'saved') {
+      setBobotRealisasi(existing.bobotRealisasi);
+      setKumulatifRealisasi(existing.kumulatifRealisasi);
+    } else if (existing && Number(selection) === getReportWeek(existing)) {
+      setKumulatifRealisasi(existing.kumulatifRealisasi);
+      setBobotRealisasi(Number((existing.kumulatifRealisasi - priorActual).toFixed(2)));
+    } else {
+      setBobotRealisasi(0);
+      setKumulatifRealisasi(priorActual);
+    }
+  };
 
   // Open Modal for adding new progress
   const handleOpenAdd = () => {
     setEditingReportId(null);
     setUploadedAttachments([]);
-    let nextWeekStr = '1';
-    let nextStart = selectedProject.tanggalMulai || '2026-07-22';
-    let nextEnd = '2026-07-28';
-    let prevKumR = selectedProject.progresFisikRencana || 0;
-    let prevKumReal = selectedProject.progresFisikRealisasi || 0;
-
-    if (lastReport) {
-      prevKumR = lastReport.kumulatifRencana;
-      prevKumReal = lastReport.kumulatifRealisasi;
-      const parsedNum = parseFloat(String(lastReport.mingguKe).replace(/[^\d.-]/g, ''));
-      if (!isNaN(parsedNum)) {
-        nextWeekStr = String(Math.floor(parsedNum) + 1);
-      } else {
-        nextWeekStr = `${lastReport.mingguKe} +1`;
-      }
-      if (lastReport.periodeSelesai) {
-        nextStart = addDays(lastReport.periodeSelesai, 1);
-        nextEnd = addDays(nextStart, 6);
-      }
-    } else {
-      nextWeekStr = '1';
-      nextEnd = addDays(nextStart, 6);
-    }
-
-    const defaultBobotR = 3.5;
-    const defaultBobotReal = 3.8;
-
-    setMingguKe(nextWeekStr);
-    setPeriodeMulai(nextStart);
-    setPeriodeSelesai(nextEnd);
-    setBobotRencana(defaultBobotR);
-    setBobotRealisasi(defaultBobotReal);
-    setKumulatifRencana(Number((prevKumR + defaultBobotR).toFixed(2)));
-    setKumulatifRealisasi(Number((prevKumReal + defaultBobotReal).toFixed(2)));
+    const usedWeeks = new Set(projectReports.map(getReportWeek));
+    const latestWeek = Math.max(0, ...Array.from(usedWeeks, week => week ?? 0));
+    const firstAvailable = reportingWeeks.find(week => !usedWeeks.has(week.number));
+    const next = reportingWeeks.find(week => week.number > latestWeek) ?? firstAvailable;
+    selectReportingWeek(next ? String(next.number) : '', projectReports);
     setKondisiCuaca('Cerah Mayoritas');
     setJumlahTenagaKerja(50);
     setMaterialMasuk('');
@@ -291,12 +320,10 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   // Open Modal for editing existing progress
   const handleOpenEdit = (report: WeeklyProgress) => {
     setEditingReportId(report.id);
-    setMingguKe(String(report.mingguKe));
-    setPeriodeMulai(report.periodeMulai);
-    setPeriodeSelesai(report.periodeSelesai);
-    setBobotRencana(report.bobotRencana);
+    setWeekSelection('saved');
+    setReportError('');
+    setManualTarget({ cumulative: '', weight: '' });
     setBobotRealisasi(report.bobotRealisasi);
-    setKumulatifRencana(report.kumulatifRencana);
     setKumulatifRealisasi(report.kumulatifRealisasi);
     setKondisiCuaca(report.kondisiCuaca);
     setJumlahTenagaKerja(report.jumlahTenagaKerja);
@@ -318,29 +345,14 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     }
   };
 
-  // Interactive Target / Realization Handlers
-  const handleBobotRencanaChange = (val: number) => {
-    setBobotRencana(val);
-    const prev = editingReportId ? (kumulatifRencana - bobotRencana) : baselineKumRencana;
-    setKumulatifRencana(Number((prev + val).toFixed(2)));
+  const handleBobotRealisasiChange = (value: number) => {
+    setBobotRealisasi(value);
+    setKumulatifRealisasi(Number((baselineKumRealisasi + value).toFixed(2)));
   };
 
-  const handleKumulatifRencanaChange = (val: number) => {
-    setKumulatifRencana(val);
-    const prev = editingReportId ? (kumulatifRencana - bobotRencana) : baselineKumRencana;
-    setBobotRencana(Number((val - prev).toFixed(2)));
-  };
-
-  const handleBobotRealisasiChange = (val: number) => {
-    setBobotRealisasi(val);
-    const prev = editingReportId ? (kumulatifRealisasi - bobotRealisasi) : baselineKumRealisasi;
-    setKumulatifRealisasi(Number((prev + val).toFixed(2)));
-  };
-
-  const handleKumulatifRealisasiChange = (val: number) => {
-    setKumulatifRealisasi(val);
-    const prev = editingReportId ? (kumulatifRealisasi - bobotRealisasi) : baselineKumRealisasi;
-    setBobotRealisasi(Number((val - prev).toFixed(2)));
+  const handleKumulatifRealisasiChange = (value: number) => {
+    setKumulatifRealisasi(value);
+    setBobotRealisasi(Number((value - baselineKumRealisasi).toFixed(2)));
   };
 
   // File Upload Handler (Excel, PDF, Images)
@@ -437,12 +449,29 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const handleSaveReport = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const deviasiVal = Number((kumulatifRealisasi - kumulatifRencana).toFixed(2));
+    if (!canSubmit) return;
+    if (mingguKe === undefined || !periodeMulai || !periodeSelesai) {
+      setReportError('Pilih minggu dengan periode kontrak yang tersedia.');
+      return;
+    }
+    if (selectedWeek && reportedWeeks.has(selectedWeek.number)) {
+      setReportError('Laporan untuk minggu ini sudah ada. Edit laporan yang tersimpan.');
+      return;
+    }
+    if (kumulatifRencana === '' || bobotRencana === '' ||
+        !Number.isFinite(Number(kumulatifRencana)) || !Number.isFinite(Number(bobotRencana))) {
+      setReportError('Lengkapi target kumulatif dan bobot minggu ini sesuai Kurva S.');
+      return;
+    }
+    const deviasiVal = Number((kumulatifRealisasi - Number(kumulatifRencana)).toFixed(2));
 
+    const [existingPhoto, ...otherPhotos] = editingReport?.fotoDokumentasi ?? [];
     const reportData: WeeklyProgress = {
+      ...editingReport,
       id: editingReportId || `prog-${Date.now()}`,
       projectId: selectedProject.id,
-      mingguKe: mingguKe.trim(),
+      mingguKe,
+      labelMinggu: savedPeriod?.labelMinggu,
       periodeMulai,
       periodeSelesai,
       bobotRencana: Number(bobotRencana),
@@ -450,7 +479,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       kumulatifRencana: Number(kumulatifRencana),
       kumulatifRealisasi: Number(kumulatifRealisasi),
       deviasi: deviasiVal,
-      addendumId: activeAddendum?.id,
+      addendumId: savedPeriod ? savedPeriod.addendumId : reportReference?.id,
       kondisiCuaca,
       jumlahTenagaKerja: Number(jumlahTenagaKerja),
       materialMasuk: materialMasuk || 'Material pasir, semen, baja tulangan sesuai spesifikasi',
@@ -461,9 +490,9 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       fotoDokumentasi: fotoCaption ? [{
         caption: fotoCaption,
         stage: fotoStage,
-        url: 'https://images.unsplash.com/photo-1541888946425-d0fbb18f15f7?auto=format&fit=crop&w=600&q=80',
-        tanggal: periodeSelesai
-      }] : []
+        url: existingPhoto?.url || 'https://images.unsplash.com/photo-1541888946425-d0fbb18f15f7?auto=format&fit=crop&w=600&q=80',
+        tanggal: existingPhoto?.tanggal || periodeSelesai
+      }, ...otherPhotos] : otherPhotos
     };
 
     if (editingReportId) {
@@ -472,7 +501,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       addWeeklyProgress(reportData);
     }
 
-    if (updateMasterProject) {
+    if (updateMasterProject && !hasLaterReport) {
       updateProject({
         ...selectedProject,
         progresFisikRencana: Number(kumulatifRencana),
@@ -702,8 +731,9 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
   const contractAddendums = projectAddendums.filter(item => !item.isKontrakAwal && item.jenisPerubahan !== 'Kontrak Awal');
   const currentDeviasi = Number((selectedProject.progresFisikRealisasi - selectedProject.progresFisikRencana).toFixed(2));
-  const modalDeviasi = Number((kumulatifRealisasi - kumulatifRencana).toFixed(2));
+  const modalDeviasi = kumulatifRencana === '' ? null : Number((kumulatifRealisasi - Number(kumulatifRencana)).toFixed(2));
   const durasiMingguIni = getDurasiHari(periodeMulai, periodeSelesai);
+  const reportDateLabel = (date: string) => formatTanggalIndo(/^\d{4}-\d{2}-\d{2}$/.test(date) ? date + 'T00:00:00' : date);
 
   return (
     <div className="space-y-6">
@@ -1101,7 +1131,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                       </span>
                       <span className="inline-flex items-center gap-1 text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">
                         <Calendar className="w-3.5 h-3.5 text-amber-600" />
-                        <span>{formatTanggalIndo(report.periodeMulai)} s/d {formatTanggalIndo(report.periodeSelesai)}</span>
+                        <span>{reportDateLabel(report.periodeMulai)} s/d {reportDateLabel(report.periodeSelesai)}</span>
                       </span>
                       <span className="text-[11px] text-slate-400 font-medium">
                         ({durasi} Hari Kalender)
@@ -1384,89 +1414,54 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
             <form onSubmit={handleSaveReport} className="space-y-4 pt-4">
               
-              {/* SECTION: Minggu & Ketentuan Tanggal */}
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                    <Calendar className="w-4 h-4 text-amber-600" />
-                    <span>Pengaturan Minggu & Ketentuan Tanggal (Diatur Operator)</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (periodeMulai) {
-                        setPeriodeSelesai(addDays(periodeMulai, 6));
-                      }
-                    }}
-                    className="text-[11px] font-semibold text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded border border-amber-200 transition-colors"
-                    title="Isi tanggal selesai otomatis 7 hari dari tanggal mulai"
-                  >
-                    +7 Hari Otomatis
-                  </button>
+              <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                  <Calendar className="size-4 text-amber-600" />
+                  <span>Periode laporan mingguan</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Minggu (Bisa Diisi Manual) *
-                    </label>
-                    <input
-                      type="text"
+                    <label htmlFor="report-week" className="mb-1 block text-xs font-semibold text-slate-700">Minggu ke</label>
+                    <select
+                      id="report-week"
                       required
-                      value={mingguKe}
-                      onChange={e => setMingguKe(e.target.value)}
-                      placeholder="Contoh: 21 atau Minggu 21"
-                      className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg font-bold bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
-                    />
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
-                      Bebas teks / angka (misal: 21, M-21)
-                    </span>
+                      value={weekSelection}
+                      onChange={event => selectReportingWeek(event.target.value, otherReports, editingReport)}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold"
+                    >
+                      <option value="" disabled>Pilih minggu</option>
+                      {editingReport && <option value="saved">Periode tersimpan ({editingReport.mingguKe})</option>}
+                      {reportingWeeks.map(week => (
+                        <option key={week.number} value={week.number} disabled={reportedWeeks.has(week.number)}>
+                          Minggu ke-{week.number}{reportedWeeks.has(week.number) ? ' (sudah dilaporkan)' : ''}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Tanggal Mulai Periode *
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      value={periodeMulai}
-                      onChange={e => setPeriodeMulai(e.target.value)}
-                      className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
-                    />
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
-                      {formatTanggalSingkat(periodeMulai)}
-                    </span>
+                    <label htmlFor="report-period-start" className="mb-1 block text-xs font-semibold text-slate-700">Tanggal mulai periode</label>
+                    <input id="report-period-start" type="date" readOnly value={periodeMulai} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs" />
                   </div>
-
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Tanggal Selesai Periode *
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      value={periodeSelesai}
-                      onChange={e => setPeriodeSelesai(e.target.value)}
-                      className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
-                    />
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
-                      {formatTanggalSingkat(periodeSelesai)} ({durasiMingguIni} hari)
-                    </span>
+                    <label htmlFor="report-period-end" className="mb-1 block text-xs font-semibold text-slate-700">Tanggal selesai periode</label>
+                    <input id="report-period-end" type="date" readOnly value={periodeSelesai} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs" />
                   </div>
                 </div>
 
-                <div className="text-[11px] text-slate-600 bg-white p-2 rounded-lg border border-slate-200/60 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <Info className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
-                    <span>
-                      Periode: <strong>{formatTanggalIndo(periodeMulai)}</strong> s/d <strong>{formatTanggalIndo(periodeSelesai)}</strong>
-                    </span>
+                {reportingWeeks.length === 0 && !savedPeriod && (
+                  <p className="text-xs text-rose-700">Periksa tanggal awal dan akhir kontrak fisik untuk membuat periode laporan.</p>
+                )}
+                {periodeMulai && periodeSelesai && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white p-2 text-[11px] text-slate-600">
+                    <span>{reportDateLabel(periodeMulai)} s/d {reportDateLabel(periodeSelesai)} ({durasiMingguIni} hari)</span>
+                    {reportReference && <span className="font-semibold text-blue-700">Acuan {reportReference.nomorAddendum}</span>}
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
-                    Acuan: {activeAddendum?.nomorAddendum}
-                  </span>
-                </div>
+                )}
+                {savedPeriod && <p className="text-xs text-slate-600">Periode dan target laporan lama dipertahankan. Pilih minggu untuk memakai jadwal terbaru.</p>}
+                {!weekSelection && reportingWeeks.length > 0 && reportedWeeks.size > 0 && (
+                  <p className="text-xs text-slate-600">Semua minggu kontrak sudah dilaporkan.</p>
+                )}
               </div>
 
               {/* SECTION: Input Target & Realisasi Proyek */}
@@ -1477,7 +1472,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                     <span>Input Target & Realisasi Progres Proyek</span>
                   </div>
                   <span className="text-[11px] text-slate-500">
-                    Baseline Sebelumnya: Rencana <strong>{baselineKumRencana}%</strong> • Realisasi <strong>{baselineKumRealisasi}%</strong>
+                    Laporan sebelumnya · Rencana <strong>{baselineKumRencana}%</strong> • Realisasi <strong>{baselineKumRealisasi}%</strong>
                   </span>
                 </div>
 
@@ -1490,15 +1485,17 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      <label htmlFor="report-cumulative-target" className="block text-[11px] font-semibold text-slate-700 mb-1">
                         Target Kumulatif Proyek (%)
                       </label>
                       <input
                         type="number"
                         step="0.01"
+                        id="report-cumulative-target"
                         required
+                        readOnly={lockedCumulative !== undefined || !selectedWeek}
                         value={kumulatifRencana}
-                        onChange={e => handleKumulatifRencanaChange(Number(e.target.value))}
+                        onChange={event => setManualTarget(previous => ({ ...previous, cumulative: event.target.value }))}
                         className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg font-bold text-slate-800 bg-slate-50/50"
                       />
                       <span className="text-[10px] text-slate-400 block mt-0.5">
@@ -1507,21 +1504,26 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      <label htmlFor="report-weekly-target" className="block text-[11px] font-semibold text-slate-700 mb-1">
                         Bobot Target Minggu Ini (%)
                       </label>
                       <input
                         type="number"
                         step="0.01"
+                        id="report-weekly-target"
                         required
+                        readOnly={lockedWeight !== undefined || !selectedWeek}
                         value={bobotRencana}
-                        onChange={e => handleBobotRencanaChange(Number(e.target.value))}
+                        onChange={event => setManualTarget(previous => ({ ...previous, weight: event.target.value }))}
                         className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white"
                       />
                       <span className="text-[10px] text-slate-400 block mt-0.5">
                         Porsi rencana khusus minggu ini
                       </span>
                     </div>
+                    {selectedWeek && (lockedCumulative === undefined || lockedWeight === undefined) && (
+                      <p className="text-xs text-amber-800">Target minggu ini belum lengkap di Kurva S. Isi bagian yang kosong sesuai jadwal yang disahkan.</p>
+                    )}
                   </div>
 
                   {/* Realisasi Column */}
@@ -1532,13 +1534,14 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      <label htmlFor="report-cumulative-actual" className="block text-[11px] font-semibold text-slate-700 mb-1">
                         Realisasi Kumulatif Proyek (%)
                       </label>
                       <input
                         type="number"
                         step="0.01"
                         required
+                        id="report-cumulative-actual"
                         value={kumulatifRealisasi}
                         onChange={e => handleKumulatifRealisasiChange(Number(e.target.value))}
                         className="w-full px-3 py-1.5 text-xs border border-emerald-300 rounded-lg font-black text-emerald-700 bg-emerald-50/30"
@@ -1568,7 +1571,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 </div>
 
                 {/* Deviasi Indicator Bar */}
-                <div className={`p-3 rounded-xl border flex items-center justify-between ${
+                {modalDeviasi !== null && <div className={`p-3 rounded-xl border flex items-center justify-between ${
                   modalDeviasi >= 0 
                     ? 'bg-emerald-100/70 border-emerald-300 text-emerald-900' 
                     : modalDeviasi >= -5 
@@ -1589,19 +1592,16 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                       {modalDeviasi >= 0 ? '✓ Sesuai / Surplus Waktu' : modalDeviasi >= -5 ? '⚠ Deviasi Ringan (Waspada)' : '🚨 Kritis (Rekomendasi SCM)'}
                     </span>
                   </div>
-                </div>
+                </div>}
 
-                <label className="flex items-center gap-2 pt-1 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={updateMasterProject}
-                    onChange={e => setUpdateMasterProject(e.target.checked)}
-                    className="w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500"
-                  />
-                  <span className="text-xs font-semibold text-slate-700">
-                    Perbarui langsung progres master proyek dengan nilai kumulatif ini (Rencana: {kumulatifRencana}%, Realisasi: {kumulatifRealisasi}%)
-                  </span>
-                </label>
+                {hasLaterReport ? (
+                  <p className="text-xs text-slate-600">Ringkasan proyek tetap memakai minggu yang lebih baru.</p>
+                ) : (
+                  <label className="flex cursor-pointer items-center gap-2 pt-1">
+                    <input type="checkbox" checked={updateMasterProject} onChange={event => setUpdateMasterProject(event.target.checked)} className="size-4 rounded border-slate-300 text-amber-600" />
+                    <span className="text-xs font-semibold text-slate-700">Perbarui ringkasan progres proyek dari laporan ini.</span>
+                  </label>
+                )}
               </div>
 
               {/* SECTION: Upload Lampiran Dokumen Progres (Excel, PDF, Gambar) */}
@@ -1796,6 +1796,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 </div>
               </div>
 
+              {reportError && <p role="alert" className="text-xs text-rose-700">{reportError}</p>}
               <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button
                   type="button"
@@ -1806,7 +1807,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"
+                  disabled={!mingguKe || !periodeMulai || !periodeSelesai}
+                  className="px-5 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   {editingReportId ? 'Simpan Perubahan Laporan' : 'Simpan Laporan Progres'}
