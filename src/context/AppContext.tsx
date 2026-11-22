@@ -562,12 +562,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const completeContractAddendum = async (projectId: string, category: SpkType, id: string, document: ContractAddendumDocument) => {
     if (category === 'fisik') {
       const record = scheduleAddendums.find(item => item.projectId === projectId && item.id === id);
-      if (!record || record.isKontrakAwal || record.jenisPerubahan === 'Kontrak Awal' || record.dokumenKontrak) return false;
+      if (!record || record.isKontrakAwal || record.jenisPerubahan === 'Kontrak Awal') return false;
       return persistScheduleAddendum({ ...record, dokumenKontrak: document });
     }
     const project = projects.find(item => item.id === projectId);
     const record = project?.progresKonsultan?.[category]?.addendums?.find(item => item.id === id);
-    if (!record || record.dokumenKontrak) return false;
+    if (!record) return false;
     return saveConsultantAddendum(projectId, category, { ...record, dokumenKontrak: document });
   };
 

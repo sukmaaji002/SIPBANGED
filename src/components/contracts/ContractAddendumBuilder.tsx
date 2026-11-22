@@ -49,7 +49,7 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
   const spk = getSpkContractByProjectAndType(project.id, category);
 
   const [completingId, setCompletingId] = useState<string>();
-  const completing = records.find(record => record.id === completingId && !record.dokumenKontrak);
+  const completing = records.find(record => record.id === completingId);
   const editor = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!completingId) return;
@@ -65,7 +65,7 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
       ? [sourceFromAddendum(item.id, item.dokumenKontrak)] : []),
   ];
   const [sourceId, setSourceId] = useState('');
-  const source = sources.find(item => item.id === sourceId) ?? sources[0];
+  const source = completing?.dokumenKontrak ? completing.dokumenKontrak.sumber : sources.find(item => item.id === sourceId) ?? sources[0];
   const [edits, setEdits] = useState<Record<string, string | undefined>>({});
   const [preview, setPreview] = useState<ContractAddendumDocument>();
   const [saving, setSaving] = useState(false);
@@ -77,7 +77,8 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
         !window.confirm('Buang isian perubahan pasal yang belum disimpan?')) return;
     setCompletingId(id);
     setSourceId('');
-    setEdits({});
+    const selected = records.find(record => record.id === id);
+    setEdits(Object.fromEntries((selected?.dokumenKontrak?.sumber.pasal ?? []).map(item => [item.id, item.perubahan])));
     setPreview(undefined);
     setStatus(undefined);
   };
@@ -155,7 +156,10 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
                 <div><p className="font-semibold text-slate-900">{record.nomor} · {formatTanggalIndo(record.tanggal)}</p>
                   <p className="whitespace-pre-wrap break-words text-slate-600">{record.uraian}</p></div>
                 {record.dokumenKontrak ? (
-                  <button type="button" className={action} onClick={() => setPreview(record.dokumenKontrak)}>Lihat naskah {record.nomor}</button>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" className={action} onClick={() => setPreview(record.dokumenKontrak)}>Lihat naskah {record.nomor}</button>
+                    {canEdit && <button type="button" disabled={saving} className={action} onClick={() => selectRecord(record.id)}>Edit Naskah</button>}
+                  </div>
                 ) : canEdit && (
                   <button type="button" disabled={saving} className={action} onClick={() => selectRecord(record.id)}>Lengkapi Naskah</button>
                 )}
@@ -167,7 +171,7 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
       {(!recordsOnly || completing) && (
         <section ref={editor} tabIndex={-1} className={panel}>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-base font-semibold text-slate-900">{completing ? 'Lengkapi naskah addendum ' + completing.nomor : 'Buat naskah addendum'}</h3>
+            <h3 className="text-base font-semibold text-slate-900">{completing ? (completing.dokumenKontrak ? 'Edit naskah addendum ' : 'Lengkapi naskah addendum ') + completing.nomor : 'Buat naskah addendum'}</h3>
             {completing && <button type="button" disabled={saving} className={action} onClick={() => selectRecord()}>Batal melengkapi</button>}
           </div>
           {!canEdit ? <p className="text-sm text-slate-600">Peran Anda tidak memiliki izin membuat addendum.</p> :
@@ -176,21 +180,22 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
               <fieldset disabled={saving} className="min-w-0 space-y-4">
                 <label className="grid max-w-xl gap-1 text-sm font-semibold text-slate-800">
                   Dokumen sumber
-                  <select className={field} value={source.id} onChange={event => {
+                  <select disabled={Boolean(completing?.dokumenKontrak)} className={field} value={source.id} onChange={event => {
                     if (Object.values(edits).some(value => value?.trim()) && !window.confirm('Ganti sumber dan kosongkan isian perubahan pasal?')) return;
                     setSourceId(event.target.value);
                     setEdits({});
                     setPreview(undefined);
                     setStatus(undefined);
                   }}>
-                    {sources.map(item => (
+                    {completing?.dokumenKontrak && <option value={source.id}>Sumber tersimpan · {source.nomor}</option>}
+                    {!completing?.dokumenKontrak && sources.map(item => (
                       <option key={item.id} value={item.id}>
                         {item.id.startsWith('addendum:') ? 'Addendum' : 'Kontrak awal'} · {item.jenis === 'spk' ? 'SPK' : 'Surat Perjanjian'} · {item.nomor || 'Nomor belum diisi'}
                       </option>
                     ))}
                   </select>
                 </label>
-                {completing && <p className="text-xs text-slate-600">Pilih kontrak awal atau addendum yang mendahului catatan ini, kemudian isi pasal yang berubah.</p>}
+                {completing && <p className="text-xs text-slate-600">{completing.dokumenKontrak ? 'Isi sumber tersimpan digunakan untuk koreksi naskah ini.' : 'Pilih kontrak awal atau addendum yang mendahului catatan ini, kemudian isi pasal yang berubah.'}</p>}
                 <dl className="grid gap-3 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-3">
                   <div><dt className="text-slate-600">Paket pekerjaan</dt><dd className="font-medium text-slate-900">{source.namaPaket || '—'}</dd></div>
                   <div><dt className="text-slate-600">Pejabat penandatangan kontrak</dt><dd className="font-medium text-slate-900">{source.ppk || '—'}</dd></div>
