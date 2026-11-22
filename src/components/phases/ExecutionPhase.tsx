@@ -6,6 +6,7 @@ import {
   HardHat, 
   TrendingUp, 
   Camera, 
+  Maximize2,
   Plus, 
   Calendar, 
   CloudSun, 
@@ -92,10 +93,11 @@ const PRESET_COLORS = [
   { label: 'Abu-abu (Baseline)', value: '#94a3b8' }
 ];
 
-function ReportDialog({ titleId, onClose, children }: {
+function ReportDialog({ titleId, onClose, children, wide = false }: {
   titleId: string;
   onClose: () => void;
   children: React.ReactNode;
+  wide?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => { dialog.current?.showModal(); }, []);
@@ -105,7 +107,7 @@ function ReportDialog({ titleId, onClose, children }: {
       ref={dialog}
       aria-labelledby={titleId}
       onClose={onClose}
-      className="fixed inset-0 m-auto max-h-[92dvh] w-11/12 max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-2xl backdrop:bg-black/60 open:flex"
+      className={`fixed inset-0 m-auto max-h-[92dvh] w-11/12 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-2xl backdrop:bg-black/60 open:flex ${wide ? 'max-w-6xl' : 'max-w-4xl'}`}
     >
       {children}
     </dialog>
@@ -133,6 +135,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
   // Preview Document Modal State
   const [viewedReportId, setViewedReportId] = useState<string>();
+  const [viewedPhoto, setViewedPhoto] = useState<WeeklyProgress['fotoDokumentasi'][number]>();
   const [previewFile, setPreviewFile] = useState<ProgressAttachment | null>(null);
 
   // Addendum Management Modal States
@@ -2227,7 +2230,16 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 <div className="grid gap-3 sm:grid-cols-2">
                   {viewedReport.fotoDokumentasi.map((photo, index) => (
                     <figure key={index} className="overflow-hidden rounded-xl border border-slate-200">
-                      <img src={photo.url} alt={photo.caption || 'Foto dokumentasi lapangan'} loading="lazy" className="h-52 w-full bg-slate-100 object-contain" />
+                      <button
+                        type="button"
+                        aria-haspopup="dialog"
+                        aria-label={'Perbesar foto ' + (photo.caption || index + 1)}
+                        onClick={() => setViewedPhoto(photo)}
+                        className="relative block w-full cursor-zoom-in bg-slate-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-emerald-700"
+                      >
+                        <img src={photo.url} alt={photo.caption || 'Foto dokumentasi lapangan'} loading="lazy" className="h-52 w-full object-contain" />
+                        <Maximize2 aria-hidden="true" className="absolute right-2 top-2 size-7 rounded-md bg-slate-900/75 p-1.5 text-white" />
+                      </button>
                       <figcaption className="space-y-1 p-3 text-xs text-slate-600">
                         {photo.caption && <p className="font-semibold text-slate-900">{photo.caption}</p>}
                         <p>Tahap {photo.stage} · {reportDateLabel(photo.tanggal)}</p>
@@ -2238,6 +2250,30 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
               ) : <p className="text-sm text-slate-600">Belum ada foto dokumentasi untuk minggu ini.</p>}
             </section>
           </div>
+        </ReportDialog>
+      )}
+
+      {viewedReport && viewedPhoto && (
+        <ReportDialog wide titleId="report-photo-preview-title" onClose={() => setViewedPhoto(undefined)}>
+          <header className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 px-4 py-3">
+            <h2 id="report-photo-preview-title" className="text-sm font-bold text-slate-900">Pratinjau Foto Dokumentasi</h2>
+            <form method="dialog">
+              <button type="submit" aria-label="Tutup pratinjau foto" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100">
+                <X className="size-5" aria-hidden="true" />
+              </button>
+            </form>
+          </header>
+          <figure className="min-h-0 overflow-y-auto">
+            <img
+              src={viewedPhoto.url}
+              alt={viewedPhoto.caption || 'Foto dokumentasi lapangan'}
+              className="block max-h-[72dvh] w-full bg-slate-950 object-contain"
+            />
+            <figcaption className="space-y-1 px-4 py-3 text-xs text-slate-600">
+              {viewedPhoto.caption && <p className="text-sm font-semibold text-slate-900">{viewedPhoto.caption}</p>}
+              <p>Tahap {viewedPhoto.stage} · {reportDateLabel(viewedPhoto.tanggal)}</p>
+            </figcaption>
+          </figure>
         </ReportDialog>
       )}
 
