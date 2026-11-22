@@ -12,6 +12,7 @@ import {
   PaymentTerm,
   ScheduleAddendum,
   ContractDocType,
+  ContractAddendumDocument,
   ConsultantAddendum,
   ConsultantSpkType,
   SpkType,
@@ -56,6 +57,7 @@ interface AppContextType {
   addProject: (p: Project) => void;
   updateProject: (p: Project) => void;
   saveConsultantAddendum: (projectId: string, category: ConsultantSpkType, addendum: ConsultantAddendum) => Promise<boolean>;
+  completeContractAddendum: (projectId: string, category: SpkType, id: string, document: ContractAddendumDocument) => Promise<boolean>;
   deleteProject: (id: string) => void;
   
   // Phase 1: Perencanaan
@@ -504,7 +506,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const project = projects.find(item => item.id === projectId);
     if (!project) return false;
     const work = project.progresKonsultan?.[category];
-    const nextWork = { ...work, addendums: [addendum, ...(work?.addendums ?? [])] };
+    const records = work?.addendums ?? [];
+    const nextWork = { ...work, addendums: records.some(record => record.id === addendum.id)
+      ? records.map(record => record.id === addendum.id ? addendum : record)
+      : [addendum, ...records] };
     const progressed = { ...project.progresKonsultan, [category]: nextWork };
     if (!await supabaseSync.upsertProject({ ...project, progresKonsultan: progressed })) return false;
     setProjects(current => current.map(item => item.id === projectId
@@ -542,12 +547,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Kurva S Addendums
-  const saveScheduleAddendum = async (addendum: ScheduleAddendum) => {
-    if (scheduleAddendums.some(version => version.id === addendum.id && version.disahkanPada)) return false;
+  const persistScheduleAddendum = async (addendum: ScheduleAddendum) => {
     changedScheduleIds.current.add(addendum.id);
     if (!await supabaseSync.upsertScheduleAddendum(addendum)) return false;
     setScheduleAddendums(previous => [...previous.filter(version => version.id !== addendum.id), addendum]);
     return true;
+  };
+
+  const saveScheduleAddendum = async (addendum: ScheduleAddendum) => {
+    if (scheduleAddendums.some(version => version.id === addendum.id && version.disahkanPada)) return false;
+    return persistScheduleAddendum(addendum);
+  };
+
+  const completeContractAddendum = async (projectId: string, category: SpkType, id: string, document: ContractAddendumDocument) => {
+    if (category === 'fisik') {
+      const record = scheduleAddendums.find(item => item.projectId === projectId && item.id === id);
+      if (!record || record.isKontrakAwal || record.jenisPerubahan === 'Kontrak Awal' || record.dokumenKontrak) return false;
+      return persistScheduleAddendum({ ...record, dokumenKontrak: document });
+    }
+    const project = projects.find(item => item.id === projectId);
+    const record = project?.progresKonsultan?.[category]?.addendums?.find(item => item.id === id);
+    if (!record || record.dokumenKontrak) return false;
+    return saveConsultantAddendum(projectId, category, { ...record, dokumenKontrak: document });
   };
 
   const deleteScheduleAddendum = async (id: string) => {
@@ -691,6 +712,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addProject,
       updateProject,
       saveConsultantAddendum,
+      completeContractAddendum,
       deleteProject,
       planningDocs,
       addPlanningDoc,

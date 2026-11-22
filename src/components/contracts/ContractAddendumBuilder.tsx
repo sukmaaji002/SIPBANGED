@@ -39,19 +39,30 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
   category: SpkType;
   recordsOnly?: boolean;
 }) {
-  const { currentUser, getContractByProject, getSpkContractByProjectAndType, scheduleAddendums, saveScheduleAddendum, saveConsultantAddendum } = useApp();
+  const { currentUser, getContractByProject, getSpkContractByProjectAndType, scheduleAddendums, saveScheduleAddendum, saveConsultantAddendum, completeContractAddendum } = useApp();
   const canEdit = hasPermission(currentUser?.role, 'edit_contract');
   const schedules = scheduleAddendums.filter(item => item.projectId === project.id && !isOriginalSchedule(item));
   const records = category === 'fisik'
-    ? schedules.map(item => ({ id: item.id, nomor: item.nomorSurat || item.nomorAddendum, tanggal: item.tanggal, uraian: item.judul, dokumenKontrak: item.dokumenKontrak }))
+    ? schedules.map(item => ({ id: item.id, nomor: item.nomorSurat || item.nomorAddendum, tanggal: item.tanggal, uraian: item.judul || item.alasan, dokumenKontrak: item.dokumenKontrak }))
     : project.progresKonsultan?.[category]?.addendums ?? [];
   const agreement = category === 'fisik' ? getContractByProject(project.id) : undefined;
   const spk = getSpkContractByProjectAndType(project.id, category);
 
+  const [completingId, setCompletingId] = useState<string>();
+  const completing = records.find(record => record.id === completingId && !record.dokumenKontrak);
+  const editor = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!completingId) return;
+    editor.current?.focus({ preventScroll: true });
+    editor.current?.scrollIntoView({ block: 'start' });
+  }, [completingId]);
+
   const sources = [
     ...(agreement ? [sourceFromAgreement(agreement)] : []),
     ...(spk ? [sourceFromSpk(spk)] : []),
-    ...records.flatMap(item => item.dokumenKontrak ? [sourceFromAddendum(item.id, item.dokumenKontrak)] : []),
+    ...records.flatMap(item => item.dokumenKontrak &&
+      (!completing?.tanggal || item.dokumenKontrak.tanggal <= completing.tanggal)
+      ? [sourceFromAddendum(item.id, item.dokumenKontrak)] : []),
   ];
   const [sourceId, setSourceId] = useState('');
   const source = sources.find(item => item.id === sourceId) ?? sources[0];
@@ -61,20 +72,30 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
   const pending = useRef(false);
   const [status, setStatus] = useState<{ error?: boolean; text: string }>();
 
+  const selectRecord = (id?: string) => {
+    if (Object.values(edits).some(value => value?.trim()) &&
+        !window.confirm('Buang isian perubahan pasal yang belum disimpan?')) return;
+    setCompletingId(id);
+    setSourceId('');
+    setEdits({});
+    setPreview(undefined);
+    setStatus(undefined);
+  };
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!source || !canEdit || pending.current) return;
     const form = event.currentTarget;
     const fields = new FormData(form);
     const value = (key: string) => String(fields.get(key) ?? '').trim();
-    const nomor = value('nomor');
-    const tanggal = value('tanggal');
-    const uraian = value('uraian');
+    const nomor = (completing?.nomor || value('nomor')).trim();
+    const tanggal = completing?.tanggal || value('tanggal');
+    const uraian = (completing?.uraian || value('uraian')).trim();
     if (!nomor || !tanggal || !uraian || source.pasal.some(item => edits[item.id] !== undefined && !edits[item.id]?.trim())) {
       setStatus({ error: true, text: 'Lengkapi nomor, tanggal, uraian, dan semua klausul yang ditandai Berubah.' });
       return;
     }
-    if (records.some(item => item.nomor.trim().toLowerCase() === nomor.toLowerCase() ||
+    if (!completing && records.some(item => item.nomor.trim().toLowerCase() === nomor.toLowerCase() ||
         item.dokumenKontrak?.nomor.trim().toLowerCase() === nomor.toLowerCase())) {
       setStatus({ error: true, text: 'Nomor addendum sudah digunakan di kategori ini.' });
       return;
@@ -94,8 +115,8 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
     setSaving(true);
     setStatus(undefined);
     try {
-      const id = crypto.randomUUID();
-      const saved = category === 'fisik'
+      const id = completing?.id ?? crypto.randomUUID();
+      const saved = completing ? await completeContractAddendum(project.id, category, id, document) : category === 'fisik'
         ? await saveScheduleAddendum({
           id, projectId: project.id, nomorAddendum: nomor, nomorSurat: nomor, tanggal, judul: uraian, alasan: uraian,
           tanggalBerlaku: value('berlaku') || undefined,
@@ -111,6 +132,7 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
         return;
       }
       form.reset();
+      setCompletingId(undefined);
       setEdits({});
       setPreview(document);
       setStatus({ text: 'Addendum tersimpan dan tersedia sebagai sumber untuk addendum berikutnya.' });
@@ -121,16 +143,36 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
   };
 
   const sortedRecords = [...records].sort((a, b) => b.tanggal.localeCompare(a.tanggal));
-  const visibleRecords = category === 'fisik' ? sortedRecords.filter(item => item.dokumenKontrak) : sortedRecords;
 
   return (
     <div className="space-y-4">
-      {!recordsOnly && (
-        <section className={panel}>
-          <h3 className="text-base font-semibold text-slate-900">Buat naskah addendum</h3>
+      <section className={panel}>
+        <h3 className="text-base font-semibold text-slate-900">Riwayat naskah addendum</h3>
+        {sortedRecords.length === 0 ? <p className="text-sm text-slate-600">Belum ada naskah addendum tersimpan.</p> : (
+          <ul className="divide-y divide-slate-200">
+            {sortedRecords.map(record => (
+              <li key={record.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+                <div><p className="font-semibold text-slate-900">{record.nomor} · {formatTanggalIndo(record.tanggal)}</p>
+                  <p className="whitespace-pre-wrap break-words text-slate-600">{record.uraian}</p></div>
+                {record.dokumenKontrak ? (
+                  <button type="button" className={action} onClick={() => setPreview(record.dokumenKontrak)}>Lihat naskah {record.nomor}</button>
+                ) : canEdit && (
+                  <button type="button" disabled={saving} className={action} onClick={() => selectRecord(record.id)}>Lengkapi Naskah</button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      {(!recordsOnly || completing) && (
+        <section ref={editor} tabIndex={-1} className={panel}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-base font-semibold text-slate-900">{completing ? 'Lengkapi naskah addendum ' + completing.nomor : 'Buat naskah addendum'}</h3>
+            {completing && <button type="button" disabled={saving} className={action} onClick={() => selectRecord()}>Batal melengkapi</button>}
+          </div>
           {!canEdit ? <p className="text-sm text-slate-600">Peran Anda tidak memiliki izin membuat addendum.</p> :
             !source ? <p className="text-sm text-slate-600">Simpan kontrak awal di tab Buat kontrak agar bisa dipilih sebagai sumber.</p> : (
-            <form className="space-y-4" onSubmit={submit}>
+            <form key={completing?.id ?? "new"} className="space-y-4" onSubmit={submit}>
               <fieldset disabled={saving} className="min-w-0 space-y-4">
                 <label className="grid max-w-xl gap-1 text-sm font-semibold text-slate-800">
                   Dokumen sumber
@@ -148,20 +190,21 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
                     ))}
                   </select>
                 </label>
-                {records.some(item => !item.dokumenKontrak) && (
-                  <p className="text-xs text-slate-600">Catatan addendum lama tanpa naskah tersimpan tetap bisa dilihat dalam riwayat. Pilih dokumen yang memiliki isi pasal sebagai sumber.</p>
-                )}
+                {completing && <p className="text-xs text-slate-600">Pilih kontrak awal atau addendum yang mendahului catatan ini, kemudian isi pasal yang berubah.</p>}
                 <dl className="grid gap-3 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-3">
                   <div><dt className="text-slate-600">Paket pekerjaan</dt><dd className="font-medium text-slate-900">{source.namaPaket || '—'}</dd></div>
                   <div><dt className="text-slate-600">Pejabat penandatangan kontrak</dt><dd className="font-medium text-slate-900">{source.ppk || '—'}</dd></div>
                   <div><dt className="text-slate-600">Penyedia</dt><dd className="font-medium text-slate-900">{source.penyedia || '—'}</dd></div>
                 </dl>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="grid gap-1 text-sm font-medium text-slate-800">Nomor addendum<input name="nomor" required className={field} /></label>
-                  <label className="grid gap-1 text-sm font-medium text-slate-800">Tanggal addendum<input name="tanggal" required type="date" className={field} /></label>
-                  <label className="grid gap-1 text-sm font-medium text-slate-800 sm:col-span-2">Uraian addendum<textarea name="uraian" rows={2} required className={field} /></label>
+                  <label className="grid gap-1 text-sm font-medium text-slate-800">Nomor addendum<input name="nomor" required defaultValue={completing?.nomor} readOnly={Boolean(completing?.nomor)} className={field} /></label>
+                  <label className="grid gap-1 text-sm font-medium text-slate-800">Tanggal addendum<input name="tanggal" required type="date" defaultValue={completing?.tanggal} readOnly={Boolean(completing?.tanggal)} className={field} /></label>
+                  <div className="grid gap-1 text-sm font-medium text-slate-800 sm:col-span-2">
+                    <label htmlFor="contract-addendum-description">Uraian addendum</label>
+                    <textarea id="contract-addendum-description" name="uraian" rows={2} required defaultValue={completing?.uraian} readOnly={Boolean(completing?.uraian)} className={field} />
+                  </div>
                 </div>
-                {category === 'fisik' && (
+                {category === 'fisik' && !completing && (
                   <details className="rounded-lg border border-slate-200 p-3">
                     <summary className="cursor-pointer text-sm font-semibold text-slate-800">Data jadwal dan nilai kontrak fisik</summary>
                     <p className="mt-2 text-xs text-slate-600">Isi tanggal berlaku untuk penetapan Kurva S. Isi nilai, durasi, atau tanggal selesai baru jika ada perubahan.</p>
@@ -213,29 +256,15 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button type="submit" value="preview" className={action}>Pratinjau naskah</button>
-                  <button type="submit" value="save" className={primary}>{saving ? 'Menyimpan…' : 'Simpan addendum'}</button>
+                  <button type="submit" value="save" className={primary}>{saving ? 'Menyimpan…' : completing ? 'Simpan naskah' : 'Simpan addendum'}</button>
                 </div>
               </fieldset>
-              {status && <p role={status.error ? 'alert' : 'status'} className={status.error ? 'text-sm text-rose-700' : 'text-sm text-emerald-800'}>{status.text}</p>}
             </form>
           )}
         </section>
       )}
+      {status && <p role={status.error ? 'alert' : 'status'} className={status.error ? 'text-sm text-rose-700' : 'text-sm text-emerald-800'}>{status.text}</p>}
       {preview && <AddendumPreview document={preview} />}
-      <section className={panel}>
-        <h3 className="text-base font-semibold text-slate-900">Riwayat naskah addendum</h3>
-        {visibleRecords.length === 0 ? <p className="text-sm text-slate-600">Belum ada naskah addendum tersimpan.</p> : (
-          <ul className="divide-y divide-slate-200">
-            {visibleRecords.map(record => (
-              <li key={record.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-                <div><p className="font-semibold text-slate-900">{record.nomor} · {formatTanggalIndo(record.tanggal)}</p>
-                  <p className="whitespace-pre-wrap break-words text-slate-600">{record.uraian}</p></div>
-                {record.dokumenKontrak && <button type="button" className={action} onClick={() => setPreview(record.dokumenKontrak)}>Lihat naskah {record.nomor}</button>}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
     </div>
   );
 }
