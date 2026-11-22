@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { WeeklyProgress, ScheduleAddendum, ScheduleAddendumPoint, ProgressAttachment } from '../../types';
 import { hasPermission } from '../../utils/permissions';
@@ -92,6 +92,26 @@ const PRESET_COLORS = [
   { label: 'Abu-abu (Baseline)', value: '#94a3b8' }
 ];
 
+function ReportDialog({ titleId, onClose, children }: {
+  titleId: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => { dialog.current?.showModal(); }, []);
+
+  return (
+    <dialog
+      ref={dialog}
+      aria-labelledby={titleId}
+      onClose={onClose}
+      className="fixed inset-0 m-auto max-h-[92dvh] w-11/12 max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-2xl backdrop:bg-black/60 open:flex"
+    >
+      {children}
+    </dialog>
+  );
+}
+
 export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ mode = 'progress' }) => {
   const { 
     selectedProject, 
@@ -112,6 +132,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const [activePhotoTab, setActivePhotoTab] = useState<'all' | '0%' | '25%' | '50%' | '75%' | '100%'>('all');
 
   // Preview Document Modal State
+  const [viewedReportId, setViewedReportId] = useState<string>();
   const [previewFile, setPreviewFile] = useState<ProgressAttachment | null>(null);
 
   // Addendum Management Modal States
@@ -275,12 +296,6 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     setFotoStage('75%');
     setUpdateMasterProject(true);
     setShowModal(true);
-  };
-
-  const handleViewReport = (reportId: string) => {
-    const card = document.getElementById('weekly-report-' + reportId);
-    card?.focus({ preventScroll: true });
-    card?.scrollIntoView({ block: 'start' });
   };
 
   // Open Modal for editing existing progress
@@ -710,6 +725,225 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const durasiMingguIni = getDurasiHari(periodeMulai, periodeSelesai);
   const reportDateLabel = (date: string) => formatTanggalIndo(/^\d{4}-\d{2}-\d{2}$/.test(date) ? date + 'T00:00:00' : date);
 
+  const viewedReport = projectReports.find(report => report.id === viewedReportId);
+
+  const renderReportCard = (report: WeeklyProgress, inDetail = false) => {
+    const weekLabel = typeof report.mingguKe === 'number' || !isNaN(Number(report.mingguKe))
+      ? `Minggu ke-${report.mingguKe}`
+      : String(report.mingguKe);
+    const durasi = getDurasiHari(report.periodeMulai, report.periodeSelesai);
+    const deviasiIsPos = report.deviasi >= 0;
+    const canEditReport = !inDetail && canSubmit && !isHistoricalReport(report);
+
+    return (
+      <div
+        key={report.id}
+        role="group"
+        aria-label={'Laporan ' + weekLabel + ', ' + reportDateLabel(report.periodeMulai) + ' sampai ' + reportDateLabel(report.periodeSelesai)}
+        className="space-y-3 p-4 transition-colors hover:bg-slate-50/70"
+      >
+
+        {/* Top Bar of Card: Week Label, Dates, and Action Buttons */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-black bg-amber-100 text-amber-900 px-2.5 py-1 rounded-lg font-mono">
+              {weekLabel}
+            </span>
+            <span className="inline-flex items-center gap-1 text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">
+              <Calendar className="w-3.5 h-3.5 text-amber-600" />
+              <span>{reportDateLabel(report.periodeMulai)} s/d {reportDateLabel(report.periodeSelesai)}</span>
+            </span>
+            <span className="text-[11px] text-slate-400 font-medium">
+              ({durasi} Hari Kalender)
+            </span>
+            {(report.acuanLaporan || report.addendumId) && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                {report.acuanLaporan?.nama || projectAddendums.find(a => a.id === report.addendumId)?.nomorAddendum || 'Acuan tersimpan'}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {canEditReport && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleOpenEdit(report)}
+                  className="px-2.5 py-1 bg-white hover:bg-amber-50 hover:text-amber-700 text-slate-600 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200 shadow-2xs transition-colors"
+                  title="Edit data laporan, tanggal, dan target/realisasi minggu ini"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Edit Laporan & Dokumen</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(report.id, report.mingguKe)}
+                  className="px-2.5 py-1 bg-white hover:bg-rose-50 hover:text-rose-700 text-slate-600 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200 shadow-2xs transition-colors"
+                  title="Hapus laporan ini"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Hapus</span>
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Target & Realization Summary Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 text-xs">
+          <div>
+            <span className="text-[10px] text-slate-500 font-bold uppercase block">Target Rencana</span>
+            <div className="text-sm font-extrabold text-slate-800">
+              {report.kumulatifRencana}%
+            </div>
+            <span className="text-[10px] text-slate-400 block">
+              Bobot Minggu: +{report.bobotRencana}%
+            </span>
+          </div>
+          <div>
+            <span className="text-[10px] text-emerald-700 font-bold uppercase block">Realisasi Fisik</span>
+            <div className="text-sm font-black text-emerald-700">
+              {report.kumulatifRealisasi}%
+            </div>
+            <span className="text-[10px] text-emerald-600 block">
+              Bobot Minggu: +{report.bobotRealisasi}%
+            </span>
+          </div>
+          <div>
+            <span className="text-[10px] text-slate-500 font-bold uppercase block">Deviasi Capaian</span>
+            <div className={`text-sm font-black ${deviasiIsPos ? 'text-emerald-600' : 'text-rose-600'}`}>
+              {deviasiIsPos ? `+${report.deviasi}%` : `${report.deviasi}%`}
+            </div>
+            <span className="text-[10px] text-slate-400 block">
+              {deviasiIsPos ? 'Sesuai / Maju' : 'Tertinggal'}
+            </span>
+          </div>
+          <div>
+            <span className="text-[10px] text-slate-500 font-bold uppercase block">Ketentuan Tanggal</span>
+            <div className="text-xs font-bold text-slate-700 truncate" title={`${report.periodeMulai} s/d ${report.periodeSelesai}`}>
+              {formatTanggalSingkat(report.periodeMulai)} - {formatTanggalSingkat(report.periodeSelesai)}
+            </div>
+            <span className="text-[10px] text-emerald-600 font-medium block">
+              Diatur Mandiri
+            </span>
+          </div>
+        </div>
+
+        {/* Resource Data */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-white p-2 rounded-lg text-xs text-slate-600 border border-slate-100">
+          <div className="flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+            <span>Tenaga Kerja: <strong>{report.jumlahTenagaKerja} Orang</strong></span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <CloudSun className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+            <span>Cuaca: <strong>{report.kondisiCuaca}</strong></span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Wrench className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
+            <span className={inDetail ? 'break-words' : 'truncate'}>Alat: {report.alatBeratDigunakan}</span>
+          </div>
+        </div>
+
+        {/* Kendala & Solusi */}
+        <div className="text-xs space-y-1 bg-slate-50/50 p-2 rounded-lg border border-slate-100">
+          {inDetail && report.materialMasuk && (
+            <p className="text-slate-700"><strong className="text-slate-900">Material Masuk:</strong> {report.materialMasuk}</p>
+          )}
+          <p className="text-slate-700">
+            <strong className="text-slate-900">Kendala Lapangan:</strong> {report.kendalaLapangan || 'Nihil kendala'}
+          </p>
+          <p className="text-emerald-700">
+            <strong className="text-emerald-900">Tindakan Penyedia:</strong> {report.solusiTindakan || 'Pekerjaan berjalan sesuai rencana'}
+          </p>
+        </div>
+
+        {/* LAMPIRAN DOKUMEN PROGRES (EXCEL, PDF, GAMBAR) */}
+        <div className="pt-2 border-t border-slate-100">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+              <Paperclip className="w-3.5 h-3.5 text-amber-600" />
+              <span>Lampiran Dokumen Progres Minggu Ini:</span>
+              <span className="text-[10px] font-semibold text-slate-400">
+                ({report.lampiranDokumen?.length || 0} File Terlampir)
+              </span>
+            </div>
+
+            {canEditReport && (
+              <button
+                type="button"
+                onClick={() => handleOpenEdit(report)}
+                className="text-[11px] font-bold text-amber-700 hover:text-amber-800 hover:underline flex items-center gap-0.5"
+              >
+                <Plus className="w-3 h-3" /> Upload / Tambah Dokumen
+              </button>
+            )}
+          </div>
+
+          {report.lampiranDokumen && report.lampiranDokumen.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {report.lampiranDokumen.map((att) => {
+                return (
+                  <div
+                    key={att.id}
+                    className="p-2.5 bg-slate-50 hover:bg-white rounded-xl border border-slate-200/80 hover:border-slate-300 shadow-2xs transition-all flex items-center justify-between gap-2 group"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        att.tipe === 'excel' ? 'bg-emerald-100 text-emerald-800' :
+                        att.tipe === 'pdf' ? 'bg-rose-100 text-rose-800' :
+                        att.tipe === 'gambar' ? 'bg-sky-100 text-sky-800' : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {att.tipe === 'excel' && <FileSpreadsheet className="w-4 h-4" />}
+                        {att.tipe === 'pdf' && <FileText className="w-4 h-4" />}
+                        {att.tipe === 'gambar' && <ImageIcon className="w-4 h-4" />}
+                        {att.tipe === 'lainnya' && <File className="w-4 h-4" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-800 truncate" title={att.namaFile}>
+                          {att.namaFile}
+                        </p>
+                        <p className="text-[10px] text-slate-400 truncate">
+                          {att.ukuranFormatted || 'Dokumen'} • {att.kategori}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewFile(att)}
+                        className="px-2 py-1 bg-white hover:bg-blue-50 text-blue-700 text-[11px] font-bold rounded-lg border border-slate-200 shadow-2xs flex items-center gap-1 transition-colors"
+                        aria-label={'Lihat ' + att.namaFile}
+                        title="Lihat Dokumen"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Lihat</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadFile(att)}
+                        className="p-1.5 bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 rounded-lg border border-slate-200 shadow-2xs transition-colors"
+                        aria-label={'Unduh ' + att.namaFile}
+                        title="Download Dokumen"
+                      >
+                        <Download className="w-3.5 h-3.5 text-emerald-600" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-3 rounded-xl bg-slate-50/60 border border-dashed border-slate-200 text-center text-xs text-slate-400">
+              Belum ada dokumen yang diunggah untuk minggu ini.
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       
@@ -862,7 +1096,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
         periods={reportingWeeks}
         reports={projectReports}
         onInputReport={canSubmit ? handleOpenAdd : undefined}
-        onViewReport={handleViewReport}
+        onViewReport={setViewedReportId}
       />
 
       {/* Catatan Laporan Progres Mingguan (Weekly Site Reports) */}
@@ -902,218 +1136,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {projectReports.map((report) => {
-              const weekLabel = typeof report.mingguKe === 'number' || !isNaN(Number(report.mingguKe))
-                ? `Minggu ke-${report.mingguKe}`
-                : String(report.mingguKe);
-              const durasi = getDurasiHari(report.periodeMulai, report.periodeSelesai);
-              const deviasiIsPos = report.deviasi >= 0;
-
-              return (
-                <div
-                  key={report.id}
-                  id={'weekly-report-' + report.id}
-                  tabIndex={-1}
-                  role="group"
-                  aria-label={'Laporan ' + weekLabel + ', ' + reportDateLabel(report.periodeMulai) + ' sampai ' + reportDateLabel(report.periodeSelesai)}
-                  className="scroll-mt-4 space-y-3 p-4 transition-colors hover:bg-slate-50/70 focus:bg-emerald-50/50 focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-600"
-                >
-                  
-                  {/* Top Bar of Card: Week Label, Dates, and Action Buttons */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-black bg-amber-100 text-amber-900 px-2.5 py-1 rounded-lg font-mono">
-                        {weekLabel}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">
-                        <Calendar className="w-3.5 h-3.5 text-amber-600" />
-                        <span>{reportDateLabel(report.periodeMulai)} s/d {reportDateLabel(report.periodeSelesai)}</span>
-                      </span>
-                      <span className="text-[11px] text-slate-400 font-medium">
-                        ({durasi} Hari Kalender)
-                      </span>
-                      {(report.acuanLaporan || report.addendumId) && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                          {report.acuanLaporan?.nama || projectAddendums.find(a => a.id === report.addendumId)?.nomorAddendum || 'Acuan tersimpan'}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {canSubmit && !isHistoricalReport(report) && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => handleOpenEdit(report)}
-                            className="px-2.5 py-1 bg-white hover:bg-amber-50 hover:text-amber-700 text-slate-600 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200 shadow-2xs transition-colors"
-                            title="Edit data laporan, tanggal, dan target/realisasi minggu ini"
-                          >
-                            <Edit3 className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Edit Laporan & Dokumen</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(report.id, report.mingguKe)}
-                            className="px-2.5 py-1 bg-white hover:bg-rose-50 hover:text-rose-700 text-slate-600 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200 shadow-2xs transition-colors"
-                            title="Hapus laporan ini"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 text-rose-500" />
-                            <span>Hapus</span>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Target & Realization Summary Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 text-xs">
-                    <div>
-                      <span className="text-[10px] text-slate-500 font-bold uppercase block">Target Rencana</span>
-                      <div className="text-sm font-extrabold text-slate-800">
-                        {report.kumulatifRencana}%
-                      </div>
-                      <span className="text-[10px] text-slate-400 block">
-                        Bobot Minggu: +{report.bobotRencana}%
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-emerald-700 font-bold uppercase block">Realisasi Fisik</span>
-                      <div className="text-sm font-black text-emerald-700">
-                        {report.kumulatifRealisasi}%
-                      </div>
-                      <span className="text-[10px] text-emerald-600 block">
-                        Bobot Minggu: +{report.bobotRealisasi}%
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-500 font-bold uppercase block">Deviasi Capaian</span>
-                      <div className={`text-sm font-black ${deviasiIsPos ? 'text-emerald-600' : 'text-rose-600'}`}>
-                        {deviasiIsPos ? `+${report.deviasi}%` : `${report.deviasi}%`}
-                      </div>
-                      <span className="text-[10px] text-slate-400 block">
-                        {deviasiIsPos ? 'Sesuai / Maju' : 'Tertinggal'}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-500 font-bold uppercase block">Ketentuan Tanggal</span>
-                      <div className="text-xs font-bold text-slate-700 truncate" title={`${report.periodeMulai} s/d ${report.periodeSelesai}`}>
-                        {formatTanggalSingkat(report.periodeMulai)} - {formatTanggalSingkat(report.periodeSelesai)}
-                      </div>
-                      <span className="text-[10px] text-emerald-600 font-medium block">
-                        Diatur Mandiri
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Resource Data */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-white p-2 rounded-lg text-xs text-slate-600 border border-slate-100">
-                    <div className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-                      <span>Tenaga Kerja: <strong>{report.jumlahTenagaKerja} Orang</strong></span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <CloudSun className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-                      <span>Cuaca: <strong>{report.kondisiCuaca}</strong></span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Wrench className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
-                      <span className="truncate">Alat: {report.alatBeratDigunakan}</span>
-                    </div>
-                  </div>
-
-                  {/* Kendala & Solusi */}
-                  <div className="text-xs space-y-1 bg-slate-50/50 p-2 rounded-lg border border-slate-100">
-                    <p className="text-slate-700">
-                      <strong className="text-slate-900">Kendala Lapangan:</strong> {report.kendalaLapangan || 'Nihil kendala'}
-                    </p>
-                    <p className="text-emerald-700">
-                      <strong className="text-emerald-900">Tindakan Penyedia:</strong> {report.solusiTindakan || 'Pekerjaan berjalan sesuai rencana'}
-                    </p>
-                  </div>
-
-                  {/* LAMPIRAN DOKUMEN PROGRES (EXCEL, PDF, GAMBAR) */}
-                  <div className="pt-2 border-t border-slate-100">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                        <Paperclip className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Lampiran Dokumen Progres Minggu Ini:</span>
-                        <span className="text-[10px] font-semibold text-slate-400">
-                          ({report.lampiranDokumen?.length || 0} File Terlampir)
-                        </span>
-                      </div>
-
-                      {canSubmit && !isHistoricalReport(report) && (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEdit(report)}
-                          className="text-[11px] font-bold text-amber-700 hover:text-amber-800 hover:underline flex items-center gap-0.5"
-                        >
-                          <Plus className="w-3 h-3" /> Upload / Tambah Dokumen
-                        </button>
-                      )}
-                    </div>
-
-                    {report.lampiranDokumen && report.lampiranDokumen.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                        {report.lampiranDokumen.map((att) => {
-                          return (
-                            <div 
-                              key={att.id}
-                              className="p-2.5 bg-slate-50 hover:bg-white rounded-xl border border-slate-200/80 hover:border-slate-300 shadow-2xs transition-all flex items-center justify-between gap-2 group"
-                            >
-                              <div className="flex items-center gap-2 min-w-0">
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                  att.tipe === 'excel' ? 'bg-emerald-100 text-emerald-800' :
-                                  att.tipe === 'pdf' ? 'bg-rose-100 text-rose-800' :
-                                  att.tipe === 'gambar' ? 'bg-sky-100 text-sky-800' : 'bg-slate-200 text-slate-700'
-                                }`}>
-                                  {att.tipe === 'excel' && <FileSpreadsheet className="w-4 h-4" />}
-                                  {att.tipe === 'pdf' && <FileText className="w-4 h-4" />}
-                                  {att.tipe === 'gambar' && <ImageIcon className="w-4 h-4" />}
-                                  {att.tipe === 'lainnya' && <File className="w-4 h-4" />}
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="text-xs font-bold text-slate-800 truncate" title={att.namaFile}>
-                                    {att.namaFile}
-                                  </p>
-                                  <p className="text-[10px] text-slate-400 truncate">
-                                    {att.ukuranFormatted || 'Dokumen'} • {att.kategori}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-1 flex-shrink-0">
-                                <button
-                                  type="button"
-                                  onClick={() => setPreviewFile(att)}
-                                  className="px-2 py-1 bg-white hover:bg-blue-50 text-blue-700 text-[11px] font-bold rounded-lg border border-slate-200 shadow-2xs flex items-center gap-1 transition-colors"
-                                  title="Lihat Dokumen"
-                                >
-                                  <Eye className="w-3.5 h-3.5" />
-                                  <span>Lihat</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDownloadFile(att)}
-                                  className="p-1.5 bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 rounded-lg border border-slate-200 shadow-2xs transition-colors"
-                                  title="Download Dokumen"
-                                >
-                                  <Download className="w-3.5 h-3.5 text-emerald-600" />
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="p-3 rounded-xl bg-slate-50/60 border border-dashed border-slate-200 text-center text-xs text-slate-400">
-                        Belum ada dokumen excel, pdf, atau gambar yang diunggah untuk minggu ini. Klik "Upload / Tambah Dokumen" untuk melampirkan berkas.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+            {projectReports.map(report => renderReportCard(report))}
           </div>
         )}
       </div>
@@ -2183,164 +2206,195 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
         </div>
       )}
 
+      {viewedReport && (
+        <ReportDialog titleId="weekly-report-dialog-title" onClose={() => setViewedReportId(undefined)}>
+          <header className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4">
+            <div>
+              <h2 id="weekly-report-dialog-title" className="text-lg font-bold text-slate-900">Detail Laporan Mingguan</h2>
+              <p className="mt-1 text-sm text-slate-600">{selectedProject.nama}</p>
+            </div>
+            <form method="dialog">
+              <button type="submit" aria-label="Tutup detail laporan" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100">
+                <X className="size-5" aria-hidden="true" />
+              </button>
+            </form>
+          </header>
+          <div className="min-h-0 overflow-y-auto">
+            {renderReportCard(viewedReport, true)}
+            <section aria-labelledby="weekly-report-photos" className="space-y-3 border-t border-slate-200 p-4">
+              <h3 id="weekly-report-photos" className="text-sm font-bold text-slate-900">Foto Dokumentasi</h3>
+              {viewedReport.fotoDokumentasi?.length ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {viewedReport.fotoDokumentasi.map((photo, index) => (
+                    <figure key={index} className="overflow-hidden rounded-xl border border-slate-200">
+                      <img src={photo.url} alt={photo.caption || 'Foto dokumentasi lapangan'} loading="lazy" className="h-52 w-full bg-slate-100 object-contain" />
+                      <figcaption className="space-y-1 p-3 text-xs text-slate-600">
+                        {photo.caption && <p className="font-semibold text-slate-900">{photo.caption}</p>}
+                        <p>Tahap {photo.stage} · {reportDateLabel(photo.tanggal)}</p>
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              ) : <p className="text-sm text-slate-600">Belum ada foto dokumentasi untuk minggu ini.</p>}
+            </section>
+          </div>
+        </ReportDialog>
+      )}
+
       {/* MODAL 5: Preview & Download Dokumen Lampiran */}
       {previewFile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
-            
-            {/* Modal Header */}
-            <div className="px-6 py-3.5 bg-slate-900 text-white flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  previewFile.tipe === 'excel' ? 'bg-emerald-600' :
-                  previewFile.tipe === 'pdf' ? 'bg-rose-600' :
-                  previewFile.tipe === 'gambar' ? 'bg-sky-600' : 'bg-slate-700'
-                }`}>
-                  {previewFile.tipe === 'excel' && <FileSpreadsheet className="w-4 h-4 text-white" />}
-                  {previewFile.tipe === 'pdf' && <FileText className="w-4 h-4 text-white" />}
-                  {previewFile.tipe === 'gambar' && <ImageIcon className="w-4 h-4 text-white" />}
-                  {previewFile.tipe === 'lainnya' && <File className="w-4 h-4 text-white" />}
-                </div>
-                <div className="min-w-0">
-                  <h4 className="font-bold text-sm text-white truncate max-w-md">
-                    {previewFile.namaFile}
-                  </h4>
-                  <p className="text-[11px] text-slate-300">
-                    {previewFile.kategori} • {previewFile.ukuranFormatted} • Upload: {previewFile.uploadDate}
-                  </p>
-                </div>
+        <ReportDialog titleId="report-attachment-title" onClose={() => setPreviewFile(null)}>
+          {/* Modal Header */}
+          <div className="px-6 py-3.5 bg-slate-900 text-white flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                previewFile.tipe === 'excel' ? 'bg-emerald-600' :
+                previewFile.tipe === 'pdf' ? 'bg-rose-600' :
+                previewFile.tipe === 'gambar' ? 'bg-sky-600' : 'bg-slate-700'
+              }`}>
+                {previewFile.tipe === 'excel' && <FileSpreadsheet className="w-4 h-4 text-white" />}
+                {previewFile.tipe === 'pdf' && <FileText className="w-4 h-4 text-white" />}
+                {previewFile.tipe === 'gambar' && <ImageIcon className="w-4 h-4 text-white" />}
+                {previewFile.tipe === 'lainnya' && <File className="w-4 h-4 text-white" />}
               </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleDownloadFile(previewFile)}
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-sm transition-colors"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download Dokumen</span>
-                </button>
-                <button
-                  onClick={() => setPreviewFile(null)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+              <div className="min-w-0">
+                <h4 id="report-attachment-title" className="font-bold text-sm text-white truncate max-w-md">
+                  {previewFile.namaFile}
+                </h4>
+                <p className="text-[11px] text-slate-300">
+                  {previewFile.kategori} • {previewFile.ukuranFormatted} • Upload: {previewFile.uploadDate}
+                </p>
               </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto flex-1 bg-slate-50 flex items-center justify-center">
-              {previewFile.tipe === 'gambar' && (
-                <div className="text-center space-y-2 max-w-full">
-                  <img 
-                    src={previewFile.fileData || previewFile.fileUrl} 
-                    alt={previewFile.namaFile} 
-                    className="max-h-[68vh] w-auto mx-auto rounded-xl shadow-md border border-slate-200 object-contain"
-                  />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleDownloadFile(previewFile)}
+                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-sm transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download Dokumen</span>
+              </button>
+              <form method="dialog">
+                <button type="submit" aria-label="Tutup pratinjau" className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                  <X className="w-5 h-5" aria-hidden="true" />
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* Modal Body */}
+          <div className="flex min-h-0 items-start justify-center overflow-y-auto bg-slate-50 p-6">
+            {previewFile.tipe === 'gambar' && (
+              <div className="text-center space-y-2 max-w-full">
+                <img
+                  src={previewFile.fileData || previewFile.fileUrl}
+                  alt={previewFile.namaFile}
+                  className="max-h-[68vh] w-auto mx-auto rounded-xl shadow-md border border-slate-200 object-contain"
+                />
+                {previewFile.keterangan && (
+                  <p className="text-xs text-slate-600 font-medium">{previewFile.keterangan}</p>
+                )}
+              </div>
+            )}
+
+            {previewFile.tipe === 'pdf' && (
+              previewFile.fileData ? (
+                <iframe
+                  src={previewFile.fileData}
+                  title={previewFile.namaFile}
+                  className="w-full h-[68vh] rounded-xl border border-slate-200 bg-white"
+                />
+              ) : (
+                <div className="text-center p-8 bg-white rounded-2xl border border-slate-200 max-w-md w-full space-y-4">
+                  <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 mx-auto flex items-center justify-center">
+                    <FileText className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h5 className="font-extrabold text-base text-slate-800">{previewFile.namaFile}</h5>
+                    <p className="text-xs text-slate-500 mt-1">Dokumen Laporan Fisik Mingguan (PDF Resmi)</p>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 space-y-1 text-left border border-slate-100">
+                    <p><strong>Ukuran File:</strong> {previewFile.ukuranFormatted}</p>
+                    <p><strong>Kategori:</strong> {previewFile.kategori}</p>
+                    <p><strong>Tanggal Upload:</strong> {formatTanggalIndo(previewFile.uploadDate)}</p>
+                    {previewFile.keterangan && <p><strong>Keterangan:</strong> {previewFile.keterangan}</p>}
+                  </div>
+                  <button
+                    onClick={() => handleDownloadFile(previewFile)}
+                    className="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    Unduh / Buka Dokumen PDF
+                  </button>
+                </div>
+              )
+            )}
+
+            {previewFile.tipe === 'excel' && (
+              <div className="text-center p-8 bg-white rounded-2xl border border-slate-200 max-w-lg w-full space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center">
+                  <FileSpreadsheet className="w-8 h-8" />
+                </div>
+                <div>
+                  <h5 className="font-extrabold text-base text-slate-800">{previewFile.namaFile}</h5>
+                  <p className="text-xs text-slate-500 mt-1">Spreadsheet Excel Backup Data & Kurva S Lapangan</p>
+                </div>
+                <div className="p-3.5 bg-slate-50 rounded-xl text-xs text-slate-600 space-y-1.5 text-left border border-slate-100">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Tipe Dokumen:</span>
+                    <span className="font-bold text-emerald-700">Microsoft Excel (.xlsx / .xls)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Ukuran:</span>
+                    <span className="font-bold text-slate-700">{previewFile.ukuranFormatted}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Kategori:</span>
+                    <span className="font-bold text-slate-700">{previewFile.kategori}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Waktu Upload:</span>
+                    <span className="font-bold text-slate-700">{formatTanggalIndo(previewFile.uploadDate)}</span>
+                  </div>
                   {previewFile.keterangan && (
-                    <p className="text-xs text-slate-600 font-medium">{previewFile.keterangan}</p>
+                    <div className="pt-1 border-t border-slate-200">
+                      <span className="text-slate-400 block mb-0.5">Catatan:</span>
+                      <span className="font-medium text-slate-800">{previewFile.keterangan}</span>
+                    </div>
                   )}
                 </div>
-              )}
+                <button
+                  onClick={() => handleDownloadFile(previewFile)}
+                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Download & Buka File Excel
+                </button>
+              </div>
+            )}
 
-              {previewFile.tipe === 'pdf' && (
-                previewFile.fileData ? (
-                  <iframe 
-                    src={previewFile.fileData} 
-                    title={previewFile.namaFile}
-                    className="w-full h-[68vh] rounded-xl border border-slate-200 bg-white"
-                  />
-                ) : (
-                  <div className="text-center p-8 bg-white rounded-2xl border border-slate-200 max-w-md w-full space-y-4">
-                    <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 mx-auto flex items-center justify-center">
-                      <FileText className="w-8 h-8" />
-                    </div>
-                    <div>
-                      <h5 className="font-extrabold text-base text-slate-800">{previewFile.namaFile}</h5>
-                      <p className="text-xs text-slate-500 mt-1">Dokumen Laporan Fisik Mingguan (PDF Resmi)</p>
-                    </div>
-                    <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 space-y-1 text-left border border-slate-100">
-                      <p><strong>Ukuran File:</strong> {previewFile.ukuranFormatted}</p>
-                      <p><strong>Kategori:</strong> {previewFile.kategori}</p>
-                      <p><strong>Tanggal Upload:</strong> {formatTanggalIndo(previewFile.uploadDate)}</p>
-                      {previewFile.keterangan && <p><strong>Keterangan:</strong> {previewFile.keterangan}</p>}
-                    </div>
-                    <button
-                      onClick={() => handleDownloadFile(previewFile)}
-                      className="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm transition-colors"
-                    >
-                      <Download className="w-4 h-4" />
-                      Unduh / Buka Dokumen PDF
-                    </button>
-                  </div>
-                )
-              )}
-
-              {previewFile.tipe === 'excel' && (
-                <div className="text-center p-8 bg-white rounded-2xl border border-slate-200 max-w-lg w-full space-y-4">
-                  <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center">
-                    <FileSpreadsheet className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h5 className="font-extrabold text-base text-slate-800">{previewFile.namaFile}</h5>
-                    <p className="text-xs text-slate-500 mt-1">Spreadsheet Excel Backup Data & Kurva S Lapangan</p>
-                  </div>
-                  <div className="p-3.5 bg-slate-50 rounded-xl text-xs text-slate-600 space-y-1.5 text-left border border-slate-100">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Tipe Dokumen:</span>
-                      <span className="font-bold text-emerald-700">Microsoft Excel (.xlsx / .xls)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Ukuran:</span>
-                      <span className="font-bold text-slate-700">{previewFile.ukuranFormatted}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Kategori:</span>
-                      <span className="font-bold text-slate-700">{previewFile.kategori}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Waktu Upload:</span>
-                      <span className="font-bold text-slate-700">{formatTanggalIndo(previewFile.uploadDate)}</span>
-                    </div>
-                    {previewFile.keterangan && (
-                      <div className="pt-1 border-t border-slate-200">
-                        <span className="text-slate-400 block mb-0.5">Catatan:</span>
-                        <span className="font-medium text-slate-800">{previewFile.keterangan}</span>
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => handleDownloadFile(previewFile)}
-                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm transition-colors"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download & Buka File Excel
-                  </button>
+            {previewFile.tipe === 'lainnya' && (
+              <div className="text-center p-8 bg-white rounded-2xl border border-slate-200 max-w-md w-full space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 text-slate-600 mx-auto flex items-center justify-center">
+                  <File className="w-8 h-8" />
                 </div>
-              )}
-
-              {previewFile.tipe === 'lainnya' && (
-                <div className="text-center p-8 bg-white rounded-2xl border border-slate-200 max-w-md w-full space-y-4">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 text-slate-600 mx-auto flex items-center justify-center">
-                    <File className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h5 className="font-extrabold text-base text-slate-800">{previewFile.namaFile}</h5>
-                    <p className="text-xs text-slate-500 mt-1">{previewFile.kategori}</p>
-                  </div>
-                  <button
-                    onClick={() => handleDownloadFile(previewFile)}
-                    className="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm transition-colors"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download Dokumen
-                  </button>
+                <div>
+                  <h5 className="font-extrabold text-base text-slate-800">{previewFile.namaFile}</h5>
+                  <p className="text-xs text-slate-500 mt-1">{previewFile.kategori}</p>
                 </div>
-              )}
-            </div>
-
+                <button
+                  onClick={() => handleDownloadFile(previewFile)}
+                  className="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Download Dokumen
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+
+        </ReportDialog>
       )}
 
     </div>

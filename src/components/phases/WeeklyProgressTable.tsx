@@ -108,6 +108,7 @@ export function WeeklyProgressTable({ periods, reports, onInputReport, onViewRep
                         {reportId && (
                           <button
                             type="button"
+                            aria-haspopup="dialog"
                             onClick={() => onViewReport(reportId)}
                             className="whitespace-nowrap rounded-md border border-slate-300 bg-white px-2 py-1.5 font-semibold text-slate-800 hover:bg-slate-100"
                           >
