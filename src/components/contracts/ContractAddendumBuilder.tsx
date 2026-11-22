@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useApp } from '../../context/AppContext';
 import type { ContractAddendumDocument, Project, ScheduleAddendum, SpkType } from '../../types';
 import { sourceFromAddendum, sourceFromAgreement, sourceFromSpk } from '../../utils/contractAddendum';
-import { contractAddendumHtml, downloadContractAddendum } from '../../utils/contractAddendumExport';
+import { contractAddendumHtml, downloadContractAddendum, paragraph } from '../../utils/contractAddendumExport';
 import { formatTanggalIndo } from '../../utils/formatters';
 import { hasPermission } from '../../utils/permissions';
 import { isOriginalSchedule } from '../../utils/scheduleVersions';
+import { AddendumTextEditor } from './AddendumTextEditor';
 
 const panel = 'space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-5';
 const field = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900';
@@ -98,7 +99,10 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
     const nomor = (completing?.nomor || value('nomor')).trim();
     const tanggal = completing?.tanggal || value('tanggal');
     const uraian = (completing?.uraian || value('uraian')).trim();
-    if (!nomor || !tanggal || !uraian || source.pasal.some(item => edits[item.id] !== undefined && !edits[item.id]?.trim())) {
+    if (!nomor || !tanggal || !uraian || source.pasal.some(item => {
+      const text = edits[item.id];
+      return text !== undefined && !new DOMParser().parseFromString(paragraph(text), 'text/html').body.textContent?.trim();
+    })) {
       setStatus({ error: true, text: 'Lengkapi nomor, tanggal, uraian, dan semua klausul yang ditandai Berubah.' });
       return;
     }
@@ -258,22 +262,22 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
                             <h5 className="text-sm font-semibold text-slate-900">{title}</h5>
                             <div role="group" aria-label={title} className="flex gap-1">
                               <button type="button" aria-pressed={!changed} className={action + ' aria-pressed:border-emerald-600 aria-pressed:bg-emerald-50'} onClick={() => setEdits(current => ({ ...current, [item.id]: undefined }))}>Sama</button>
-                              <button type="button" aria-pressed={changed} className={action + ' aria-pressed:border-emerald-600 aria-pressed:bg-emerald-50'} onClick={() => setEdits(current => ({ ...current, [item.id]: current[item.id] ?? '' }))}>Berubah</button>
+                              <button type="button" aria-pressed={changed} className={action + ' aria-pressed:border-emerald-600 aria-pressed:bg-emerald-50'} onClick={() => setEdits(current => ({ ...current, [item.id]: current[item.id] ?? item.sebelumnya }))}>Berubah</button>
                             </div>
                           </div>
                           {changed ? <>
                             <div className="grid gap-1 text-sm text-slate-800">
                               <strong>Klausul sebelumnya</strong>
-                              <div className="whitespace-pre-wrap break-words rounded-lg bg-slate-50 p-3">{item.sebelumnya || '—'}</div>
+                              <div className="whitespace-pre-wrap break-words rounded-lg bg-slate-50 p-3" dangerouslySetInnerHTML={{ __html: paragraph(item.sebelumnya || '—') }} />
                             </div>
-                            <label className="grid gap-1 text-sm font-medium text-slate-800">
-                              Klausul perubahan
-                              <textarea aria-label={'Klausul perubahan ' + title} value={edits[item.id]} onChange={event => setEdits(current => ({ ...current, [item.id]: event.target.value }))} rows={4} required className={field} />
-                            </label>
+                            <div className="grid gap-1 text-sm font-medium text-slate-800">
+                              <span>Klausul perubahan</span>
+                              <AddendumTextEditor value={edits[item.id] ?? ''} label={'Klausul perubahan ' + title} onChange={value => setEdits(current => ({ ...current, [item.id]: value }))} />
+                            </div>
                           </> : (
                             <details className="text-sm text-slate-600">
                               <summary className="cursor-pointer">Lihat isi sumber</summary>
-                              <div className="mt-1 whitespace-pre-wrap break-words">{item.sebelumnya || '—'}</div>
+                              <div className="mt-1 whitespace-pre-wrap break-words" dangerouslySetInnerHTML={{ __html: paragraph(item.sebelumnya || '—') }} />
                             </details>
                           )}
                         </li>

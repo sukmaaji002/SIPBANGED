@@ -7,9 +7,32 @@ function escapeHtml(value: string): string {
   })[character] ?? character);
 }
 
-const paragraph = (value: string) => escapeHtml(value)
-  .replace(/&lt;(\/?(?:b|strong|i|em|u|s))&gt;/gi, '<$1>')
-  .replace(/\r?\n/g, '<br>');
+export const paragraph = (value: string) => {
+  if (!value.startsWith('<div data-rich-clause="1">')) {
+    return escapeHtml(value)
+      .replace(/&lt;(\/?(?:b|strong|i|em|u|s))&gt;/gi, '<$1>')
+      .replace(/\r?\n/g, '<br>');
+  }
+  const parsed = new DOMParser().parseFromString(value, 'text/html');
+  const permitted = new Set(['DIV', 'P', 'BR', 'B', 'STRONG', 'I', 'EM', 'U', 'S', 'SPAN', 'FONT', 'BLOCKQUOTE', 'OL', 'UL', 'LI']);
+  const clean = (node: Node): string => {
+    if (node.nodeType === Node.TEXT_NODE) return escapeHtml(node.textContent ?? '');
+    if (!(node instanceof HTMLElement)) return '';
+    const content = Array.from(node.childNodes).map(clean).join('');
+    if (!permitted.has(node.tagName)) return content;
+    const tag = node.tagName.toLowerCase();
+    const styles: string[] = [];
+    const align = node.style.textAlign || node.getAttribute('align');
+    if (align && ['left', 'center', 'right', 'justify'].includes(align)) styles.push('text-align:' + align);
+    const family = node.getAttribute('face');
+    if (family && ['Arial', 'Times New Roman', 'Calibri'].includes(family)) styles.push('font-family:' + family);
+    const size = node.getAttribute('size');
+    if (size && ['2', '3', '4', '5'].includes(size)) styles.push('font-size:' + ({'2':'10pt','3':'12pt','4':'14pt','5':'18pt'}[size]));
+    const style = styles.length ? ' style="' + styles.join(';') + '"' : '';
+    return '<' + tag + style + '>' + content + (tag === 'br' ? '' : '</' + tag + '>');
+  };
+  return Array.from(parsed.body.childNodes).map(clean).join('');
+};
 
 export function contractAddendumHtml(document: ContractAddendumDocument): string {
   const { sumber, nomor, tanggal, uraian } = document;
