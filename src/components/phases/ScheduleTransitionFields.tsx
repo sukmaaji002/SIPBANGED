@@ -25,9 +25,6 @@ export function ScheduleTransitionFields({ draft, onChange, suggested, previousL
     <section className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
       <h4 className="text-sm font-semibold text-slate-900">Peralihan acuan dan rekonsiliasi</h4>
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="grid gap-1 text-xs font-semibold">Tanggal mulai berlaku
-          <input type="date" className={inputClass} value={draft.date} onChange={event => onChange({ ...draft, date: event.target.value })} />
-        </label>
         <label className="grid gap-1 text-xs font-semibold">Dasar perhitungan realisasi
           <select aria-label="Dasar perhitungan realisasi" className={inputClass} value={draft.mode} onChange={event => onChange({ ...draft, mode: event.target.value as ScheduleTransitionDraft['mode'] })}>
             <option value="tetap">Volume dan bobot tetap</option>

@@ -113,7 +113,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
   // Addendum Management Modal States
   const [showAddendumListModal, setShowAddendumListModal] = useState(false);
-  const [showAddendumEditModal, setShowAddendumEditModal] = useState(false);
+  const [addendumEditor, setAddendumEditor] = useState<'metadata' | 'curve' | 'baseline' | null>(null);
   const [editingAddendumId, setEditingAddendumId] = useState<string | null>(null);
 
   // Form State for Weekly Progress
@@ -488,31 +488,13 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     setShowProjectModal(false);
   };
 
-  const handleOpenAddAddendum = () => {
-    setEditingAddendumId(null);
-    setAddendumError('');
-    setTransition(transitionDraft());
-    const addCount = projectAddendums.filter(version => !isOriginalSchedule(version)).length;
-    setAddNomor(`Addendum ${String(addCount + 1).padStart(2, '0')}`);
-    setAddJudul('');
-    setAddTanggal(today);
-    setAddJenis('Perpanjangan Waktu');
-    setAddNomorSurat('');
-    setAddDurasiBaru(undefined);
-    setAddTanggalSelesaiBaru('');
-    setAddNilaiKontrakBaru(undefined);
-    setAddAlasan('');
-    setAddWarnaGaris(PRESET_COLORS[addCount % PRESET_COLORS.length].value);
-    setAddIsAktif(false);
-    setAddTargetMingguan([...(activeAddendum?.targetMingguan ?? [])]);
-    setShowAddendumEditModal(true);
-  };
+  const contractAddendums = projectAddendums.filter(item => !isOriginalSchedule(item));
 
-  const handleOpenEditAddendum = (add: ScheduleAddendum) => {
-    if (add.disahkanPada) return;
+  const loadAddendum = (add: ScheduleAddendum) => {
     setEditingAddendumId(add.id);
     setAddendumError('');
-    setTransition(add.drafPeralihan ?? transitionDraft(add.tanggalBerlaku || scheduleEffectiveDate(add), add.rekonsiliasi));
+    const date = add.tanggalBerlaku || scheduleEffectiveDate(add) || '';
+    setTransition({ ...(add.drafPeralihan ?? transitionDraft(date, add.rekonsiliasi)), date });
     setAddNomor(add.nomorAddendum);
     setAddJudul(add.judul);
     setAddTanggal(add.tanggal);
@@ -523,17 +505,82 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     setAddNilaiKontrakBaru(add.nilaiKontrakBaru);
     setAddAlasan(add.alasan || '');
     setAddWarnaGaris(add.warnaGaris || '#3b82f6');
-    setAddIsAktif(canApprove && Boolean(scheduleEffectiveDate(add)));
-    setAddTargetMingguan([...add.targetMingguan]);
-    setShowAddendumEditModal(true);
+    setAddIsAktif(false);
+    setAddTargetMingguan(add.targetMingguan.map(point => ({ ...point })));
+  };
+
+  const handleOpenAddAddendum = () => {
+    if (!canSubmit) return;
+    const lastNumber = Math.max(0, ...contractAddendums.map(version => Number(version.nomorAddendum.trim().match(/^addendum\s+(\d+)$/i)?.[1] ?? 0)));
+    const nextNumber = lastNumber + 1;
+    loadAddendum({
+      id: '', projectId: selectedProject.id, nomorAddendum: 'Addendum ' + String(nextNumber).padStart(2, '0'),
+      judul: '', tanggal: today, jenisPerubahan: 'Perpanjangan Waktu', nomorSurat: '', alasan: '',
+      warnaGaris: PRESET_COLORS[lastNumber % PRESET_COLORS.length].value, isAktif: false, targetMingguan: [],
+    });
+    setAddendumEditor('metadata');
+  };
+
+  const handleOpenMetadata = (add: ScheduleAddendum) => {
+    if (!canSubmit || add.disahkanPada || scheduleEffectiveDate(add)) return;
+    loadAddendum(add);
+    setAddendumEditor('metadata');
+  };
+
+  const handleOpenCurve = (add?: ScheduleAddendum) => {
+    if (!canSubmit) return;
+    if (add) loadAddendum(add);
+    else {
+      setEditingAddendumId(null);
+      setAddendumError('');
+    }
+    setAddendumEditor(add && isOriginalSchedule(add) ? 'baseline' : 'curve');
   };
 
   const editedAddendum = projectAddendums.find(version => version.id === editingAddendumId);
-  const isOriginalEditor = Boolean(editedAddendum && isOriginalSchedule(editedAddendum));
+  const isOriginalEditor = addendumEditor === 'baseline';
+  const isMetadataEditor = addendumEditor === 'metadata';
+  const showScheduleFields = isOriginalEditor || Boolean(editedAddendum && addendumEditor === 'curve');
+  const curveReadOnly = Boolean(addendumEditor === 'curve' && editedAddendum?.disahkanPada);
   const handleSaveAddendum = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!canSubmit || savingAddendum || editedAddendum?.disahkanPada) return;
-    if (addIsAktif && !canApprove) return;
+    if (!canSubmit || savingAddendum || editedAddendum?.disahkanPada || (addendumEditor === 'curve' && !editedAddendum)) return;
+    if (isMetadataEditor) {
+      const number = addNomor.trim();
+      const title = addJudul.trim();
+      if (!number || !title) {
+        setAddendumError('Lengkapi nomor dan judul addendum.');
+        return;
+      }
+      if (editedAddendum?.nomorAddendum.trim().toLowerCase() !== number.toLowerCase() &&
+          contractAddendums.some(version => version.id !== editedAddendum?.id && version.nomorAddendum.trim().toLowerCase() === number.toLowerCase())) {
+        setAddendumError('Nomor addendum sudah dipakai pada proyek ini.');
+        return;
+      }
+      const record: ScheduleAddendum = {
+        ...editedAddendum,
+        id: editedAddendum?.id || crypto.randomUUID(),
+        projectId: selectedProject.id,
+        nomorAddendum: number,
+        judul: title,
+        tanggal: addTanggal,
+        tanggalBerlaku: transition.date || undefined,
+        jenisPerubahan: addJenis,
+        nomorSurat: addNomorSurat.trim(),
+        durasiHariBaru: addDurasiBaru,
+        tanggalSelesaiBaru: addTanggalSelesaiBaru || undefined,
+        nilaiKontrakBaru: addNilaiKontrakBaru,
+        alasan: addAlasan.trim(),
+        warnaGaris: addWarnaGaris,
+        isAktif: false,
+        targetMingguan: editedAddendum?.targetMingguan ?? [],
+        drafPeralihan: transition,
+        rekonsiliasi: editedAddendum?.tanggalBerlaku === transition.date ? editedAddendum?.rekonsiliasi : undefined,
+      };
+      await persistAddendum(record);
+      return;
+    }
+    if (!editedAddendum || (addIsAktif && !canApprove)) return;
     setAddendumError('');
     if (editedAddendum && scheduleEffectiveDate(editedAddendum) && !addIsAktif) {
       setAddendumError('Acuan lama yang berlaku memerlukan pengesahan ulang untuk pembaruan versi.');
@@ -547,6 +594,10 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       return;
     }
     if (addIsAktif && !isOriginalEditor) {
+      if (!transition.date) {
+        setAddendumError('Isi tanggal mulai berlaku pada data addendum sebelum mengesahkan Kurva S.');
+        return;
+      }
       const latestApproved = timeline.filter(entry => entry.version.id !== editedAddendum?.id && entry.version.disahkanPada).at(-1);
       const inheritedEnd = timeline.filter(entry => entry.date <= transition.date && entry.version.id !== editedAddendum?.id && entry.version.tanggalSelesaiBaru).at(-1)?.version.tanggalSelesaiBaru || physicalPackage.end;
       if (!transition.date || !physicalPackage.start || transition.date < physicalPackage.start ||
@@ -572,37 +623,42 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
     const approvedAt = addIsAktif ? new Date().toISOString() : undefined;
     const newAddendumData: ScheduleAddendum = {
-      id: editingAddendumId || crypto.randomUUID(),
+      ...editedAddendum,
+      id: editedAddendum.id,
       projectId: selectedProject.id,
-      nomorAddendum: addNomor,
-      judul: addJudul,
-      tanggal: addTanggal,
+      nomorAddendum: isOriginalEditor ? addNomor : editedAddendum.nomorAddendum,
+      judul: isOriginalEditor ? addJudul : editedAddendum.judul,
+      tanggal: isOriginalEditor ? addTanggal : editedAddendum.tanggal,
       tanggalBerlaku: isOriginalEditor ? undefined : transition.date || undefined,
       disahkanPada: approvedAt,
       rekonsiliasi: reconciliation && { ...reconciliation, laporanSebelumnyaId: transitionSource?.id },
       drafPeralihan: approvedAt || isOriginalEditor ? undefined : transition,
-      jenisPerubahan: isOriginalEditor ? 'Kontrak Awal' : addJenis === 'Kontrak Awal' ? 'Perpanjangan Waktu' : addJenis,
-      nomorSurat: addNomorSurat,
-      durasiHariBaru: addDurasiBaru,
-      tanggalSelesaiBaru: addTanggalSelesaiBaru,
-      nilaiKontrakBaru: addNilaiKontrakBaru,
-      alasan: addAlasan,
+      jenisPerubahan: isOriginalEditor ? 'Kontrak Awal' : editedAddendum.jenisPerubahan,
+      nomorSurat: isOriginalEditor ? addNomorSurat : editedAddendum.nomorSurat,
+      durasiHariBaru: isOriginalEditor ? addDurasiBaru : editedAddendum.durasiHariBaru,
+      tanggalSelesaiBaru: isOriginalEditor ? addTanggalSelesaiBaru : editedAddendum.tanggalSelesaiBaru,
+      nilaiKontrakBaru: isOriginalEditor ? addNilaiKontrakBaru : editedAddendum.nilaiKontrakBaru,
+      alasan: isOriginalEditor ? addAlasan : editedAddendum.alasan,
       warnaGaris: addWarnaGaris,
       isAktif: false,
       isKontrakAwal: isOriginalEditor,
       targetMingguan: [...addTargetMingguan].sort((a, b) => getWeekOrder(a.mingguKe) - getWeekOrder(b.mingguKe)),
     };
+    await persistAddendum(newAddendumData);
+  };
+
+  async function persistAddendum(version: ScheduleAddendum) {
     setSavingAddendum(true);
     try {
-      if (!await saveScheduleAddendum(newAddendumData)) {
+      if (!await saveScheduleAddendum(version)) {
         setAddendumError('Versi gagal tersimpan ke Supabase. Coba simpan kembali.');
         return;
       }
-      setShowAddendumEditModal(false);
+      setAddendumEditor(null);
     } finally {
       setSavingAddendum(false);
     }
-  };
+  }
 
   const handleDeleteAddendum = async (version: ScheduleAddendum) => {
     if (!canSubmit || isOriginalSchedule(version) || scheduleEffectiveDate(version) ||
@@ -614,14 +670,13 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const handleDuplicateTarget = (sourceAddendumId: string) => {
     const src = projectAddendums.find(a => a.id === sourceAddendumId);
     if (src) {
-      setAddTargetMingguan([...src.targetMingguan]);
+      setAddTargetMingguan(src.targetMingguan.map(({ mingguKe, targetKumulatif, bobotTarget }) => ({ mingguKe, targetKumulatif, bobotTarget })));
     }
   };
 
   const handleAddTargetPoint = () => {
     const lastPoint = addTargetMingguan[addTargetMingguan.length - 1];
-    const lastNum = lastPoint ? getWeekOrder(lastPoint.mingguKe) : 0;
-    const nextNum = Math.floor(lastNum) + 1;
+    const nextNum = Math.max(0, ...addTargetMingguan.map(point => reportingWeekNumber(point.mingguKe) ?? 0)) + 1;
     const lastTarget = lastPoint ? lastPoint.targetKumulatif : 0;
     const newTarget = Math.min(100, Number((lastTarget + 5).toFixed(1)));
     
@@ -653,7 +708,6 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     ? allPhotos 
     : allPhotos.filter(p => p.stage === activePhotoTab);
 
-  const contractAddendums = projectAddendums.filter(item => !isOriginalSchedule(item));
   const currentDeviasi = Number((selectedProject.progresFisikRealisasi - selectedProject.progresFisikRencana).toFixed(2));
   const modalDeviasi = kumulatifRencana === '' ? null : Number((kumulatifRealisasi - Number(kumulatifRencana)).toFixed(2));
   const durasiMingguIni = getDurasiHari(periodeMulai, periodeSelesai);
@@ -670,6 +724,9 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={handleOpenAddAddendum} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
                   <Plus aria-hidden="true" className="size-4" /> Tambah addendum
+                </button>
+                <button type="button" onClick={() => handleOpenCurve()} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  Atur Kurva S Addendum
                 </button>
                 <button type="button" onClick={() => setShowAddendumListModal(true)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                   Kelola jadwal dan addendum
@@ -688,6 +745,11 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                   <p className="text-slate-600">{formatTanggalIndo(item.tanggal)} · {item.jenisPerubahan}{item.id === activeAddendum?.id && ' · Jadwal aktif'}</p>
                   {scheduleEffectiveDate(item) && <p className="text-slate-600">Berlaku mulai {reportDateLabel(scheduleEffectiveDate(item)!)}</p>}
                   <ScheduleReconciliationSummary version={item} />
+                  {canSubmit && !item.disahkanPada && !scheduleEffectiveDate(item) && (
+                    <button type="button" onClick={() => handleOpenMetadata(item)} className="text-xs font-semibold text-blue-800 hover:underline">
+                      Ubah data {item.nomorAddendum}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -1656,7 +1718,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
             </div>
 
             <div className="py-4 space-y-4 overflow-y-auto flex-1">
-              {addendumError && !showAddendumEditModal && <p role="alert" className="text-xs text-rose-700">{addendumError}</p>}
+              {addendumError && !addendumEditor && <p role="alert" className="text-xs text-rose-700">{addendumError}</p>}
               <div className="flex items-center justify-between bg-blue-50/70 p-3 rounded-xl border border-blue-200/80">
                 <div className="text-xs text-blue-900">
                   <p className="font-bold">Kurva S Multi-Addendum</p>
@@ -1666,11 +1728,11 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 </div>
                 {canSubmit && <button
                   type="button"
-                  onClick={handleOpenAddAddendum}
+                  onClick={() => handleOpenCurve()}
                   className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-2xs flex-shrink-0 transition-colors ml-3"
                 >
                   <Plus className="w-4 h-4" />
-                  Tambah Addendum Baru
+                  Pilih Addendum untuk Kurva S
                 </button>}
               </div>
 
@@ -1742,11 +1804,11 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                         <div className="flex items-center gap-1.5 flex-shrink-0 self-end sm:self-start">
                           {canSubmit && !add.disahkanPada && (canApprove || !scheduleEffectiveDate(add)) && <button
                             type="button"
-                            onClick={() => handleOpenEditAddendum(add)}
+                            onClick={() => handleOpenCurve(add)}
                             className="px-2.5 py-1 text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg flex items-center gap-1 shadow-2xs transition-colors"
                           >
                             <Edit3 className="w-3.5 h-3.5 text-blue-600" />
-                            <span>{isOriginalSchedule(add) ? 'Isi Kurva S Awal' : 'Edit versi'}</span>
+                            <span>{isOriginalSchedule(add) ? 'Isi Kurva S Awal' : 'Atur Kurva S'}</span>
                           </button>}
                           
                           {canSubmit && !isOriginalSchedule(add) && !scheduleEffectiveDate(add) && !projectReports.some(report => reportedScheduleId(report) === add.id) && (
@@ -1795,22 +1857,22 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       )}
 
       {/* MODAL 4: Tambah / Edit Target Addendum Kurva S */}
-      {showAddendumEditModal && (
+      {addendumEditor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 border border-slate-100 max-h-[92vh] flex flex-col">
             
             <div className="flex items-start justify-between pb-3 border-b border-slate-100 flex-shrink-0">
               <div>
                 <h3 className="font-extrabold text-base text-slate-900">
-                  {editingAddendumId ? 'Edit Addendum & Jadwal Kurva S' : 'Buat Addendum Baru (Perubahan Kurva S)'}
+                  {isMetadataEditor ? (editingAddendumId ? 'Ubah Data Addendum Fisik' : 'Buat Addendum Fisik') : isOriginalEditor ? 'Kurva S Kontrak Awal' : 'Atur Kurva S Addendum'}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Tentukan nomor addendum, ketentuan surat, dan sebaran bobot target mingguan untuk kurva S baru
+                  {isMetadataEditor ? 'Isi data surat dan perubahan kontrak sebagai acuan Kurva S.' : isOriginalEditor ? 'Isi target mingguan dari kontrak awal.' : 'Pilih addendum yang sudah tersimpan, lalu isi target mingguan.'}
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setShowAddendumEditModal(false)}
+                disabled={savingAddendum} onClick={() => setAddendumEditor(null)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
@@ -1819,17 +1881,34 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
             <form onSubmit={handleSaveAddendum} className="py-4 space-y-4 overflow-y-auto flex-1">
               
-              {/* Addendum Metadata */}
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+              {addendumEditor === 'curve' && (
+                <label className="grid max-w-lg gap-1 text-sm font-semibold text-slate-800">
+                  Pilih nomor addendum
+                  <select aria-label="Pilih nomor addendum" value={editingAddendumId ?? ''} disabled={savingAddendum}
+                    onChange={event => {
+                      const selected = contractAddendums.find(version => version.id === event.target.value);
+                      if (selected) loadAddendum(selected);
+                    }}
+                    className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                    <option value="" disabled>Pilih addendum</option>
+                    {contractAddendums.map(version => <option key={version.id} value={version.id}>{version.nomorAddendum} · {version.judul}</option>)}
+                  </select>
+                  {contractAddendums.length === 0 && <span className="text-xs font-normal text-slate-600">Buat dan simpan data addendum di Kontrak dan Addendum terlebih dahulu.</span>}
+                </label>
+              )}
+
+              {(isMetadataEditor || showScheduleFields) && (
+              <fieldset disabled={savingAddendum || addendumEditor === 'curve'} className="min-w-0 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <legend className="px-1 text-xs font-semibold text-slate-700">{addendumEditor === 'curve' ? 'Data dari addendum terpilih' : isOriginalEditor ? 'Data kontrak awal' : 'Data addendum'}</legend>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label htmlFor="addendum-nomor" className="block text-xs font-semibold text-slate-700 mb-1">
                       Nomor Addendum *
                     </label>
                     <input
                       type="text"
                       required
-                      value={addNomor}
+                      id="addendum-nomor" value={addNomor}
                       onChange={e => setAddNomor(e.target.value)}
                       placeholder="Misal: Addendum 01"
                       className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg font-bold bg-white"
@@ -1837,11 +1916,11 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label htmlFor="addendum-jenis" className="block text-xs font-semibold text-slate-700 mb-1">
                       Jenis Perubahan *
                     </label>
                     <select
-                      value={addJenis}
+                      id="addendum-jenis" value={addJenis}
                       disabled={isOriginalEditor}
                       onChange={event => {
                         const kind = event.target.value as ScheduleAddendum['jenisPerubahan'];
@@ -1859,13 +1938,13 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label htmlFor="addendum-tanggal" className="block text-xs font-semibold text-slate-700 mb-1">
                       Tanggal Penetapan *
                     </label>
                     <input
                       type="date"
                       required
-                      value={addTanggal}
+                      id="addendum-tanggal" value={addTanggal}
                       onChange={e => setAddTanggal(e.target.value)}
                       className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white"
                     />
@@ -1873,13 +1952,13 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label htmlFor="addendum-judul" className="block text-xs font-semibold text-slate-700 mb-1">
                     Judul / Uraian Perubahan *
                   </label>
                   <input
                     type="text"
                     required
-                    value={addJudul}
+                    id="addendum-judul" value={addJudul}
                     onChange={e => setAddJudul(e.target.value)}
                     placeholder="Contoh: Perpanjangan Waktu 14 Hari Kalender Akibat Penyesuaian Muka Air Tanah"
                     className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white"
@@ -1888,12 +1967,12 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label htmlFor="addendum-surat" className="block text-xs font-semibold text-slate-700 mb-1">
                       Nomor Surat Addendum
                     </label>
                     <input
                       type="text"
-                      value={addNomorSurat}
+                      id="addendum-surat" value={addNomorSurat}
                       onChange={e => setAddNomorSurat(e.target.value)}
                       placeholder="600.2/ADD-01/RSUD/2026"
                       className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white font-mono text-[11px]"
@@ -1901,12 +1980,12 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label htmlFor="addendum-durasi" className="block text-xs font-semibold text-slate-700 mb-1">
                       Durasi Hari Baru
                     </label>
                     <input
                       type="number"
-                      value={addDurasiBaru || ''}
+                      id="addendum-durasi" value={addDurasiBaru || ''}
                       onChange={e => setAddDurasiBaru(e.target.value ? Number(e.target.value) : undefined)}
                       placeholder="Contoh: 228"
                       className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white"
@@ -1914,12 +1993,12 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label htmlFor="addendum-akhir" className="block text-xs font-semibold text-slate-700 mb-1">
                       Tanggal Selesai Baru
                     </label>
                     <input
                       type="date"
-                      value={addTanggalSelesaiBaru}
+                      id="addendum-akhir" value={addTanggalSelesaiBaru}
                       onChange={e => setAddTanggalSelesaiBaru(e.target.value)}
                       className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white"
                     />
@@ -1927,18 +2006,37 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label htmlFor="addendum-alasan" className="block text-xs font-semibold text-slate-700 mb-1">
                     Latar Belakang / Dasar Perubahan
                   </label>
                   <textarea
                     rows={2}
-                    value={addAlasan}
+                    id="addendum-alasan" value={addAlasan}
                     onChange={e => setAddAlasan(e.target.value)}
                     placeholder="Sebutkan Berita Acara, hasil rapat lapangan bersama, atau kondisi kompensasi..."
                     className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white"
                   />
                 </div>
 
+                {!isOriginalEditor && (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="grid gap-1 text-xs font-semibold text-slate-700">Tanggal mulai berlaku
+                      <input aria-label="Tanggal mulai berlaku addendum" type="date" value={transition.date}
+                        onChange={event => setTransition(previous => ({ ...previous, date: event.target.value }))}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs" />
+                    </label>
+                    <label className="grid gap-1 text-xs font-semibold text-slate-700">Nilai kontrak baru (Rp)
+                      <input type="number" min="0" value={addNilaiKontrakBaru ?? ''}
+                        onChange={event => setAddNilaiKontrakBaru(event.target.value === '' ? undefined : Number(event.target.value))}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs" />
+                    </label>
+                  </div>
+                )}
+              </fieldset>
+              )}
+
+              {showScheduleFields && (
+              <fieldset disabled={savingAddendum || curveReadOnly} className="min-w-0 space-y-4">
                 {/* Color and Active Toggles */}
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-200">
                   <div className="flex items-center gap-2">
@@ -1953,7 +2051,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                           className={`w-6 h-6 rounded-full border-2 transition-transform ${
                             addWarnaGaris === c.value ? 'scale-110 border-slate-900 shadow-xs' : 'border-white hover:scale-105'
                           }`}
-                          title={c.label}
+                          title={c.label} aria-pressed={addWarnaGaris === c.value}
                         />
                       ))}
                     </div>
@@ -1966,9 +2064,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                     </label>
                   )}
                 </div>
-              </div>
-
-              {!isOriginalEditor && (
+              {!isOriginalEditor && curveReadOnly && editedAddendum && <ScheduleReconciliationSummary version={editedAddendum} />}
+              {!isOriginalEditor && !curveReadOnly && (
                 <ScheduleTransitionFields draft={transition} onChange={setTransition} suggested={transitionSource?.kumulatifRealisasi} earlierReports={earlierReports}
                   previousLabel={transitionSource && ('laporan sampai ' + reportDateLabel(transitionSource.periodeSelesai))} />
               )}
@@ -1992,11 +2089,12 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                           e.target.value = '';
                         }
                       }}
+                      aria-label="Salin target dari kurva lain"
                       defaultValue=""
                       className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 font-semibold"
                     >
                       <option value="" disabled>Salin dari Kurva Lain...</option>
-                      {projectAddendums.map(a => (
+                      {projectAddendums.filter(version => version.id !== editingAddendumId && version.targetMingguan.length > 0).map(a => (
                         <option key={a.id} value={a.id}>
                           Salin dari {a.nomorAddendum}
                         </option>
@@ -2052,7 +2150,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                             <input
                               type="number"
                               step="0.1"
-                              value={pt.bobotTarget || ''}
+                              value={pt.bobotTarget ?? ''}
                               onChange={e => handleUpdateTargetPoint(index, 'bobotTarget', e.target.value ? Number(e.target.value) : undefined)}
                               placeholder="Otomatis"
                               className="w-20 px-2 py-1 text-xs border border-slate-200 rounded text-slate-600"
@@ -2075,23 +2173,25 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 </div>
               </div>
 
+              </fieldset>
+              )}
               {addendumError && <p role="alert" className="text-sm text-rose-700">{addendumError}</p>}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddendumEditModal(false)}
+                  disabled={savingAddendum} onClick={() => setAddendumEditor(null)}
                   className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                 >
-                  Batal
+                  {curveReadOnly ? 'Tutup' : 'Batal'}
                 </button>
-                <button
+                {!curveReadOnly && <button
                   type="submit"
-                  disabled={savingAddendum}
+                  disabled={savingAddendum || (addendumEditor === 'curve' && !editedAddendum)}
                   className="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  {savingAddendum ? 'Menyimpan...' : addIsAktif ? 'Simpan dan sahkan versi' : 'Simpan draf'}
-                </button>
+                  {savingAddendum ? 'Menyimpan...' : isMetadataEditor ? 'Simpan data addendum' : addIsAktif ? 'Simpan dan sahkan versi' : 'Simpan draf Kurva S'}
+                </button>}
               </div>
             </form>
           </div>
