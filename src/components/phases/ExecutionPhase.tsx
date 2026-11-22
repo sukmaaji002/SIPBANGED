@@ -45,6 +45,7 @@ import { reportingWeekNumber, type ReportingWeek } from '../../utils/reportingSc
 import { buildScheduleTargetWeeks, buildVersionPeriods, isOriginalSchedule, isReportInVersion, reportedScheduleId, scheduleEffectiveDate, scheduleForDate, scheduleTimeline, targetForPeriod, type VersionPeriod } from '../../utils/scheduleVersions';
 import { ScheduleVersionChart } from './ScheduleVersionChart';
 import { CurveTargetExcelActions } from './CurveTargetExcelActions';
+import { WeeklyProgressTable } from './WeeklyProgressTable';
 
 type ScheduleTargetDraft = Omit<ScheduleAddendumPoint, 'targetKumulatif'> & { targetKumulatif?: number };
 
@@ -852,6 +853,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
           </div>
         </div>
       </div>
+
+      <WeeklyProgressTable periods={reportingWeeks} reports={projectReports} />
 
       {/* Catatan Laporan Progres Mingguan (Weekly Site Reports) */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
