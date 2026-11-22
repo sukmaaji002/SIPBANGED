@@ -57,7 +57,7 @@ export interface Project {
   nama: string;
   lokasi: string;
   tahunAnggaran: number;
-  sumberDana: 'APBD Kab. Tegal' | 'DAK Fisik' | 'Banprov Jateng' | 'BLUD';
+  sumberDana: 'APBD Kab. Tegal' | 'APBD PERUBAHAN KABUPATEN TEGAL' | 'DAK Fisik' | 'Banprov Jateng' | 'BLUD';
   
   // Nilai Anggaran
   paguAnggaran: number;

@@ -17,7 +17,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
   const [nama, setNama] = useState('');
   const [kodePaket, setKodePaket] = useState(`PBG-2026-00${Math.floor(Math.random() * 90) + 10}`);
   const [lokasi, setLokasi] = useState('');
-  const [sumberDana, setSumberDana] = useState<'APBD Kab. Tegal' | 'DAK Fisik' | 'Banprov Jateng' | 'BLUD'>('APBD Kab. Tegal');
+  const [sumberDana, setSumberDana] = useState<Project['sumberDana']>('APBD Kab. Tegal');
   const [tahunAnggaran, setTahunAnggaran] = useState<number>(2026);
   const [paguAnggaran, setPaguAnggaran] = useState<number>(3500000000);
   const [hps, setHps] = useState<number>(3400000000);
@@ -264,13 +264,15 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
                 />
               </div>
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Sumber Pembiayaan</label>
+                <label htmlFor="new-project-funding" className="block font-semibold text-slate-700 mb-1">Sumber Pembiayaan</label>
                 <select
+                  id="new-project-funding"
                   value={sumberDana}
-                  onChange={e => setSumberDana(e.target.value as any)}
+                  onChange={e => setSumberDana(e.target.value as Project['sumberDana'])}
                   className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-medium focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="APBD Kab. Tegal">APBD Kab. Tegal</option>
+                  <option value="APBD PERUBAHAN KABUPATEN TEGAL">APBD PERUBAHAN KABUPATEN TEGAL</option>
                   <option value="DAK Fisik">DAK Fisik</option>
                   <option value="Banprov Jateng">Banprov Jateng</option>
                   <option value="BLUD">BLUD</option>
