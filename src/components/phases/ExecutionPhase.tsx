@@ -45,6 +45,7 @@ import { reportingWeekNumber } from '../../utils/reportingSchedule';
 import { buildVersionPeriods, isOriginalSchedule, isReportInVersion, reportedScheduleId, scheduleEffectiveDate, scheduleForDate, scheduleTimeline, targetForPeriod, parseScheduleTransition, transitionDraft, type VersionPeriod } from '../../utils/scheduleVersions';
 import { ScheduleReconciliationSummary, ScheduleVersionChart } from './ScheduleVersionChart';
 import { ScheduleTransitionFields } from './ScheduleTransitionFields';
+import { CurveTargetExcelActions } from './CurveTargetExcelActions';
 
 const addDays = (dateStr: string, days: number): string => {
   try {
@@ -2113,6 +2114,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 </div>
 
                 {/* Table of Points */}
+                {!curveReadOnly && <CurveTargetExcelActions key={editingAddendumId} onImport={setAddTargetMingguan} />}
+
                 <div className="border border-slate-200 rounded-xl overflow-hidden max-h-60 overflow-y-auto overflow-x-auto">
                   <table className="w-full text-left text-xs divide-y divide-slate-200 min-w-[320px]">
                     <thead className="bg-slate-50 text-slate-600 font-bold">
