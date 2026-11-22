@@ -1,5 +1,5 @@
 import type { ScheduleAddendum, WeeklyProgress } from '../types';
-import { buildReportingWeeks, getReportingTarget, type ReportingWeek } from './reportingSchedule';
+import { buildReportingWeeks, getReportingTarget, reportingWeekNumber, type ReportingWeek } from './reportingSchedule';
 
 export interface VersionPeriod extends ReportingWeek {
   key: string;
@@ -81,6 +81,12 @@ export function targetForPeriod(period?: VersionPeriod) {
   }
   if (period.start !== period.weekStart) return { cumulative: target.cumulative, weight: undefined };
   return target;
+}
+
+export function reportOverlapsPeriod(report: WeeklyProgress, period: ReportingWeek) {
+  return report.periodeMulai && report.periodeSelesai
+    ? report.periodeMulai <= period.end && period.start <= report.periodeSelesai
+    : reportingWeekNumber(report.mingguKe) === period.number;
 }
 
 export function reportedScheduleId(report: WeeklyProgress) {

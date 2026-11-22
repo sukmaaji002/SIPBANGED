@@ -1,6 +1,6 @@
 import type { WeeklyProgress } from '../../types';
 import { formatTanggalSingkat } from '../../utils/formatters';
-import { targetForPeriod, type VersionPeriod } from '../../utils/scheduleVersions';
+import { reportOverlapsPeriod, targetForPeriod, type VersionPeriod } from '../../utils/scheduleVersions';
 
 interface ProgressRow {
   id: string;
@@ -11,7 +11,8 @@ interface ProgressRow {
   actual?: number;
   deviation?: number;
   status: string;
-  reported: boolean;
+  reportId?: string;
+  period?: VersionPeriod;
 }
 
 const percent = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
@@ -29,11 +30,16 @@ function reportRow(report: WeeklyProgress, status: string, week = report.mingguK
   return {
     id: report.id, week, start: report.periodeMulai, end: report.periodeSelesai,
     target: report.kumulatifRencana, actual: report.kumulatifRealisasi, deviation: report.deviasi,
-    status, reported: true,
+    status, reportId: report.id,
   };
 }
 
-export function WeeklyProgressTable({ periods, reports }: { periods: VersionPeriod[]; reports: WeeklyProgress[] }) {
+export function WeeklyProgressTable({ periods, reports, onInputReport, onViewReport }: {
+  periods: VersionPeriod[];
+  reports: WeeklyProgress[];
+  onInputReport?: (period: VersionPeriod) => void;
+  onViewReport: (reportId: string) => void;
+}) {
   const reportsByPeriod = new Map<string, WeeklyProgress>();
   for (const report of reports) {
     const key = report.periodeMulai + '/' + report.periodeSelesai;
@@ -47,18 +53,16 @@ export function WeeklyProgressTable({ periods, reports }: { periods: VersionPeri
       matchedReports.add(report.id);
       return reportRow(report, 'Sudah dilaporkan', period.number);
     }
+    const relatedReport = reports.find(candidate => reportOverlapsPeriod(candidate, period));
     return {
-      id: 'period-' + period.key, week: period.number, start: period.start, end: period.end,
-      target: targetForPeriod(period).cumulative, status: 'Belum ada laporan', reported: false,
+      id: 'period-' + period.key, week: period.number, start: period.start, end: period.end, period,
+      target: targetForPeriod(period).cumulative,
+      status: relatedReport ? 'Ada laporan dengan periode berbeda' : 'Belum ada laporan',
+      reportId: relatedReport?.id,
     };
   });
   // Keep historical numbers with the dates on which they were reported.
   const unmatchedReports = reports.filter(report => !matchedReports.has(report.id));
-  for (const row of scheduledRows) {
-    if (!row.reported && unmatchedReports.some(report =>
-      report.periodeMulai && report.periodeSelesai && report.periodeMulai <= row.end && report.periodeSelesai >= row.start,
-    )) row.status = 'Ada laporan dengan periode berbeda';
-  }
   const rows = [...scheduledRows, ...unmatchedReports.map(report => reportRow(report, 'Periode laporan tersimpan'))]
     .sort((a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end));
 
@@ -86,19 +90,44 @@ export function WeeklyProgressTable({ periods, reports }: { periods: VersionPeri
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {rows.map(row => (
-                <tr key={row.id} className="hover:bg-slate-50">
-                  <th scope="row" className="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-900">{row.week}</th>
-                  <td className="whitespace-nowrap px-4 py-2.5 text-slate-700">{formatPeriodDate(row.start)}</td>
-                  <td className="whitespace-nowrap px-4 py-2.5 text-slate-700">{formatPeriodDate(row.end)}</td>
-                  <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums text-slate-800">{formatPercent(row.target)}</td>
-                  <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums text-slate-800">{formatPercent(row.actual)}</td>
-                  <td className={`whitespace-nowrap px-4 py-2.5 text-right font-semibold tabular-nums ${(row.deviation ?? 0) < 0 ? 'text-rose-700' : (row.deviation ?? 0) > 0 ? 'text-emerald-700' : 'text-slate-700'}`}>
-                    {row.deviation === undefined || !Number.isFinite(row.deviation) ? '—' : signed.format(row.deviation) + ' pp'}
-                  </td>
-                  <td className={`px-4 py-2.5 text-xs ${row.reported ? 'font-medium text-slate-800' : 'text-slate-600'}`}>{row.status}</td>
-                </tr>
-              ))}
+              {rows.map(row => {
+                const { reportId, period } = row;
+                return (
+                  <tr key={row.id} className="hover:bg-slate-50">
+                    <th scope="row" className="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-900">{row.week}</th>
+                    <td className="whitespace-nowrap px-4 py-2.5 text-slate-700">{formatPeriodDate(row.start)}</td>
+                    <td className="whitespace-nowrap px-4 py-2.5 text-slate-700">{formatPeriodDate(row.end)}</td>
+                    <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums text-slate-800">{formatPercent(row.target)}</td>
+                    <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums text-slate-800">{formatPercent(row.actual)}</td>
+                    <td className={`whitespace-nowrap px-4 py-2.5 text-right font-semibold tabular-nums ${(row.deviation ?? 0) < 0 ? 'text-rose-700' : (row.deviation ?? 0) > 0 ? 'text-emerald-700' : 'text-slate-700'}`}>
+                      {row.deviation === undefined || !Number.isFinite(row.deviation) ? '—' : signed.format(row.deviation) + ' pp'}
+                    </td>
+                    <td className="px-4 py-2.5 text-xs text-slate-600">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span>{row.status}</span>
+                        {reportId && (
+                          <button
+                            type="button"
+                            onClick={() => onViewReport(reportId)}
+                            className="whitespace-nowrap rounded-md border border-slate-300 bg-white px-2 py-1.5 font-semibold text-slate-800 hover:bg-slate-100"
+                          >
+                            Lihat Laporan
+                          </button>
+                        )}
+                        {!reportId && period && onInputReport && (
+                          <button
+                            type="button"
+                            onClick={() => onInputReport(period)}
+                            className="whitespace-nowrap rounded-md bg-emerald-700 px-2 py-1.5 font-semibold text-white hover:bg-emerald-800"
+                          >
+                            Input Laporan
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

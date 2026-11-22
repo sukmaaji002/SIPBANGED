@@ -42,7 +42,7 @@ import {
 import { formatTanggalIndo, formatTanggalSingkat, formatRupiah } from '../../utils/formatters';
 import { getProjectPackage } from '../../utils/projectPackages';
 import { reportingWeekNumber, type ReportingWeek } from '../../utils/reportingSchedule';
-import { buildScheduleTargetWeeks, buildVersionPeriods, isOriginalSchedule, isReportInVersion, reportedScheduleId, scheduleEffectiveDate, scheduleForDate, scheduleTimeline, targetForPeriod, type VersionPeriod } from '../../utils/scheduleVersions';
+import { buildScheduleTargetWeeks, buildVersionPeriods, isOriginalSchedule, isReportInVersion, reportOverlapsPeriod, reportedScheduleId, scheduleEffectiveDate, scheduleForDate, scheduleTimeline, targetForPeriod, type VersionPeriod } from '../../utils/scheduleVersions';
 import { ScheduleVersionChart } from './ScheduleVersionChart';
 import { CurveTargetExcelActions } from './CurveTargetExcelActions';
 import { WeeklyProgressTable } from './WeeklyProgressTable';
@@ -211,11 +211,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const periodeMulai = savedPeriod?.periodeMulai ?? selectedWeek?.start ?? '';
   const periodeSelesai = savedPeriod?.periodeSelesai ?? selectedWeek?.end ?? '';
   const otherReports = projectReports.filter(report => report.id !== editingReportId);
-  const isReported = (period: VersionPeriod, reports = otherReports) => reports.some(report =>
-    report.periodeMulai && report.periodeSelesai
-      ? report.periodeMulai <= period.end && period.start <= report.periodeSelesai
-      : reportingWeekNumber(report.mingguKe) === period.number,
-  );
+  const isReported = (period: VersionPeriod, reports = otherReports) =>
+    reports.some(report => reportOverlapsPeriod(report, period));
   const scheduledTarget = targetForPeriod(selectedWeek);
   const lockedCumulative = savedPeriod?.kumulatifRencana ?? scheduledTarget.cumulative;
   const lockedWeight = savedPeriod?.bobotRencana ?? scheduledTarget.weight;
@@ -261,12 +258,13 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     }
   };
 
-  const handleOpenAdd = () => {
+  const handleOpenAdd = (period?: VersionPeriod) => {
+    if (!canSubmit || (period && isReported(period, projectReports))) return;
     setEditingReportId(null);
     setUploadedAttachments([]);
     const available = reportingWeeks.filter(week => !isReported(week, projectReports));
     const next = available.find(week => week.start > (projectReports[0]?.periodeSelesai ?? '')) ?? available[0];
-    selectReportingWeek(next?.key ?? '', projectReports);
+    selectReportingWeek(period?.key ?? next?.key ?? '', projectReports);
     setKondisiCuaca('Cerah Mayoritas');
     setJumlahTenagaKerja(50);
     setMaterialMasuk('');
@@ -277,6 +275,12 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     setFotoStage('75%');
     setUpdateMasterProject(true);
     setShowModal(true);
+  };
+
+  const handleViewReport = (reportId: string) => {
+    const card = document.getElementById('weekly-report-' + reportId);
+    card?.focus({ preventScroll: true });
+    card?.scrollIntoView({ block: 'start' });
   };
 
   // Open Modal for editing existing progress
@@ -796,7 +800,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
           {canSubmit ? (
             <button
-              onClick={handleOpenAdd}
+              onClick={() => handleOpenAdd()}
               className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
             >
               <Plus className="w-4 h-4" />
@@ -854,7 +858,12 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
         </div>
       </div>
 
-      <WeeklyProgressTable periods={reportingWeeks} reports={projectReports} />
+      <WeeklyProgressTable
+        periods={reportingWeeks}
+        reports={projectReports}
+        onInputReport={canSubmit ? handleOpenAdd : undefined}
+        onViewReport={handleViewReport}
+      />
 
       {/* Catatan Laporan Progres Mingguan (Weekly Site Reports) */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
@@ -877,7 +886,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
             </span>
             {canSubmit && (
               <button
-                onClick={handleOpenAdd}
+                onClick={() => handleOpenAdd()}
                 className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow-2xs transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -901,7 +910,14 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
               const deviasiIsPos = report.deviasi >= 0;
 
               return (
-                <div key={report.id} className="p-4 hover:bg-slate-50/70 transition-colors space-y-3">
+                <div
+                  key={report.id}
+                  id={'weekly-report-' + report.id}
+                  tabIndex={-1}
+                  role="group"
+                  aria-label={'Laporan ' + weekLabel + ', ' + reportDateLabel(report.periodeMulai) + ' sampai ' + reportDateLabel(report.periodeSelesai)}
+                  className="scroll-mt-4 space-y-3 p-4 transition-colors hover:bg-slate-50/70 focus:bg-emerald-50/50 focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-600"
+                >
                   
                   {/* Top Bar of Card: Week Label, Dates, and Action Buttons */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -1026,7 +1042,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                         </span>
                       </div>
 
-                      {canSubmit && (
+                      {canSubmit && !isHistoricalReport(report) && (
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(report)}
