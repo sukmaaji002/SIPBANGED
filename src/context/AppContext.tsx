@@ -374,17 +374,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const syncFromSupabase = async () => {
       try {
-        const [cloudUsers, cloudProjects, cloudContracts, cloudSpk] = await Promise.all([
+        const [cloudUsers, cloudProjects, cloudContracts, cloudSpk, cloudBeritaAcara] = await Promise.all([
           supabaseSync.fetchUsers(),
           supabaseSync.fetchProjects(),
           supabaseSync.fetchContracts(),
-          supabaseSync.fetchSpkContracts()
+          supabaseSync.fetchSpkContracts(),
+          supabaseSync.fetchBeritaAcara(),
         ]);
 
         if (cloudUsers && cloudUsers.length > 0) setUsers(cloudUsers);
         if (cloudProjects && cloudProjects.length > 0) setProjects(cloudProjects);
         if (cloudContracts && cloudContracts.length > 0) setContracts(cloudContracts);
         if (cloudSpk && cloudSpk.length > 0) setSpkContracts(cloudSpk);
+        if (cloudBeritaAcara) {
+          setBeritaAcaraList(local => {
+            const localIds = new Set(local.map(ba => ba.id));
+            return [...cloudBeritaAcara.filter(ba => ba?.spkType && !localIds.has(ba.id)), ...local];
+          });
+        }
       } catch (err) {
         console.warn('Initial Supabase sync notice:', err);
       }
@@ -608,14 +615,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Berita Acara
   const addBeritaAcara = (ba: BeritaAcara) => {
     setBeritaAcaraList(prev => [ba, ...prev]);
+    if (ba.spkType) void supabaseSync.upsertBeritaAcara(ba);
   };
 
   const updateBeritaAcara = (ba: BeritaAcara) => {
     setBeritaAcaraList(prev => prev.map(item => item.id === ba.id ? ba : item));
+    if (ba.spkType) void supabaseSync.upsertBeritaAcara(ba);
   };
 
   const deleteBeritaAcara = (id: string) => {
+    const ba = beritaAcaraList.find(item => item.id === id);
     setBeritaAcaraList(prev => prev.filter(item => item.id !== id));
+    if (ba?.spkType) void supabaseSync.deleteBeritaAcara(ba);
   };
 
   // Finance

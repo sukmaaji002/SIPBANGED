@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { BeritaAcara, BAType } from '../../types';
+import type { BeritaAcara, BAType, SpkType } from '../../types';
 import { formatTanggalIndo, formatRupiah } from '../../utils/formatters';
 import { hasPermission } from '../../utils/permissions';
+import { getProjectPackage, projectPackageLabels } from '../../utils/projectPackages';
 import { KopSurat } from '../common/KopSurat';
 import { 
   Award, 
@@ -13,25 +14,41 @@ import {
   FileCheck, 
   Calendar, 
   Building2, 
-  CheckCircle,
   FileText,
-  Edit,
   X
 } from 'lucide-react';
 
-export const BeritaAcaraList: React.FC = () => {
-  const { selectedProject, beritaAcaraList, addBeritaAcara, updateBeritaAcara, deleteBeritaAcara, currentUser } = useApp();
+const physicalTemplates: { type: BAType; label: string }[] = [
+  { type: 'BAPLK', label: 'BA Penyerahan Lokasi (BAPLK)' },
+  { type: 'SPMK', label: 'Surat Perintah Mulai Kerja (SPMK)' },
+  { type: 'PCM', label: 'Rapat Persiapan (PCM)' },
+  { type: 'MC-0', label: 'Mutual Check 0% (MC-0)' },
+  { type: 'OPNAME', label: 'Pemeriksaan Opname Fisik' },
+  { type: 'BAP-TERMIN', label: 'BA Pembayaran (Termin)' },
+  { type: 'PHO', label: 'Serah Terima Pertama (PHO)' },
+  { type: 'CACAT-MUTU', label: 'Pemeriksaan Cacat Mutu' },
+  { type: 'FHO', label: 'Serah Terima Akhir (FHO)' },
+];
+
+const consultantTemplates: { type: BAType; label: string }[] = [
+  { type: 'BAST', label: 'BA Serah Terima Hasil Pekerjaan' },
+  { type: 'BAP-TERMIN', label: 'BA Pembayaran Konsultansi' },
+];
+
+export function BeritaAcaraList({ packageType = 'fisik' }: { packageType?: SpkType }) {
+  const { selectedProject, beritaAcaraList, addBeritaAcara, deleteBeritaAcara, currentUser } = useApp();
   
   const [selectedBA, setSelectedBA] = useState<BeritaAcara | null>(null);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [filterType, setFilterType] = useState<string>('all');
 
-  // Form State
-  const [tipe, setTipe] = useState<BAType>('OPNAME');
+  const isPhysical = packageType === 'fisik';
+  const defaultType: BAType = isPhysical ? 'OPNAME' : 'BAST';
+  const templates = isPhysical ? physicalTemplates : consultantTemplates;
+  const [tipe, setTipe] = useState<BAType>(defaultType);
   const [nomorSurat, setNomorSurat] = useState('');
   const [judul, setJudul] = useState('');
-  const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0]);
+  const [tanggal, setTanggal] = useState(() => new Date().toISOString().split('T')[0]);
   const [tempat, setTempat] = useState('Slawi, Kabupaten Tegal');
   const [deskripsi, setDeskripsi] = useState('');
   const [progresFisik, setProgresFisik] = useState<number>(50);
@@ -44,18 +61,14 @@ export const BeritaAcaraList: React.FC = () => {
     return <div className="p-8 text-center text-slate-500">Pilih proyek terlebih dahulu.</div>;
   }
 
-  const projectBAs = beritaAcaraList.filter(b => b.projectId === selectedProject.id);
-  const filteredBAs = filterType === 'all' 
-    ? projectBAs 
-    : projectBAs.filter(b => b.tipe === filterType);
-
+  const pack = getProjectPackage(selectedProject, packageType);
+  const packageLabel = projectPackageLabels[packageType];
+  const documentNumber = (type: BAType) =>
+    `600.1.1/0${Math.floor(Math.random() * 80) + 10}/BA-${type}/PBLTARU/DPUPR/${selectedProject.tahunAnggaran}`;
+  const projectBAs = beritaAcaraList.filter(b => b.projectId === selectedProject.id && (b.spkType ?? 'fisik') === packageType);
   const canCreate = hasPermission(currentUser?.role, 'create_berita_acara');
 
-  const openCreateModal = (defaultType: BAType = 'OPNAME') => {
-    setTipe(defaultType);
-    const randNum = Math.floor(Math.random() * 80) + 10;
-    setNomorSurat(`600.1.1/0${randNum}/BA-${defaultType}/PBLTARU/DPUPR/2026`);
-    
+  const getTitle = (type: BAType) => {
     const titles: Record<BAType, string> = {
       'BAPLK': 'BERITA ACARA PENYERAHAN LOKASI KERJA',
       'SPMK': 'SURAT PERINTAH MULAI KERJA (SPMK)',
@@ -65,50 +78,58 @@ export const BeritaAcaraList: React.FC = () => {
       'BAP-TERMIN': 'BERITA ACARA PEMBAYARAN TERMIN PRESTASI PEKERJAAN',
       'PHO': 'BERITA ACARA SERAH TERIMA PERTAMA PEKERJAAN (PHO)',
       'CACAT-MUTU': 'BERITA ACARA PEMERIKSAAN CACAT MUTU PEMELIHARAAN',
-      'FHO': 'BERITA ACARA SERAH TERIMA AKHIR PEKERJAAN (FHO)'
+      'FHO': 'BERITA ACARA SERAH TERIMA AKHIR PEKERJAAN (FHO)',
+      'BAST': 'BERITA ACARA SERAH TERIMA HASIL PEKERJAAN KONSULTANSI'
     };
     
-    setJudul(titles[defaultType]);
-    setDeskripsi(`Pemeriksaan dan verifikasi administratif serta teknis untuk paket ${selectedProject.nama}.`);
-    setCatatanItem1('Pekerjaan telah dilaksanakan sesuai dengan gambar kerja DED dan spesifikasi teknis RKS.');
-    setCatatanItem2('Seluruh hasil pengujian mutu bahan beton dan baja memenuhi standar teknis yang disyaratkan.');
-    setRekomendasi('Dapat disetujui untuk proses tahapan administrasi dan pembayaran selanjutnya.');
-    setProgresFisik(selectedProject.progresFisikRealisasi);
-    setNilaiPembayaran(selectedProject.nilaiKontrak * 0.3);
+    return !isPhysical && type === 'BAP-TERMIN' ? 'BERITA ACARA PEMBAYARAN PEKERJAAN KONSULTANSI' : titles[type];
+  };
+
+  const openCreateModal = (type: BAType = defaultType) => {
+    setTipe(type);
+    setNomorSurat(documentNumber(type));
+    setJudul(getTitle(type));
+    setDeskripsi(`Pemeriksaan dan verifikasi administratif serta teknis untuk paket ${isPhysical ? '' : packageLabel.toLowerCase() + ' '}${selectedProject.nama}.`);
+    setCatatanItem1(isPhysical ? 'Pekerjaan telah dilaksanakan sesuai dengan gambar kerja DED dan spesifikasi teknis RKS.' : '');
+    setCatatanItem2(isPhysical ? 'Seluruh hasil pengujian mutu bahan beton dan baja memenuhi standar teknis yang disyaratkan.' : '');
+    setRekomendasi(isPhysical ? 'Dapat disetujui untuk proses tahapan administrasi dan pembayaran selanjutnya.' : '');
+    setProgresFisik(isPhysical ? selectedProject.progresFisikRealisasi : 0);
+    setNilaiPembayaran(isPhysical ? selectedProject.nilaiKontrak * 0.3 : 0);
     setIsCreateModalOpen(true);
   };
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nomorSurat || !judul) return;
+    if (!canCreate || !nomorSurat || !judul) return;
 
     const catatan: string[] = [];
     if (catatanItem1) catatan.push(catatanItem1);
     if (catatanItem2) catatan.push(catatanItem2);
 
     const newBA: BeritaAcara = {
-      id: `ba-${Date.now()}`,
+      id: `ba-${crypto.randomUUID()}`,
       projectId: selectedProject.id,
+      spkType: packageType,
       tipe,
       nomorSurat,
       judul,
       tanggal,
       tempat,
       deskripsiPekerjaan: deskripsi,
-      progresFisikPersen: Number(progresFisik),
+      progresFisikPersen: isPhysical ? Number(progresFisik) : undefined,
       nilaiPembayaran: Number(nilaiPembayaran) || undefined,
       catatanHasilPemeriksaan: catatan,
       rekomendasi,
       pihakPertama: {
-        nama: selectedProject.ppkNama,
+        nama: pack.ppk || selectedProject.ppkNama,
         jabatan: 'Pejabat Pembuat Komitmen (PPK)',
-        nip: selectedProject.ppkNip,
+        nip: pack.ppkNip,
         instansi: 'DPUPR Kabupaten Tegal'
       },
       pihakKedua: {
-        nama: selectedProject.kontraktorDirektur || 'Ir. Bambang Haryadi',
+        nama: pack.director || (isPhysical ? 'Ir. Bambang Haryadi' : ''),
         jabatan: 'Direktur Utama',
-        perusahaan: selectedProject.kontraktorNama
+        perusahaan: pack.company || ''
       },
       status: 'Final'
     };
@@ -140,14 +161,14 @@ export const BeritaAcaraList: React.FC = () => {
             Form Berita Acara (BA) Terpadu
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Paket: <strong className="text-slate-800">{selectedProject.nama}</strong> • Pengesahan administrasi fisik & termin
+            Paket: <strong className="text-slate-800">{selectedProject.nama}</strong> • {isPhysical ? 'Pengesahan administrasi fisik & termin' : `Paket ${packageLabel.toLowerCase()}`}
           </p>
         </div>
 
         <div>
           {canCreate ? (
             <button
-              onClick={() => openCreateModal('OPNAME')}
+              onClick={() => openCreateModal()}
               className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
             >
               <Plus className="w-4 h-4" />
@@ -165,34 +186,25 @@ export const BeritaAcaraList: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Generator Pills */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs no-print">
-        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">
-          Pilih Template Berita Acara Siap Pakai:
-        </span>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { type: 'BAPLK' as BAType, label: 'BA Penyerahan Lokasi (BAPLK)' },
-            { type: 'SPMK' as BAType, label: 'Surat Perintah Mulai Kerja (SPMK)' },
-            { type: 'PCM' as BAType, label: 'Rapat Persiapan (PCM)' },
-            { type: 'MC-0' as BAType, label: 'Mutual Check 0% (MC-0)' },
-            { type: 'OPNAME' as BAType, label: 'Pemeriksaan Opname Fisik' },
-            { type: 'BAP-TERMIN' as BAType, label: 'BA Pembayaran (Termin)' },
-            { type: 'PHO' as BAType, label: 'Serah Terima Pertama (PHO)' },
-            { type: 'CACAT-MUTU' as BAType, label: 'Pemeriksaan Cacat Mutu' },
-            { type: 'FHO' as BAType, label: 'Serah Terima Akhir (FHO)' }
-          ].map(item => (
-            <button
-              key={item.type}
-              onClick={() => openCreateModal(item.type)}
-              className="px-3 py-1.5 bg-slate-50 hover:bg-purple-50 hover:text-purple-700 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 hover:border-purple-300 transition-all flex items-center gap-1"
-            >
-              <Plus className="w-3 h-3 text-purple-600" />
-              {item.label}
-            </button>
-          ))}
+      {canCreate && (
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs no-print">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">
+            Pilih Template Berita Acara Siap Pakai:
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {templates.map(item => (
+              <button
+                key={item.type}
+                onClick={() => openCreateModal(item.type)}
+                className="px-3 py-1.5 bg-slate-50 hover:bg-purple-50 hover:text-purple-700 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 hover:border-purple-300 transition-all flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3 text-purple-600" />
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* BA Table List */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden no-print">
@@ -208,14 +220,14 @@ export const BeritaAcaraList: React.FC = () => {
           </span>
         </div>
 
-        {filteredBAs.length === 0 ? (
+        {projectBAs.length === 0 ? (
           <div className="p-12 text-center text-slate-400">
             <FileText className="w-12 h-12 mx-auto mb-2 opacity-30" />
-            <p className="text-xs font-medium">Belum ada berita acara yang dibuat untuk proyek ini.</p>
+            <p className="text-xs font-medium">Belum ada berita acara untuk kategori ini.</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {filteredBAs.map((ba) => (
+            {projectBAs.map((ba) => (
               <div key={ba.id} className="p-5 hover:bg-slate-50/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1 max-w-2xl">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -237,11 +249,13 @@ export const BeritaAcaraList: React.FC = () => {
                     {ba.deskripsiPekerjaan}
                   </p>
 
-                  {ba.progresFisikPersen !== undefined && (
+                  {(ba.progresFisikPersen !== undefined || Boolean(ba.nilaiPembayaran)) && (
                     <div className="flex items-center gap-3 text-xs pt-1">
-                      <span className="text-slate-500">
-                        Progres Fisik: <strong className="text-emerald-700">{ba.progresFisikPersen}%</strong>
-                      </span>
+                      {ba.progresFisikPersen !== undefined && (
+                        <span className="text-slate-500">
+                          Progres Fisik: <strong className="text-emerald-700">{ba.progresFisikPersen}%</strong>
+                        </span>
+                      )}
                       {ba.nilaiPembayaran && (
                         <span className="text-slate-500">
                           Nilai BAP: <strong className="text-slate-900">{formatRupiah(ba.nilaiPembayaran)}</strong>
@@ -372,14 +386,14 @@ export const BeritaAcaraList: React.FC = () => {
                 </div>
 
                 <p className="pt-2">
-                  Telah bersama-sama melakukan pemeriksaan teknis terhadap pelaksanaan paket pekerjaan konstruksi bangunan gedung dengan rincian sebagai berikut:
+                  Telah bersama-sama melakukan pemeriksaan terhadap {isPhysical ? 'pelaksanaan paket pekerjaan konstruksi bangunan gedung' : `hasil pekerjaan konsultansi ${packageLabel.toLowerCase()}`} dengan rincian sebagai berikut:
                 </p>
 
                 <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-200 text-xs space-y-1">
                   <div><strong>Nama Paket:</strong> {selectedProject.nama}</div>
                   <div><strong>Lokasi:</strong> {selectedProject.lokasi}</div>
                   <div><strong>Sumber Dana:</strong> {selectedProject.sumberDana}</div>
-                  <div><strong>Nilai Kontrak:</strong> {formatRupiah(selectedProject.nilaiKontrak)}</div>
+                  <div><strong>Nilai Kontrak:</strong> {pack.value == null ? "-" : formatRupiah(pack.value)}</div>
                   {selectedBA.progresFisikPersen !== undefined && (
                     <div><strong>Prestasi Kemajuan Fisik:</strong> {selectedBA.progresFisikPersen}%</div>
                   )}
@@ -457,19 +471,12 @@ export const BeritaAcaraList: React.FC = () => {
                     onChange={e => {
                       const newTipe = e.target.value as BAType;
                       setTipe(newTipe);
-                      setNomorSurat(`600.1.1/0${Math.floor(Math.random() * 80) + 10}/BA-${newTipe}/PBLTARU/DPUPR/2026`);
+                      setNomorSurat(documentNumber(newTipe));
+                      setJudul(getTitle(newTipe));
                     }}
                     className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white font-semibold"
                   >
-                    <option value="BAPLK">BAPLK (Penyerahan Lokasi)</option>
-                    <option value="SPMK">SPMK (Perintah Mulai Kerja)</option>
-                    <option value="PCM">PCM (Rapat Persiapan)</option>
-                    <option value="MC-0">MC-0 (Mutual Check Awal)</option>
-                    <option value="OPNAME">Opname Fisik Lapangan</option>
-                    <option value="BAP-TERMIN">BAP Termin Pembayaran</option>
-                    <option value="PHO">PHO (Serah Terima Pertama)</option>
-                    <option value="CACAT-MUTU">Pemeriksaan Cacat Mutu</option>
-                    <option value="FHO">FHO (Serah Terima Akhir)</option>
+                    {templates.map(({ type, label }) => <option key={type} value={type}>{label}</option>)}
                   </select>
                 </div>
 
@@ -519,16 +526,18 @@ export const BeritaAcaraList: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-3 bg-purple-50/60 p-3 rounded-xl border border-purple-200/60">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Progres Fisik Terverifikasi (%)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={progresFisik}
-                    onChange={e => setProgresFisik(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white font-bold text-purple-800"
-                  />
-                </div>
+                {isPhysical && (
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Progres Fisik Terverifikasi (%)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={progresFisik}
+                      onChange={e => setProgresFisik(Number(e.target.value))}
+                      className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white font-bold text-purple-800"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Nilai Pembayaran (Rp) (Opsional)</label>
                   <input
@@ -592,5 +601,4 @@ export const BeritaAcaraList: React.FC = () => {
 
     </div>
   );
-};
-
+}

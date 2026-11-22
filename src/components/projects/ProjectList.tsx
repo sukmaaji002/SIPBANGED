@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import { ArrowRight, Building2, Check, ChevronDown, MapPin, Plus, Search } from 'lucide-react';
+import { ArrowRight, Building2, MapPin, Plus, Search } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import type { Project, ProjectStage } from '../../types';
+import type { ProjectStage } from '../../types';
 import { formatRupiah } from '../../utils/formatters';
 import { hasPermission } from '../../utils/permissions';
-import type { ActiveTab } from '../layout/Sidebar';
 import { NewProjectModal } from './NewProjectModal';
 
 interface ProjectListProps {
-  onNavigate: (tab: ActiveTab) => void;
+  onOpenProject: (projectId: string) => void;
 }
 
 const stages: Record<ProjectStage, { label: string; color: string }> = {
@@ -20,64 +19,9 @@ const stages: Record<ProjectStage, { label: string; color: string }> = {
 };
 
 const fieldClass = 'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 focus-visible:outline-2 focus-visible:outline-emerald-600';
-const secondaryActionClass = 'rounded-md px-2.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900';
 
-function ProjectDetails({ project }: { project: Project }) {
-  const packages = [
-    {
-      label: 'Fisik',
-      active: project.hasFisik,
-      company: project.kontraktorNama,
-      value: project.nilaiKontrakFisik || project.nilaiKontrak,
-    },
-    {
-      label: 'Pengawas',
-      active: project.hasPengawas,
-      company: project.pengawasNama,
-      value: project.nilaiKontrakPengawas || Math.round(project.nilaiKontrak * 0.035),
-    },
-    {
-      label: 'Perencana',
-      active: project.hasPerencana,
-      company: project.perencanaNama,
-      value: project.nilaiKontrakPerencana || Math.round(project.nilaiKontrak * 0.045),
-    },
-  ];
-
-  return (
-    <details className="group border-t border-slate-100">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 [&::-webkit-details-marker]:hidden sm:px-5">
-        Informasi proyek dan paket kontrak
-        <ChevronDown aria-hidden="true" className="size-4 shrink-0 transition-transform group-open:rotate-180" />
-      </summary>
-      <div className="space-y-3 px-4 pb-4 text-sm sm:px-5">
-        {project.deskripsi && <p className="leading-relaxed text-slate-600">{project.deskripsi}</p>}
-        {project.ppkNama && <p className="text-slate-600"><span className="font-semibold">PPK</span> {project.ppkNama}</p>}
-        <dl className="divide-y divide-slate-200 rounded-lg bg-slate-50 px-3">
-          {packages.map(({ label, active, company, value }) => {
-            const hasPackage = active !== false && Boolean(company?.trim()) && company.trim() !== '-';
-            return (
-              <div key={label} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-2.5">
-                <dt className="font-medium text-slate-600">{label}</dt>
-                <dd className="min-w-0 basis-full text-slate-800">
-                  {hasPackage ? (
-                    <span className="flex flex-wrap justify-between gap-x-3 gap-y-1">
-                      <span className="min-w-0 break-words">{company}</span>
-                      <span className="font-semibold tabular-nums">{formatRupiah(value)}</span>
-                    </span>
-                  ) : <span className="text-slate-500">Tidak ada paket</span>}
-                </dd>
-              </div>
-            );
-          })}
-        </dl>
-      </div>
-    </details>
-  );
-}
-
-export function ProjectList({ onNavigate }: ProjectListProps) {
-  const { projects, selectedProjectId, setSelectedProjectId, currentUser } = useApp();
+export function ProjectList({ onOpenProject }: ProjectListProps) {
+  const { projects, selectedProjectId, currentUser } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState('');
@@ -101,11 +45,6 @@ export function ProjectList({ onNavigate }: ProjectListProps) {
     setSearchTerm('');
     setStageFilter('');
     setYearFilter('');
-  };
-
-  const openProject = (projectId: string, tab: ActiveTab) => {
-    setSelectedProjectId(projectId);
-    onNavigate(tab);
   };
 
   return (
@@ -232,27 +171,14 @@ export function ProjectList({ onNavigate }: ProjectListProps) {
                   </div>
                 </div>
 
-                <ProjectDetails project={project} />
-
-                <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-slate-100 px-3 py-2.5 sm:px-4">
-                  {isSelected ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-2 text-sm font-semibold text-emerald-800">
-                      <Check aria-hidden="true" className="size-4" /> Terpilih
-                    </span>
-                  ) : (
-                    <button type="button" onClick={() => setSelectedProjectId(project.id)} className={secondaryActionClass}>Pilih proyek</button>
-                  )}
-                  <div className="flex flex-wrap items-center gap-1">
-                    <button type="button" onClick={() => openProject(project.id, 'kontrak')} className={secondaryActionClass}>Kontrak</button>
-                    <button type="button" onClick={() => openProject(project.id, 'berita-acara')} className={secondaryActionClass}>Berita Acara</button>
-                    <button
-                      type="button"
-                      onClick={() => openProject(project.id, 'pelaksanaan')}
-                      className="inline-flex items-center gap-1.5 rounded-md bg-slate-800 px-2.5 py-2 text-sm font-semibold text-white hover:bg-slate-900"
-                    >
-                      Detail <ArrowRight aria-hidden="true" className="size-3.5" />
-                    </button>
-                  </div>
+                <div className="flex justify-end border-t border-slate-100 px-4 py-3 sm:px-5">
+                  <button
+                    type="button"
+                    onClick={() => onOpenProject(project.id)}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-slate-800 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-900"
+                  >
+                    Detail <ArrowRight aria-hidden="true" className="size-3.5" />
+                  </button>
                 </div>
               </article>
             );

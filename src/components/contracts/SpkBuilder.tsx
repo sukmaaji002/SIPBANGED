@@ -33,11 +33,13 @@ import {
 interface SpkBuilderProps {
   currentSpkType?: SpkType;
   onSpkTypeChange?: (type: SpkType) => void;
+  lockSpkType?: boolean;
 }
 
 export const SpkBuilder: React.FC<SpkBuilderProps> = ({ 
   currentSpkType: controlledSpkType, 
-  onSpkTypeChange 
+  onSpkTypeChange,
+  lockSpkType = false,
 }) => {
   const { selectedProject, spkContracts, updateSpkContract, currentUser, spkDocType, setSpkDocType } = useApp();
 
@@ -362,7 +364,7 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
       </div>
 
       {/* 3 Jenis SPK Selector Tabs (Fisik, Pengawas, Perencana) */}
-      <div className="bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row gap-2 no-print">
+      {!lockSpkType && <div className="bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row gap-2 no-print">
         <button
           onClick={() => handleSelectSpkType('fisik')}
           className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2.5 cursor-pointer ${
@@ -449,7 +451,7 @@ export const SpkBuilder: React.FC<SpkBuilderProps> = ({
             <span className="w-2 h-2 rounded-full bg-indigo-500 ml-auto shrink-0 animate-pulse" />
           )}
         </button>
-      </div>
+      </div>}
 
       {/* 3 Sub-Modes (Form, Klausul, Preview) */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2 no-print overflow-x-auto scrollbar-none">

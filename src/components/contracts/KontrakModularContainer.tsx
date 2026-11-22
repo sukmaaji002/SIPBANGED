@@ -1,10 +1,11 @@
 import React from 'react';
+import type { SpkType } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { ContractBuilder } from './ContractBuilder';
 import { SpkBuilder } from './SpkBuilder';
 import { FileText, FileCheck2, Info } from 'lucide-react';
 
-export const KontrakModularContainer: React.FC = () => {
+export const KontrakModularContainer: React.FC<{ fixedSpkType?: SpkType }> = ({ fixedSpkType }) => {
   const { contractDocType, setContractDocType, spkDocType, setSpkDocType } = useApp();
 
   return (
@@ -69,7 +70,8 @@ export const KontrakModularContainer: React.FC = () => {
         <ContractBuilder />
       ) : (
         <SpkBuilder 
-          currentSpkType={spkDocType} 
+          currentSpkType={fixedSpkType ?? spkDocType}
+          lockSpkType={Boolean(fixedSpkType)}
           onSpkTypeChange={setSpkDocType} 
         />
       )}

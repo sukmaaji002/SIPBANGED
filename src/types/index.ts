@@ -37,6 +37,20 @@ export interface ProjectPackageDetail {
   ppkJabatan?: string;
 }
 
+export type ConsultantStage = 'pengadaan' | 'kontrak' | 'penyusunan' | 'serah-terima' | 'pembayaran' | 'selesai';
+
+export interface ConsultantAddendum {
+  id: string;
+  nomor: string;
+  tanggal: string;
+  uraian: string;
+}
+
+export interface ConsultantProgress {
+  tahap?: ConsultantStage;
+  addendums?: ConsultantAddendum[];
+}
+
 export interface Project {
   id: string;
   kodePaket: string;
@@ -81,6 +95,8 @@ export interface Project {
   nilaiKontrakPerencana?: number;
   nomorKontrakPerencana?: string;
   
+  progresKonsultan?: Partial<Record<ConsultantSpkType, ConsultantProgress>>;
+
   // Waktu
   tanggalMulai: string;
   tanggalSelesai: string;
@@ -382,12 +398,14 @@ export type BAType =
   | 'BAP-TERMIN' // Berita Acara Pembayaran Termin / Uang Muka
   | 'PHO'        // Serah Terima Pertama (Provisional Hand Over)
   | 'CACAT-MUTU' // Berita Acara Pemeriksaan Cacat Mutu
-  | 'FHO';       // Serah Terima Akhir (Final Hand Over)
+  | 'FHO'        // Serah Terima Akhir (Final Hand Over)
+  | 'BAST';      // Serah Terima Hasil Pekerjaan Konsultansi
 
 export interface BeritaAcara {
   id: string;
   projectId: string;
   tipe: BAType;
+  spkType?: SpkType;
   nomorSurat: string;
   judul: string;
   tanggal: string;
@@ -453,6 +471,7 @@ export interface PaymentTerm {
 // SPK (SURAT PERINTAH KERJA) MODULAR
 export type ContractDocType = 'perjanjian' | 'spk';
 export type SpkType = 'fisik' | 'pengawas' | 'perencana';
+export type ConsultantSpkType = Exclude<SpkType, 'fisik'>;
 
 export interface SpkPersonelItem {
   id: string;

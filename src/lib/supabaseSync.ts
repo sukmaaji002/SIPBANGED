@@ -316,13 +316,25 @@ export const supabaseSync = {
     const sb = getSupabase();
     if (!sb) return;
     try {
-      await sb.from('sipbanged_berita_acara').upsert({
+      const { error } = await sb.from('sipbanged_berita_acara').upsert({
         id: ba.id,
         project_id: ba.projectId,
         data: ba
       });
+      if (error) throw error;
     } catch (err) {
       console.warn('Supabase upsertBeritaAcara failed:', err);
+    }
+  },
+
+  async deleteBeritaAcara(ba: BeritaAcara): Promise<void> {
+    const sb = getSupabase();
+    if (!sb) return;
+    try {
+      const { error } = await sb.from('sipbanged_berita_acara').delete().eq('id', ba.id).eq('project_id', ba.projectId);
+      if (error) throw error;
+    } catch (err) {
+      console.warn('Supabase deleteBeritaAcara failed:', err);
     }
   },
 

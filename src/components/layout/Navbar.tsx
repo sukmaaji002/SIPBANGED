@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 interface NavbarProps {
+  onProjectSelect: (projectId: string) => void;
   onOpenRegister: () => void;
   onOpenUserManagement: () => void;
   onToggleSidebar?: () => void;
@@ -24,7 +25,8 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
-  onOpenRegister, 
+  onProjectSelect,
+  onOpenRegister,
   onOpenUserManagement,
   onToggleSidebar,
   isSidebarCollapsed,
@@ -36,7 +38,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     logout, 
     projects, 
     selectedProjectId, 
-    setSelectedProjectId,
     resetToDefault
   } = useApp();
 
@@ -132,7 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <button
                     key={proj.id}
                     onClick={() => {
-                      setSelectedProjectId(proj.id);
+                      onProjectSelect(proj.id);
                       setShowProjectDropdown(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-50 flex items-start gap-2.5 transition-colors ${
