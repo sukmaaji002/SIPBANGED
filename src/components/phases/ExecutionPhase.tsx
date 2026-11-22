@@ -41,11 +41,12 @@ import {
 } from 'lucide-react';
 import { formatTanggalIndo, formatTanggalSingkat, formatRupiah } from '../../utils/formatters';
 import { getProjectPackage } from '../../utils/projectPackages';
-import { reportingWeekNumber } from '../../utils/reportingSchedule';
-import { buildVersionPeriods, isOriginalSchedule, isReportInVersion, reportedScheduleId, scheduleEffectiveDate, scheduleForDate, scheduleTimeline, targetForPeriod, parseScheduleTransition, transitionDraft, type VersionPeriod } from '../../utils/scheduleVersions';
-import { ScheduleReconciliationSummary, ScheduleVersionChart } from './ScheduleVersionChart';
-import { ScheduleTransitionFields } from './ScheduleTransitionFields';
+import { reportingWeekNumber, type ReportingWeek } from '../../utils/reportingSchedule';
+import { buildScheduleTargetWeeks, buildVersionPeriods, isOriginalSchedule, isReportInVersion, reportedScheduleId, scheduleEffectiveDate, scheduleForDate, scheduleTimeline, targetForPeriod, type VersionPeriod } from '../../utils/scheduleVersions';
+import { ScheduleVersionChart } from './ScheduleVersionChart';
 import { CurveTargetExcelActions } from './CurveTargetExcelActions';
+
+type ScheduleTargetDraft = Omit<ScheduleAddendumPoint, 'targetKumulatif'> & { targetKumulatif?: number };
 
 const addDays = (dateStr: string, days: number): string => {
   try {
@@ -152,9 +153,9 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const [addAlasan, setAddAlasan] = useState('');
   const [addWarnaGaris, setAddWarnaGaris] = useState('#f59e0b');
   const [addIsAktif, setAddIsAktif] = useState(false);
-  const [addTargetMingguan, setAddTargetMingguan] = useState<ScheduleAddendumPoint[]>([]);
+  const [addTargetMingguan, setAddTargetMingguan] = useState<ScheduleTargetDraft[]>([]);
 
-  const [transition, setTransition] = useState(() => transitionDraft());
+  const [addTanggalBerlaku, setAddTanggalBerlaku] = useState('');
   const [addendumError, setAddendumError] = useState('');
   const [savingAddendum, setSavingAddendum] = useState(false);
 
@@ -229,7 +230,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     (period.version ? isReportInVersion(report, period.version, projectAddendums) : !reportedScheduleId(report)),
   );
   const previousActualFor = (period: VersionPeriod, reports: WeeklyProgress[]) =>
-    previousReportFor(period, reports)?.kumulatifRealisasi ?? period.version?.rekonsiliasi?.realisasiSesudah ?? 0;
+    previousReportFor(period, reports)?.kumulatifRealisasi ?? period.version?.rekonsiliasi?.realisasiSesudah ??
+    reports.find(report => report.periodeSelesai && report.periodeSelesai < period.start)?.kumulatifRealisasi ?? 0;
   const previousReport = selectedWeek ? previousReportFor(selectedWeek, otherReports) : undefined;
   const baselineKumRencana = savedPeriod
     ? Number((savedPeriod.kumulatifRencana - savedPeriod.bobotRencana).toFixed(2))
@@ -238,9 +240,6 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     ? Number((savedPeriod.kumulatifRealisasi - savedPeriod.bobotRealisasi).toFixed(2))
     : selectedWeek ? previousActualFor(selectedWeek, otherReports) : 0;
   const hasLaterReport = otherReports.some(report => report.periodeSelesai > periodeSelesai);
-  const earlierReports = transition.date ? projectReports.filter(report => report.periodeSelesai && report.periodeSelesai < transition.date) : [];
-  const transitionSource = earlierReports[0];
-
   const selectReportingWeek = (selection: string, reports: WeeklyProgress[], existing?: WeeklyProgress) => {
     setWeekSelection(selection);
     setReportError('');
@@ -495,7 +494,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     setEditingAddendumId(add.id);
     setAddendumError('');
     const date = add.tanggalBerlaku || scheduleEffectiveDate(add) || '';
-    setTransition({ ...(add.drafPeralihan ?? transitionDraft(date, add.rekonsiliasi)), date });
+    setAddTanggalBerlaku(date);
     setAddNomor(add.nomorAddendum);
     setAddJudul(add.judul);
     setAddTanggal(add.tanggal);
@@ -542,6 +541,15 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const isOriginalEditor = addendumEditor === 'baseline';
   const isMetadataEditor = addendumEditor === 'metadata';
   const showScheduleFields = isOriginalEditor || Boolean(editedAddendum && addendumEditor === 'curve');
+  const targetWeeks = editedAddendum && showScheduleFields
+    ? buildScheduleTargetWeeks(projectAddendums, { ...editedAddendum, tanggalSelesaiBaru: addTanggalSelesaiBaru }, physicalPackage.start, physicalPackage.end)
+    : [];
+  const targetPeriods = new Map(targetWeeks.map(week => [week.number, week]));
+  const targetByWeek = new Map(addTargetMingguan.map(point => [reportingWeekNumber(point.mingguKe), point]));
+  const legacyTargets = addTargetMingguan.filter(point => {
+    const number = reportingWeekNumber(point.mingguKe);
+    return number === undefined || !targetPeriods.has(number);
+  });
   const curveReadOnly = Boolean(addendumEditor === 'curve' && editedAddendum?.disahkanPada);
   const handleSaveAddendum = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -565,7 +573,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
         nomorAddendum: number,
         judul: title,
         tanggal: addTanggal,
-        tanggalBerlaku: transition.date || undefined,
+        tanggalBerlaku: addTanggalBerlaku || undefined,
         jenisPerubahan: addJenis,
         nomorSurat: addNomorSurat.trim(),
         durasiHariBaru: addDurasiBaru,
@@ -575,8 +583,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
         warnaGaris: addWarnaGaris,
         isAktif: false,
         targetMingguan: editedAddendum?.targetMingguan ?? [],
-        drafPeralihan: transition,
-        rekonsiliasi: editedAddendum?.tanggalBerlaku === transition.date ? editedAddendum?.rekonsiliasi : undefined,
+        rekonsiliasi: editedAddendum?.tanggalBerlaku === addTanggalBerlaku ? editedAddendum?.rekonsiliasi : undefined,
       };
       await persistAddendum(record);
       return;
@@ -587,37 +594,40 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       setAddendumError('Acuan lama yang berlaku memerlukan pengesahan ulang untuk pembaruan versi.');
       return;
     }
-    const reconciliation = isOriginalEditor ? undefined : parseScheduleTransition(transition, transitionSource?.kumulatifRealisasi, earlierReports);
-    const positions = addTargetMingguan.map(point => reportingWeekNumber(point.mingguKe));
-    if (addIsAktif && (!positions.length || positions.includes(undefined) || new Set(positions).size !== positions.length ||
-        addTargetMingguan.some(point => !Number.isFinite(point.targetKumulatif) || point.targetKumulatif < 0 || point.targetKumulatif > 100))) {
-      setAddendumError('Lengkapi target Kurva S dengan nomor minggu yang unik dan target antara 0% dan 100%.');
+    if (!targetWeeks.length) {
+      setAddendumError('Lengkapi tanggal mulai dan selesai kontrak sebelum menyimpan Kurva S.');
+      return;
+    }
+    const targets: ScheduleAddendumPoint[] = [];
+    for (const point of addTargetMingguan) {
+      const number = reportingWeekNumber(point.mingguKe);
+      const period = number === undefined ? undefined : targetPeriods.get(number);
+      const { targetKumulatif, bobotTarget } = point;
+      if (targetKumulatif === undefined || !Number.isFinite(targetKumulatif) || targetKumulatif < 0 || targetKumulatif > 100 ||
+          (bobotTarget !== undefined && (!Number.isFinite(bobotTarget) || bobotTarget < 0 || bobotTarget > 100))) {
+        setAddendumError('Periksa ' + point.mingguKe + '. Isi target antara 0% dan 100%. Bobot boleh kosong atau diisi antara 0% dan 100%.');
+        return;
+      }
+      targets.push(period ? { ...point, targetKumulatif, tanggalMulai: period.start, tanggalSelesai: period.end } : { ...point, targetKumulatif });
+    }
+    if (addIsAktif && !targets.some(point => targetPeriods.has(reportingWeekNumber(point.mingguKe) ?? 0))) {
+      setAddendumError('Isi target untuk setidaknya satu minggu dalam jadwal sebelum mengesahkan Kurva S.');
       return;
     }
     if (addIsAktif && !isOriginalEditor) {
-      if (!transition.date) {
+      if (!addTanggalBerlaku) {
         setAddendumError('Isi tanggal mulai berlaku pada data addendum sebelum mengesahkan Kurva S.');
         return;
       }
       const latestApproved = timeline.filter(entry => entry.version.id !== editedAddendum?.id && entry.version.disahkanPada).at(-1);
-      const inheritedEnd = timeline.filter(entry => entry.date <= transition.date && entry.version.id !== editedAddendum?.id && entry.version.tanggalSelesaiBaru).at(-1)?.version.tanggalSelesaiBaru || physicalPackage.end;
-      if (!transition.date || !physicalPackage.start || transition.date < physicalPackage.start ||
-          !(addTanggalSelesaiBaru || inheritedEnd) || transition.date > (addTanggalSelesaiBaru || inheritedEnd || '')) {
+      const lastDate = targetWeeks.at(-1)?.end;
+      if (!physicalPackage.start || !lastDate || addTanggalBerlaku < physicalPackage.start || addTanggalBerlaku > lastDate) {
         setAddendumError('Tanggal mulai berlaku harus berada dalam masa kontrak pada versi ini.');
         return;
       }
-      if (timeline.some(entry => entry.date === transition.date && entry.version.id !== editedAddendum?.id) ||
-          (latestApproved && transition.date <= latestApproved.date)) {
+      if (timeline.some(entry => entry.date === addTanggalBerlaku && entry.version.id !== editedAddendum?.id) ||
+          (latestApproved && addTanggalBerlaku <= latestApproved.date)) {
         setAddendumError('Tanggal berlaku harus lebih baru dari versi yang sudah disahkan dan belum dipakai versi lain.');
-        return;
-      }
-      if (!reconciliation) {
-        setAddendumError('Lengkapi realisasi sebelum dan sesudah peralihan serta dasar rekonsiliasi yang disetujui.');
-        return;
-      }
-      const startDay = new Date(transition.date + 'T00:00:00Z').getUTCDay();
-      if (startDay !== 1 && transition.date !== physicalPackage.start && reconciliation.targetPeralihan === undefined) {
-        setAddendumError('Isi target pada saat peralihan karena addendum berlaku di tengah minggu pelaporan.');
         return;
       }
     }
@@ -630,10 +640,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       nomorAddendum: isOriginalEditor ? addNomor : editedAddendum.nomorAddendum,
       judul: isOriginalEditor ? addJudul : editedAddendum.judul,
       tanggal: isOriginalEditor ? addTanggal : editedAddendum.tanggal,
-      tanggalBerlaku: isOriginalEditor ? undefined : transition.date || undefined,
+      tanggalBerlaku: isOriginalEditor ? undefined : addTanggalBerlaku || undefined,
       disahkanPada: approvedAt,
-      rekonsiliasi: reconciliation && { ...reconciliation, laporanSebelumnyaId: transitionSource?.id },
-      drafPeralihan: approvedAt || isOriginalEditor ? undefined : transition,
       jenisPerubahan: isOriginalEditor ? 'Kontrak Awal' : editedAddendum.jenisPerubahan,
       nomorSurat: isOriginalEditor ? addNomorSurat : editedAddendum.nomorSurat,
       durasiHariBaru: isOriginalEditor ? addDurasiBaru : editedAddendum.durasiHariBaru,
@@ -643,7 +651,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       warnaGaris: addWarnaGaris,
       isAktif: false,
       isKontrakAwal: isOriginalEditor,
-      targetMingguan: [...addTargetMingguan].sort((a, b) => getWeekOrder(a.mingguKe) - getWeekOrder(b.mingguKe)),
+      targetMingguan: targets.sort((a, b) => getWeekOrder(a.mingguKe) - getWeekOrder(b.mingguKe)),
     };
     await persistAddendum(newAddendumData);
   };
@@ -669,38 +677,21 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   };
 
   const handleDuplicateTarget = (sourceAddendumId: string) => {
-    const src = projectAddendums.find(a => a.id === sourceAddendumId);
-    if (src) {
-      setAddTargetMingguan(src.targetMingguan.map(({ mingguKe, targetKumulatif, bobotTarget }) => ({ mingguKe, targetKumulatif, bobotTarget })));
-    }
+    const source = projectAddendums.find(version => version.id === sourceAddendumId);
+    if (!source) return;
+    setAddTargetMingguan(source.targetMingguan.flatMap(({ mingguKe, targetKumulatif, bobotTarget }) => {
+      const number = reportingWeekNumber(mingguKe);
+      return number !== undefined && targetPeriods.has(number) ? [{ mingguKe, targetKumulatif, bobotTarget }] : [];
+    }));
   };
 
-  const handleAddTargetPoint = () => {
-    const lastPoint = addTargetMingguan[addTargetMingguan.length - 1];
-    const nextNum = Math.max(0, ...addTargetMingguan.map(point => reportingWeekNumber(point.mingguKe) ?? 0)) + 1;
-    const lastTarget = lastPoint ? lastPoint.targetKumulatif : 0;
-    const newTarget = Math.min(100, Number((lastTarget + 5).toFixed(1)));
-    
-    setAddTargetMingguan(prev => [
-      ...prev,
-      {
-        mingguKe: `M-${nextNum}`,
-        targetKumulatif: newTarget,
-        bobotTarget: Number((newTarget - lastTarget).toFixed(1))
-      }
-    ]);
-  };
-
-  const handleUpdateTargetPoint = (index: number, field: keyof ScheduleAddendumPoint, value: any) => {
-    setAddTargetMingguan(prev => {
-      const next = [...prev];
-      next[index] = { ...next[index], [field]: value };
-      return next;
+  const handleUpdateTargetPoint = (week: ReportingWeek, field: 'targetKumulatif' | 'bobotTarget', value: string) => {
+    setAddTargetMingguan(previous => {
+      const current = previous.find(point => reportingWeekNumber(point.mingguKe) === week.number);
+      const updated = { ...current, mingguKe: 'M-' + week.number, [field]: value === '' ? undefined : Number(value) };
+      const otherWeeks = previous.filter(point => reportingWeekNumber(point.mingguKe) !== week.number);
+      return updated.targetKumulatif === undefined && updated.bobotTarget === undefined ? otherWeeks : [...otherWeeks, updated];
     });
-  };
-
-  const handleRemoveTargetPoint = (index: number) => {
-    setAddTargetMingguan(prev => prev.filter((_, idx) => idx !== index));
   };
 
   // Collect all photos from reports
@@ -745,7 +736,6 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                   <p className="font-semibold text-slate-900">{item.nomorAddendum} · {item.judul}</p>
                   <p className="text-slate-600">{formatTanggalIndo(item.tanggal)} · {item.jenisPerubahan}{item.id === activeAddendum?.id && ' · Jadwal aktif'}</p>
                   {scheduleEffectiveDate(item) && <p className="text-slate-600">Berlaku mulai {reportDateLabel(scheduleEffectiveDate(item)!)}</p>}
-                  <ScheduleReconciliationSummary version={item} />
                   {canSubmit && !item.disahkanPada && !scheduleEffectiveDate(item) && (
                     <button type="button" onClick={() => handleOpenMetadata(item)} className="text-xs font-semibold text-blue-800 hover:underline">
                       Ubah data {item.nomorAddendum}
@@ -1766,7 +1756,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                               </span>
                             )}
                             <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
-                              {add.id === activeAddendum?.id ? 'Acuan berlaku' : add.disahkanPada ? 'Disahkan' : scheduleEffectiveDate(add) ? 'Acuan lama' : isOriginalSchedule(add) ? 'Kontrak awal' : 'Draf atau riwayat lama'}
+                              {add.id === activeAddendum?.id ? 'Jadwal aktif' : add.disahkanPada ? 'Disahkan' : scheduleEffectiveDate(add) ? 'Jadwal lama' : isOriginalSchedule(add) ? 'Kontrak awal' : 'Draf atau riwayat lama'}
                             </span>
                           </div>
 
@@ -1793,7 +1783,6 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                           </div>
 
                           {scheduleEffectiveDate(add) && <p className="text-xs text-slate-600">Mulai berlaku {reportDateLabel(scheduleEffectiveDate(add)!)}</p>}
-                          <ScheduleReconciliationSummary version={add} />
                           {add.alasan && (
                             <p className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 mt-1">
                               <strong>Latar Belakang:</strong> {add.alasan}
@@ -1926,7 +1915,6 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                       onChange={event => {
                         const kind = event.target.value as ScheduleAddendum['jenisPerubahan'];
                         setAddJenis(kind);
-                        setTransition(previous => ({ ...previous, mode: kind === 'Perpanjangan Waktu' ? 'tetap' : 'hitung-ulang' }));
                       }}
                       className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white font-medium"
                     >
@@ -2022,8 +2010,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 {!isOriginalEditor && (
                   <div className="grid gap-3 sm:grid-cols-2">
                     <label className="grid gap-1 text-xs font-semibold text-slate-700">Tanggal mulai berlaku
-                      <input aria-label="Tanggal mulai berlaku addendum" type="date" value={transition.date}
-                        onChange={event => setTransition(previous => ({ ...previous, date: event.target.value }))}
+                      <input aria-label="Tanggal mulai berlaku addendum" type="date" value={addTanggalBerlaku}
+                        onChange={event => setAddTanggalBerlaku(event.target.value)}
                         className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs" />
                     </label>
                     <label className="grid gap-1 text-xs font-semibold text-slate-700">Nilai kontrak baru (Rp)
@@ -2037,9 +2025,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
               )}
 
               {showScheduleFields && (
-              <fieldset disabled={savingAddendum || curveReadOnly} className="min-w-0 space-y-4">
-                {/* Color and Active Toggles */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-200">
+              <fieldset disabled={savingAddendum} className="min-w-0 space-y-4">
+                {!curveReadOnly && <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-200">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-slate-700">Warna Garis Kurva S:</span>
                     <div className="flex items-center gap-1.5">
@@ -2064,116 +2051,92 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                       Sahkan versi Kurva S
                     </label>
                   )}
-                </div>
-              {!isOriginalEditor && curveReadOnly && editedAddendum && <ScheduleReconciliationSummary version={editedAddendum} />}
-              {!isOriginalEditor && !curveReadOnly && (
-                <ScheduleTransitionFields draft={transition} onChange={setTransition} suggested={transitionSource?.kumulatifRealisasi} earlierReports={earlierReports}
-                  previousLabel={transitionSource && ('laporan sampai ' + reportDateLabel(transitionSource.periodeSelesai))} />
-              )}
+                </div>}
               {/* Target Points Editor */}
               <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
-                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
-                      Titik Sebaran Target Mingguan (%)
-                    </h4>
-                    <p className="text-[11px] text-slate-400">
-                      Atur target kumulatif tiap minggu untuk membentuk garis kurva S addendum ini
+                    <h4 className="text-sm font-bold text-slate-900">Target Mingguan Kurva S</h4>
+                    <p className="text-xs text-slate-600">
+                      {targetWeeks.length > 0 ? targetWeeks.length + ' minggu sesuai jadwal kontrak' : 'Lengkapi tanggal mulai dan selesai kontrak untuk melihat periode mingguan.'}
                     </p>
                   </div>
-
-                  <div className="flex items-center gap-2">
+                  {!curveReadOnly && (
                     <select
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          handleDuplicateTarget(e.target.value);
-                          e.target.value = '';
-                        }
+                      onChange={event => {
+                        if (event.target.value) handleDuplicateTarget(event.target.value);
+                        event.target.value = '';
                       }}
                       aria-label="Salin target dari kurva lain"
                       defaultValue=""
-                      className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 font-semibold"
+                      disabled={!targetWeeks.length}
+                      className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 font-semibold disabled:opacity-50"
                     >
                       <option value="" disabled>Salin dari Kurva Lain...</option>
-                      {projectAddendums.filter(version => version.id !== editingAddendumId && version.targetMingguan.length > 0).map(a => (
-                        <option key={a.id} value={a.id}>
-                          Salin dari {a.nomorAddendum}
-                        </option>
+                      {projectAddendums.filter(version => version.id !== editingAddendumId && version.targetMingguan.length > 0).map(version => (
+                        <option key={version.id} value={version.id}>Salin dari {version.nomorAddendum}</option>
                       ))}
                     </select>
-
-                    <button
-                      type="button"
-                      onClick={handleAddTargetPoint}
-                      className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-2xs transition-colors"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      Tambah Minggu
-                    </button>
-                  </div>
+                  )}
                 </div>
 
-                {/* Table of Points */}
-                {!curveReadOnly && <CurveTargetExcelActions key={editingAddendumId} onImport={setAddTargetMingguan} />}
+                <CurveTargetExcelActions
+                  key={[editingAddendumId, targetWeeks[0]?.start, targetWeeks.at(-1)?.end].join(':')}
+                  weeks={targetWeeks}
+                  versionName={selectedProject.kodePaket + '-' + addNomor}
+                  onImport={curveReadOnly ? undefined : setAddTargetMingguan}
+                />
 
-                <div className="border border-slate-200 rounded-xl overflow-hidden max-h-60 overflow-y-auto overflow-x-auto">
-                  <table className="w-full text-left text-xs divide-y divide-slate-200 min-w-[320px]">
-                    <thead className="bg-slate-50 text-slate-600 font-bold">
-                      <tr>
-                        <th className="px-3 py-2">Minggu</th>
-                        <th className="px-3 py-2">Target Kumulatif (%)</th>
-                        <th className="px-3 py-2">Bobot (%)</th>
-                        <th className="px-3 py-2 text-right">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {addTargetMingguan.map((pt, index) => (
-                        <tr key={index} className="hover:bg-slate-50/60">
-                          <td className="px-3 py-1.5 font-bold">
-                            <input
-                              type="text"
-                              value={pt.mingguKe}
-                              onChange={e => handleUpdateTargetPoint(index, 'mingguKe', e.target.value)}
-                              className="w-24 px-2 py-1 text-xs border border-slate-200 rounded font-bold font-mono"
-                            />
-                          </td>
-                          <td className="px-3 py-1.5">
-                            <div className="flex items-center gap-1">
-                              <input
-                                type="number"
-                                step="0.1"
-                                value={pt.targetKumulatif}
-                                onChange={e => handleUpdateTargetPoint(index, 'targetKumulatif', Number(e.target.value))}
-                                className="w-24 px-2 py-1 text-xs border border-slate-200 rounded font-bold text-blue-700 bg-blue-50/20"
-                              />
-                              <span className="text-slate-400 font-semibold">%</span>
-                            </div>
-                          </td>
-                          <td className="px-3 py-1.5">
-                            <input
-                              type="number"
-                              step="0.1"
-                              value={pt.bobotTarget ?? ''}
-                              onChange={e => handleUpdateTargetPoint(index, 'bobotTarget', e.target.value ? Number(e.target.value) : undefined)}
-                              placeholder="Otomatis"
-                              className="w-20 px-2 py-1 text-xs border border-slate-200 rounded text-slate-600"
-                            />
-                          </td>
-                          <td className="px-3 py-1.5 text-right">
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveTargetPoint(index)}
-                              className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors"
-                              title="Hapus baris"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </td>
+                {(targetWeeks.length > 0 || legacyTargets.length > 0) && (
+                  <div className="overflow-x-auto rounded-xl border border-slate-200">
+                    <table className="w-full min-w-[470px] divide-y divide-slate-200 text-left text-xs">
+                      <thead className="bg-slate-50 text-slate-700">
+                        <tr>
+                          {['Minggu', 'Tanggal Awal', 'Tanggal Akhir', 'Target Kumulatif (%)', 'Bobot (%)'].map(label => (
+                            <th key={label} scope="col" className="px-3 py-2">{label}</th>
+                          ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {targetWeeks.map(week => {
+                          const point = targetByWeek.get(week.number);
+                          return (
+                            <tr key={week.number} className="hover:bg-slate-50">
+                              <th scope="row" className="whitespace-nowrap px-3 py-2 font-semibold">Minggu ke-{week.number}</th>
+                              <td className="whitespace-nowrap px-3 py-2">{reportDateLabel(week.start)}</td>
+                              <td className="whitespace-nowrap px-3 py-2">{reportDateLabel(week.end)}</td>
+                              {(['targetKumulatif', 'bobotTarget'] as const).map(field => (
+                                <td key={field} className="px-3 py-2">
+                                  {curveReadOnly ? (point?.[field] ?? '—') : (
+                                    <input
+                                      aria-label={(field === 'targetKumulatif' ? 'Target kumulatif' : 'Bobot') + ' minggu ke-' + week.number}
+                                      type="number" min="0" max="100" step="0.01"
+                                      value={point?.[field] ?? ''}
+                                      onChange={event => handleUpdateTargetPoint(week, field, event.target.value)}
+                                      className="w-20 rounded border border-slate-300 px-2 py-1 text-slate-800"
+                                    />
+                                  )}
+                                </td>
+                              ))}
+                            </tr>
+                          );
+                        })}
+                        {legacyTargets.length > 0 && (
+                          <tr><th colSpan={5} className="bg-slate-50 px-3 py-2 text-slate-700">Target tersimpan di luar jadwal</th></tr>
+                        )}
+                        {legacyTargets.map((point, index) => (
+                          <tr key={'lama-' + index}>
+                            <th scope="row" className="px-3 py-2">{point.mingguKe}</th>
+                            <td className="px-3 py-2">{point.tanggalMulai ? reportDateLabel(point.tanggalMulai) : '—'}</td>
+                            <td className="px-3 py-2">{point.tanggalSelesai ? reportDateLabel(point.tanggalSelesai) : '—'}</td>
+                            <td className="px-3 py-2">{point.targetKumulatif ?? '—'}</td>
+                            <td className="px-3 py-2">{point.bobotTarget ?? '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
 
               </fieldset>

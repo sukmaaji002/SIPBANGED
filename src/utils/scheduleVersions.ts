@@ -1,10 +1,11 @@
-import type { ScheduleAddendum, ScheduleReconciliation, ScheduleReconciliationItem, ScheduleTransitionDraft, WeeklyProgress } from '../types';
+import type { ScheduleAddendum, WeeklyProgress } from '../types';
 import { buildReportingWeeks, getReportingTarget, type ReportingWeek } from './reportingSchedule';
 
 export interface VersionPeriod extends ReportingWeek {
   key: string;
   version?: ScheduleAddendum;
   endsAtTransition: boolean;
+  weekStart: string;
 }
 
 export function isOriginalSchedule(version: ScheduleAddendum) {
@@ -32,6 +33,16 @@ export function scheduleForDate(versions: ScheduleAddendum[], date: string) {
     ?? versions.find(isOriginalSchedule);
 }
 
+export function buildScheduleTargetWeeks(
+  versions: ScheduleAddendum[], version: ScheduleAddendum, start?: string, end?: string,
+): ReportingWeek[] {
+  const date = version.tanggalBerlaku || scheduleEffectiveDate(version) || version.tanggal;
+  const inheritedEnd = isOriginalSchedule(version) ? undefined : scheduleTimeline(versions)
+    .filter(entry => entry.date <= date && entry.version.id !== version.id && entry.version.tanggalSelesaiBaru)
+    .at(-1)?.version.tanggalSelesaiBaru;
+  return buildReportingWeeks(start, version.tanggalSelesaiBaru || inheritedEnd || end);
+}
+
 export function dayBefore(date: string) {
   const day = new Date(date + 'T00:00:00Z');
   day.setUTCDate(day.getUTCDate() - 1);
@@ -55,7 +66,7 @@ export function buildVersionPeriods(versions: ScheduleAddendum[], start?: string
       const nextStart = starts[index + 1];
       const periodEnd = [effectiveEnd, nextStart ? dayBefore(nextStart) : week.end].sort()[0];
       if (periodEnd < periodStart) return [];
-      return [{ number: week.number, start: periodStart, end: periodEnd, key: periodStart, version, endsAtTransition: Boolean(nextStart) }];
+      return [{ number: week.number, start: periodStart, end: periodEnd, key: periodStart, version, weekStart: week.start, endsAtTransition: Boolean(nextStart) }];
     });
   });
 }
@@ -68,6 +79,7 @@ export function targetForPeriod(period?: VersionPeriod) {
       scheduleEffectiveDate(period.version) === period.start) {
     return { ...target, weight: Number((target.cumulative - transitionTarget).toFixed(2)) };
   }
+  if (period.start !== period.weekStart) return { cumulative: target.cumulative, weight: undefined };
   return target;
 }
 
@@ -79,45 +91,4 @@ export function isReportInVersion(report: WeeklyProgress, version: ScheduleAdden
   const id = reportedScheduleId(report);
   return id ? id === version.id
     : isOriginalSchedule(version) && isOriginalSchedule(scheduleForDate(versions, report.periodeMulai) ?? version);
-}
-
-export function reconciliationActual(items: ScheduleReconciliationItem[]) {
-  return Number(items.reduce((sum, item) => sum + item.volumeTerverifikasi / item.volumeKontrakBaru * item.bobotBaru, 0).toFixed(2));
-}
-
-export function transitionDraft(date = '', data?: ScheduleReconciliation): ScheduleTransitionDraft {
-  return {
-    date, mode: data?.metode ?? 'tetap', before: String(data?.realisasiSebelum ?? ''),
-    after: String(data?.realisasiSesudah ?? ''), basis: data?.dasar ?? '',
-    target: String(data?.targetPeralihan ?? ''),
-    riwayatMingguan: Object.fromEntries((data?.riwayatMingguan ?? []).map(report => [report.laporanId, String(report.realisasi)])),
-    items: (data?.items ?? []).map(item => ({
-      pekerjaan: item.pekerjaan, volumeTerverifikasi: String(item.volumeTerverifikasi),
-      volumeKontrakBaru: String(item.volumeKontrakBaru), bobotBaru: String(item.bobotBaru),
-    })),
-  };
-}
-
-const numberFrom = (value: string) => value.trim() ? Number(value) : NaN;
-const percent = (value: number) => Number.isFinite(value) && value >= 0 && value <= 100;
-
-export function parseScheduleTransition(draft: ScheduleTransitionDraft, suggested?: number, earlierReports: WeeklyProgress[] = []): ScheduleReconciliation | undefined {
-  const before = draft.before.trim() ? numberFrom(draft.before) : suggested;
-  const items = draft.mode === 'hitung-ulang' ? draft.items.map(item => ({
-    pekerjaan: item.pekerjaan.trim(), volumeTerverifikasi: numberFrom(item.volumeTerverifikasi),
-    volumeKontrakBaru: numberFrom(item.volumeKontrakBaru), bobotBaru: numberFrom(item.bobotBaru),
-  })) : [];
-  if (items.some(item => !item.pekerjaan || !Number.isFinite(item.volumeKontrakBaru) || item.volumeKontrakBaru <= 0 ||
-      !Number.isFinite(item.volumeTerverifikasi) || item.volumeTerverifikasi < 0 ||
-      item.volumeTerverifikasi > item.volumeKontrakBaru || !percent(item.bobotBaru))) return undefined;
-  if (items.length && Math.abs(items.reduce((sum, item) => sum + item.bobotBaru, 0) - 100) > 0.01) return undefined;
-  const after = draft.mode === 'tetap' ? before : items.length ? reconciliationActual(items) : numberFrom(draft.after);
-  const target = draft.target.trim() ? numberFrom(draft.target) : undefined;
-  const history = draft.mode === 'hitung-ulang' ? earlierReports.flatMap(report => {
-    const value = draft.riwayatMingguan?.[report.id]?.trim();
-    return value ? [{ laporanId: report.id, tanggalAkhir: report.periodeSelesai, realisasi: numberFrom(value) }] : [];
-  }) : [];
-  if (before === undefined || after === undefined || !percent(before) || !percent(after) ||
-      !draft.basis.trim() || history.some(report => !percent(report.realisasi)) || (target !== undefined && !percent(target))) return undefined;
-  return { metode: draft.mode, realisasiSebelum: before, realisasiSesudah: after, dasar: draft.basis.trim(), targetPeralihan: target, items, riwayatMingguan: history.length ? history : undefined };
 }

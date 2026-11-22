@@ -1,6 +1,6 @@
 import type { Cell, CellValue, Worksheet } from 'exceljs';
 import type { ScheduleAddendumPoint } from '../types';
-import { reportingWeekNumber } from './reportingSchedule';
+import { reportingWeekNumber, type ReportingWeek } from './reportingSchedule';
 
 const sheetName = 'Target Mingguan';
 const requiredHeaders = ['minggu', 'target kumulatif (%)'] as const;
@@ -36,7 +36,7 @@ function percent(cell: Cell): number {
   return Number(value.trim().replace('%', '').replace(',', '.'));
 }
 
-export async function importScheduleTargets(file: File): Promise<ScheduleAddendumPoint[]> {
+export async function importScheduleTargets(file: File, weeks: ReportingWeek[]): Promise<ScheduleAddendumPoint[]> {
   if (!/\.xlsx$/i.test(file.name)) throw new Error('Pilih berkas Excel berformat .xlsx.');
   if (!file.size || file.size > maxFileSize) throw new Error('Pilih berkas Excel yang berisi data dengan ukuran hingga 5 MB.');
 
@@ -57,6 +57,7 @@ export async function importScheduleTargets(file: File): Promise<ScheduleAddendu
     throw new Error('Baris pertama harus berisi kolom Minggu dan Target Kumulatif (%). Gunakan template untuk format yang sesuai.');
   }
   const weightColumn = headerColumn(sheet, 'bobot (%)');
+  const calendar = new Map(weeks.map(week => [week.number, week]));
   const points = new Map<number, ScheduleAddendumPoint>();
   const errors: string[] = [];
   sheet.eachRow((row, index) => {
@@ -64,13 +65,15 @@ export async function importScheduleTargets(file: File): Promise<ScheduleAddendu
     const weekCell = row.getCell(weekColumn);
     const targetCell = row.getCell(targetColumn);
     const weightCell = weightColumn ? row.getCell(weightColumn) : undefined;
-    if (isBlank(weekCell) && isBlank(targetCell) && (!weightCell || isBlank(weightCell))) return;
+    if (isBlank(targetCell) && (!weightCell || isBlank(weightCell))) return;
 
     const weekValue = valueOf(weekCell);
     const week = typeof weekValue === 'string' || typeof weekValue === 'number' ? reportingWeekNumber(weekValue) : undefined;
+    const period = week === undefined ? undefined : calendar.get(week);
     const target = percent(targetCell);
     const weight = weightCell && !isBlank(weightCell) ? percent(weightCell) : undefined;
     if (week === undefined) errors.push(`Baris ${index}. Minggu harus berupa nomor seperti 1 atau M-1.`);
+    else if (!period) errors.push(`Baris ${index}. Minggu ke-${week} di luar jadwal yang dipilih.`);
     else if (points.has(week)) errors.push(`Baris ${index}. Minggu ke-${week} tercatat lebih dari sekali.`);
     else if (!Number.isFinite(target) || target < 0 || target > 100) {
       errors.push(`Baris ${index}. Target kumulatif harus berisi angka 0 sampai 100%.`);
@@ -78,6 +81,8 @@ export async function importScheduleTargets(file: File): Promise<ScheduleAddendu
       errors.push(`Baris ${index}. Bobot harus kosong atau berisi angka 0 sampai 100%.`);
     } else {
       points.set(week, {
+        tanggalMulai: period.start,
+        tanggalSelesai: period.end,
         mingguKe: `M-${week}`,
         targetKumulatif: Number(target.toFixed(2)),
         bobotTarget: weight === undefined ? undefined : Number(weight.toFixed(2)),
@@ -90,4 +95,32 @@ export async function importScheduleTargets(file: File): Promise<ScheduleAddendu
   }
   if (!points.size) throw new Error('Belum ada target mingguan. Isi data mulai baris kedua, lalu impor kembali.');
   return [...points.entries()].sort(([a], [b]) => a - b).map(([, point]) => point);
+}
+
+export async function createScheduleTargetTemplate(weeks: ReportingWeek[]): Promise<Blob> {
+  const { default: ExcelJS } = await import('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet(sheetName, { views: [{ state: 'frozen', ySplit: 1 }] });
+  sheet.columns = [
+    { header: 'Minggu', width: 12 },
+    { header: 'Tanggal Awal', width: 17, style: { numFmt: 'dd/mm/yyyy' } },
+    { header: 'Tanggal Akhir', width: 17, style: { numFmt: 'dd/mm/yyyy' } },
+    { header: 'Target Kumulatif (%)', width: 23 },
+    { header: 'Bobot (%)', width: 15 },
+  ];
+  sheet.getRow(1).eachCell(cell => {
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF065F46' } };
+  });
+  for (const week of weeks) {
+    sheet.addRow([
+      week.number,
+      new Date(week.start + 'T00:00:00Z'),
+      new Date(week.end + 'T00:00:00Z'),
+    ]);
+  }
+  const buffer = await workbook.xlsx.writeBuffer();
+  return new Blob([new Uint8Array(buffer)], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
 }

@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { ScheduleAddendum, WeeklyProgress } from '../../types';
 import { formatTanggalSingkat } from '../../utils/formatters';
-import { buildReportingWeeks, reportingWeekNumber } from '../../utils/reportingSchedule';
-import { dayBefore, isOriginalSchedule, isReportInVersion, scheduleEffectiveDate, scheduleTimeline } from '../../utils/scheduleVersions';
+import { reportingWeekNumber } from '../../utils/reportingSchedule';
+import { dayBefore, isOriginalSchedule, isReportInVersion, scheduleEffectiveDate, buildScheduleTargetWeeks } from '../../utils/scheduleVersions';
 
 function shortDate(date: string) {
   return formatTanggalSingkat(/^\d{4}-\d{2}-\d{2}$/.test(date) ? date + 'T00:00:00' : date);
 }
 
-export function ScheduleReconciliationSummary({ version }: { version: ScheduleAddendum }) {
+function ScheduleReconciliationSummary({ version }: { version: ScheduleAddendum }) {
   const result = version.rekonsiliasi;
   if (!result) return null;
   return (
@@ -64,11 +64,7 @@ export function ScheduleVersionChart({ versions, active, reports, start, end }: 
   }
   for (const [schedule, field] of [[version, 'target'], [history && original?.id !== version?.id ? original : undefined, 'original']] as const) {
     if (!schedule) continue;
-    const cutoff = scheduleEffectiveDate(schedule);
-    const inheritedEnd = cutoff
-      ? scheduleTimeline(versions).filter(entry => entry.date <= cutoff && entry.version.tanggalSelesaiBaru).at(-1)?.version.tanggalSelesaiBaru
-      : undefined;
-    const weeks = buildReportingWeeks(start, schedule.tanggalSelesaiBaru || inheritedEnd || end);
+    const weeks = buildScheduleTargetWeeks(versions, schedule, start, end);
     schedule.targetMingguan.forEach(point => {
       const number = reportingWeekNumber(point.mingguKe);
       const date = point.tanggalSelesai || (number ? weeks[number - 1]?.end : undefined);
@@ -96,10 +92,10 @@ export function ScheduleVersionChart({ versions, active, reports, start, end }: 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-slate-900">Kurva S per versi</h3>
-          <p className="text-xs text-slate-600">Acuan berlaku {active?.nomorAddendum ?? 'Kontrak Awal'}</p>
+          <p className="text-xs text-slate-600">Jadwal aktif {active?.nomorAddendum ?? 'Kontrak Awal'}</p>
         </div>
         <nav aria-label="Tampilan Kurva S" className="flex gap-1 rounded-lg bg-slate-100 p-1">
-          <button type="button" aria-pressed={!history} onClick={() => setHistory(false)} className="rounded px-2.5 py-1.5 text-xs font-semibold aria-pressed:bg-white">Acuan Berlaku</button>
+          <button type="button" aria-pressed={!history} onClick={() => setHistory(false)} className="rounded px-2.5 py-1.5 text-xs font-semibold aria-pressed:bg-white">Jadwal Aktif</button>
           <button type="button" aria-pressed={history} onClick={() => setHistory(true)} className="rounded px-2.5 py-1.5 text-xs font-semibold aria-pressed:bg-white">Riwayat & Perbandingan</button>
         </nav>
       </div>
@@ -111,7 +107,7 @@ export function ScheduleVersionChart({ versions, active, reports, start, end }: 
         </label>
       )}
       {effective && <p className="text-xs font-semibold text-slate-700">Berlaku mulai {shortDate(effective)}</p>}
-      {version && <ScheduleReconciliationSummary version={version} />}
+      {history && version && <ScheduleReconciliationSummary version={version} />}
       {data.length === 0 ? <p className="text-sm text-slate-600">Belum ada titik target atau realisasi untuk versi ini.</p> : (
         <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
