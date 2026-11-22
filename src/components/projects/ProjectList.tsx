@@ -1,348 +1,266 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { ArrowRight, Building2, Check, ChevronDown, MapPin, Plus, Search } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { formatRupiah, formatTanggalIndo } from '../../utils/formatters';
+import type { Project, ProjectStage } from '../../types';
+import { formatRupiah } from '../../utils/formatters';
 import { hasPermission } from '../../utils/permissions';
-import { 
-  Building2, 
-  Plus, 
-  Search, 
-  MapPin, 
-  Calendar, 
-  UserCheck, 
-  Shield, 
-  TrendingUp, 
-  Coins,
-  ArrowRight,
-  HardHat,
-  ClipboardCheck,
-  Compass
-} from 'lucide-react';
+import type { ActiveTab } from '../layout/Sidebar';
 import { NewProjectModal } from './NewProjectModal';
-import { ActiveTab } from '../layout/Sidebar';
 
 interface ProjectListProps {
   onNavigate: (tab: ActiveTab) => void;
 }
 
-export const ProjectList: React.FC<ProjectListProps> = ({ onNavigate }) => {
-  const { projects, selectedProjectId, setSelectedProjectId, currentUser } = useApp();
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [stageFilter, setStageFilter] = useState<string>('all');
-
-  const canCreateProject = hasPermission(currentUser?.role, 'create_project');
-
-  const filteredProjects = projects.filter(p => {
-    const matchesSearch = 
-      p.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.kodePaket.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.kontraktorNama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.lokasi.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStage = stageFilter === 'all' || p.stage === stageFilter;
-    return matchesSearch && matchesStage;
-  });
-
-  return (
-    <div className="space-y-6">
-      
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-black text-slate-800 tracking-tight">
-            Katalog Proyek Bangunan Gedung Kab. Tegal
-          </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Kelola data paket pekerjaan konstruksi Bidang Penataan Bangunan dan Lingkungan, Tata Ruang (PBLTARU)
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {canCreateProject ? (
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              Tambah Paket Proyek
-            </button>
-          ) : (
-            <div 
-              className="px-3 py-1.5 bg-slate-100 text-slate-400 text-xs font-semibold rounded-xl border border-slate-200 cursor-not-allowed flex items-center gap-1.5"
-              title="Hanya PPK / Admin yang berwenang menambah paket proyek"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Tambah Proyek (Perlu Akses PPK/Admin)</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-        <div className="relative flex-1 min-w-[260px]">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" />
-          <input
-            type="text"
-            placeholder="Cari nama gedung, nomor paket, kontraktor, atau kecamatan..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-medium"
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-500">Filter Siklus:</span>
-          <select
-            value={stageFilter}
-            onChange={e => setStageFilter(e.target.value)}
-            className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold text-slate-700"
-          >
-            <option value="all">Semua Tahapan ({projects.length})</option>
-            <option value="perencanaan">Perencanaan</option>
-            <option value="pelaksanaan">Pelaksanaan</option>
-            <option value="pemeliharaan">Pemeliharaan</option>
-            <option value="selesai">Selesai / FHO</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {filteredProjects.map((p) => {
-          const isSelected = p.id === selectedProjectId;
-          const deviasi = p.progresFisikRealisasi - p.progresFisikRencana;
-          const isAhead = deviasi >= 0;
-
-          return (
-            <div
-              key={p.id}
-              className={`bg-white rounded-2xl border p-5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between ${
-                isSelected 
-                  ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
-                  : 'border-slate-200/80 hover:border-slate-300'
-              }`}
-            >
-              <div>
-                {/* Header card */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-md">
-                      {p.kodePaket}
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                      {p.sumberDana} • {p.tahunAnggaran}
-                    </span>
-                  </div>
-
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${
-                    p.stage === 'pelaksanaan' ? 'bg-amber-100 text-amber-800' :
-                    p.stage === 'pemeliharaan' ? 'bg-cyan-100 text-cyan-800' :
-                    p.stage === 'perencanaan' ? 'bg-indigo-100 text-indigo-800' :
-                    'bg-emerald-100 text-emerald-800'
-                  }`}>
-                    Tahap {p.stage}
-                  </span>
-                </div>
-
-                {/* Title */}
-                <h3 className="font-extrabold text-slate-900 text-sm mt-3 leading-snug">
-                  {p.nama}
-                </h3>
-
-                <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                  {p.deskripsi}
-                </p>
-
-                {/* Lokasi & PPK Acuan */}
-                <div className="mt-3 flex items-center justify-between text-[11px] bg-slate-50 p-2 rounded-xl border border-slate-100">
-                  <div className="flex items-center gap-1.5 text-slate-600 truncate max-w-[55%]">
-                    <MapPin className="w-3.5 h-3.5 text-rose-500 flex-shrink-0" />
-                    <span className="truncate">{p.lokasi}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-[10px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200 truncate">
-                    <UserCheck className="w-3 h-3 flex-shrink-0 text-blue-600" />
-                    <span className="truncate font-semibold">PPK: {p.ppkNama?.split(',')[0]}</span>
-                  </div>
-                </div>
-
-                {/* 3 Komponen Paket Kontrak dalam Proyek (Fisik, Pengawas, Perencana) */}
-                <div className="mt-2.5 space-y-1.5">
-                  <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                    Paket Kontrak Proyek:
-                  </div>
-
-                  {/* 1. Paket Fisik */}
-                  <div className={`p-2 rounded-xl border text-xs transition-all ${
-                    p.hasFisik !== false && p.kontraktorNama && p.kontraktorNama !== '-'
-                      ? 'bg-emerald-50/50 border-emerald-200 text-slate-800'
-                      : 'bg-slate-50 border-slate-200/80 text-slate-400'
-                  }`}>
-                    <div className="flex items-center justify-between gap-1">
-                      <div className="flex items-center gap-1.5 font-bold truncate">
-                        <HardHat className={`w-3.5 h-3.5 flex-shrink-0 ${p.hasFisik !== false && p.kontraktorNama && p.kontraktorNama !== '-' ? 'text-emerald-600' : 'text-slate-400'}`} />
-                        <span className="text-[11px] text-slate-700">Fisik:</span>
-                        <span className="text-[11px] truncate font-extrabold text-slate-900">
-                          {p.hasFisik !== false && p.kontraktorNama && p.kontraktorNama !== '-' ? p.kontraktorNama : 'Tidak Ada Paket Fisik'}
-                        </span>
-                      </div>
-                      {p.hasFisik !== false && p.kontraktorNama && p.kontraktorNama !== '-' ? (
-                        <span className="text-[10px] font-mono font-bold text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-200 flex-shrink-0">
-                          {formatRupiah(p.nilaiKontrakFisik || p.nilaiKontrak)}
-                        </span>
-                      ) : (
-                        <span className="text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded flex-shrink-0">Nonaktif</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* 2. Konsultan Pengawas */}
-                  <div className={`p-2 rounded-xl border text-xs transition-all ${
-                    p.hasPengawas !== false && p.pengawasNama && p.pengawasNama !== '-'
-                      ? 'bg-teal-50/50 border-teal-200 text-slate-800'
-                      : 'bg-slate-50 border-slate-200/80 text-slate-400'
-                  }`}>
-                    <div className="flex items-center justify-between gap-1">
-                      <div className="flex items-center gap-1.5 font-bold truncate">
-                        <ClipboardCheck className={`w-3.5 h-3.5 flex-shrink-0 ${p.hasPengawas !== false && p.pengawasNama && p.pengawasNama !== '-' ? 'text-teal-600' : 'text-slate-400'}`} />
-                        <span className="text-[11px] text-slate-700">Pengawas:</span>
-                        <span className="text-[11px] truncate font-extrabold text-slate-900">
-                          {p.hasPengawas !== false && p.pengawasNama && p.pengawasNama !== '-' ? p.pengawasNama : 'Tidak Ada Paket Pengawas'}
-                        </span>
-                      </div>
-                      {p.hasPengawas !== false && p.pengawasNama && p.pengawasNama !== '-' ? (
-                        <span className="text-[10px] font-mono font-bold text-teal-700 bg-white px-1.5 py-0.5 rounded border border-teal-200 flex-shrink-0">
-                          {formatRupiah(p.nilaiKontrakPengawas || Math.round(p.nilaiKontrak * 0.035))}
-                        </span>
-                      ) : (
-                        <span className="text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded flex-shrink-0">Nonaktif</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* 3. Konsultan Perencana */}
-                  <div className={`p-2 rounded-xl border text-xs transition-all ${
-                    p.hasPerencana !== false && p.perencanaNama && p.perencanaNama !== '-'
-                      ? 'bg-indigo-50/50 border-indigo-200 text-slate-800'
-                      : 'bg-slate-50 border-slate-200/80 text-slate-400'
-                  }`}>
-                    <div className="flex items-center justify-between gap-1">
-                      <div className="flex items-center gap-1.5 font-bold truncate">
-                        <Compass className={`w-3.5 h-3.5 flex-shrink-0 ${p.hasPerencana !== false && p.perencanaNama && p.perencanaNama !== '-' ? 'text-indigo-600' : 'text-slate-400'}`} />
-                        <span className="text-[11px] text-slate-700">Perencana:</span>
-                        <span className="text-[11px] truncate font-extrabold text-slate-900">
-                          {p.hasPerencana !== false && p.perencanaNama && p.perencanaNama !== '-' ? p.perencanaNama : 'Tidak Ada Paket Perencana'}
-                        </span>
-                      </div>
-                      {p.hasPerencana !== false && p.perencanaNama && p.perencanaNama !== '-' ? (
-                        <span className="text-[10px] font-mono font-bold text-indigo-700 bg-white px-1.5 py-0.5 rounded border border-indigo-200 flex-shrink-0">
-                          {formatRupiah(p.nilaiKontrakPerencana || Math.round(p.nilaiKontrak * 0.045))}
-                        </span>
-                      ) : (
-                        <span className="text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded flex-shrink-0">Nonaktif</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Financial Summary */}
-                <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                    <span className="text-[10px] text-slate-400 font-semibold block">Total Kontrak Proyek</span>
-                    <span className="font-extrabold text-emerald-700 text-xs">
-                      {formatRupiah(p.nilaiKontrak)}
-                    </span>
-                  </div>
-                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                    <span className="text-[10px] text-slate-400 font-semibold block">Pagu Anggaran</span>
-                    <span className="font-bold text-slate-600 text-xs">
-                      {formatRupiah(p.paguAnggaran)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Progress Fisik */}
-                <div className="mt-3">
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-700">
-                      <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Progres Fisik: {p.progresFisikRealisasi}%</span>
-                    </div>
-                    <span className={`text-[10px] font-bold ${isAhead ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      Deviasi: {isAhead ? `+${deviasi.toFixed(1)}%` : `${deviasi.toFixed(1)}%`}
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        isAhead ? 'bg-emerald-500' : 'bg-rose-500'
-                      }`}
-                      style={{ width: `${Math.min(100, p.progresFisikRealisasi)}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action buttons */}
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                <button
-                  onClick={() => {
-                    setSelectedProjectId(p.id);
-                  }}
-                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
-                    isSelected
-                      ? 'bg-emerald-100 text-emerald-800 cursor-default'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                  }`}
-                >
-                  {isSelected ? '✓ Proyek Terpilih' : 'Pilih Proyek Ini'}
-                </button>
-
-                <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={() => {
-                      setSelectedProjectId(p.id);
-                      onNavigate('kontrak');
-                    }}
-                    className="text-xs px-2.5 py-1.5 text-blue-700 bg-blue-50 hover:bg-blue-100 font-semibold rounded-lg transition-colors"
-                    title="Lihat & Edit Kontrak LKPP"
-                  >
-                    Kontrak
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedProjectId(p.id);
-                      onNavigate('berita-acara');
-                    }}
-                    className="text-xs px-2.5 py-1.5 text-purple-700 bg-purple-50 hover:bg-purple-100 font-semibold rounded-lg transition-colors"
-                    title="Lihat & Buat Berita Acara"
-                  >
-                    Berita Acara
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedProjectId(p.id);
-                      onNavigate('pelaksanaan');
-                    }}
-                    className="text-xs px-2.5 py-1.5 text-white bg-slate-800 hover:bg-slate-900 font-bold rounded-lg transition-colors flex items-center gap-1"
-                  >
-                    Detail <ArrowRight className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          );
-        })}
-      </div>
-
-      <NewProjectModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
-
-    </div>
-  );
+const stages: Record<ProjectStage, { label: string; color: string }> = {
+  perencanaan: { label: 'Perencanaan', color: 'bg-indigo-50 text-indigo-800' },
+  pelaksanaan: { label: 'Pelaksanaan', color: 'bg-amber-50 text-amber-800' },
+  pengawasan: { label: 'Pengawasan', color: 'bg-teal-50 text-teal-800' },
+  pemeliharaan: { label: 'Pemeliharaan', color: 'bg-cyan-50 text-cyan-800' },
+  selesai: { label: 'Selesai / FHO', color: 'bg-emerald-50 text-emerald-800' },
 };
 
+const fieldClass = 'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 focus-visible:outline-2 focus-visible:outline-emerald-600';
+const secondaryActionClass = 'rounded-md px-2.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900';
+
+function ProjectDetails({ project }: { project: Project }) {
+  const packages = [
+    {
+      label: 'Fisik',
+      active: project.hasFisik,
+      company: project.kontraktorNama,
+      value: project.nilaiKontrakFisik || project.nilaiKontrak,
+    },
+    {
+      label: 'Pengawas',
+      active: project.hasPengawas,
+      company: project.pengawasNama,
+      value: project.nilaiKontrakPengawas || Math.round(project.nilaiKontrak * 0.035),
+    },
+    {
+      label: 'Perencana',
+      active: project.hasPerencana,
+      company: project.perencanaNama,
+      value: project.nilaiKontrakPerencana || Math.round(project.nilaiKontrak * 0.045),
+    },
+  ];
+
+  return (
+    <details className="group border-t border-slate-100">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 [&::-webkit-details-marker]:hidden sm:px-5">
+        Informasi proyek dan paket kontrak
+        <ChevronDown aria-hidden="true" className="size-4 shrink-0 transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="space-y-3 px-4 pb-4 text-sm sm:px-5">
+        {project.deskripsi && <p className="leading-relaxed text-slate-600">{project.deskripsi}</p>}
+        {project.ppkNama && <p className="text-slate-600"><span className="font-semibold">PPK</span> {project.ppkNama}</p>}
+        <dl className="divide-y divide-slate-200 rounded-lg bg-slate-50 px-3">
+          {packages.map(({ label, active, company, value }) => {
+            const hasPackage = active !== false && Boolean(company?.trim()) && company.trim() !== '-';
+            return (
+              <div key={label} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-2.5">
+                <dt className="font-medium text-slate-600">{label}</dt>
+                <dd className="min-w-0 basis-full text-slate-800">
+                  {hasPackage ? (
+                    <span className="flex flex-wrap justify-between gap-x-3 gap-y-1">
+                      <span className="min-w-0 break-words">{company}</span>
+                      <span className="font-semibold tabular-nums">{formatRupiah(value)}</span>
+                    </span>
+                  ) : <span className="text-slate-500">Tidak ada paket</span>}
+                </dd>
+              </div>
+            );
+          })}
+        </dl>
+      </div>
+    </details>
+  );
+}
+
+export function ProjectList({ onNavigate }: ProjectListProps) {
+  const { projects, selectedProjectId, setSelectedProjectId, currentUser } = useApp();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [stageFilter, setStageFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState('');
+
+  const canCreateProject = hasPermission(currentUser?.role, 'create_project');
+  const years = [...new Set(projects.map(project => Number(project.tahunAnggaran)))]
+    .filter(year => Number.isInteger(year) && year > 0)
+    .sort((a, b) => b - a);
+  const selectedYear = years.includes(Number(yearFilter)) ? yearFilter : '';
+  const query = searchTerm.trim().toLowerCase();
+  const hasFilters = Boolean(query || stageFilter || selectedYear);
+  const filteredProjects = projects.filter(project =>
+    (!query || [project.nama, project.kodePaket, project.kontraktorNama, project.lokasi]
+      .some(value => value?.toLowerCase().includes(query))) &&
+    (!stageFilter || project.stage === stageFilter) &&
+    (!selectedYear || Number(project.tahunAnggaran) === Number(selectedYear)),
+  );
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setStageFilter('');
+    setYearFilter('');
+  };
+
+  const openProject = (projectId: string, tab: ActiveTab) => {
+    setSelectedProjectId(projectId);
+    onNavigate(tab);
+  };
+
+  return (
+    <section className="@container space-y-5">
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-1">
+          <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">Daftar Paket Proyek</h2>
+          <p className="text-sm text-slate-600">Katalog proyek bangunan gedung Kabupaten Tegal</p>
+        </div>
+        {canCreateProject ? (
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-emerald-700 px-3.5 text-sm font-semibold text-white hover:bg-emerald-800"
+          >
+            <Plus aria-hidden="true" className="size-4" />
+            Tambah Paket Proyek
+          </button>
+        ) : (
+          <p className="self-center text-xs text-slate-600">Penambahan proyek memerlukan akses PPK atau Admin.</p>
+        )}
+      </header>
+
+      <div className="grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-white p-3.5 @min-[37rem]:grid-cols-[minmax(0,1fr)_9.5rem_10rem]">
+        <label className="col-span-2 flex min-w-0 flex-col gap-1.5 text-sm font-medium text-slate-700 @min-[37rem]:col-span-1">
+          Cari proyek
+          <span className="relative">
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="search"
+              placeholder="Nama, kode, kontraktor, atau lokasi"
+              value={searchTerm}
+              onChange={event => setSearchTerm(event.target.value)}
+              className={`${fieldClass} pl-9`}
+            />
+          </span>
+        </label>
+        <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-slate-700">
+          Tahun anggaran
+          <select value={selectedYear} onChange={event => setYearFilter(event.target.value)} className={fieldClass}>
+            <option value="">Semua tahun</option>
+            {years.map(year => <option key={year} value={year}>{year}</option>)}
+          </select>
+        </label>
+        <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-slate-700">
+          Tahapan
+          <select value={stageFilter} onChange={event => setStageFilter(event.target.value)} className={fieldClass}>
+            <option value="">Semua tahapan</option>
+            {Object.entries(stages).map(([stage, { label }]) => <option key={stage} value={stage}>{label}</option>)}
+          </select>
+        </label>
+      </div>
+
+      <div className="flex min-h-8 flex-wrap items-center justify-between gap-2">
+        <p role="status" className="text-sm text-slate-600">
+          {hasFilters ? `${filteredProjects.length} dari ${projects.length} proyek` : `${projects.length} proyek`}
+        </p>
+        {hasFilters && (
+          <button type="button" onClick={resetFilters} className="rounded px-2 py-1 text-sm font-semibold text-emerald-800 hover:bg-emerald-50">
+            Reset filter
+          </button>
+        )}
+      </div>
+
+      {filteredProjects.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-10 text-center">
+          <Building2 aria-hidden="true" className="mx-auto mb-3 size-6 text-slate-400" />
+          <h3 className="font-semibold text-slate-900">{hasFilters ? 'Tidak ada proyek yang cocok' : 'Belum ada proyek'}</h3>
+          {hasFilters && <p className="mt-1 text-sm text-slate-600">Ubah kata kunci atau filter untuk melihat proyek lain.</p>}
+        </div>
+      ) : (
+        <div className="grid items-start gap-4 @min-[48rem]:grid-cols-2">
+          {filteredProjects.map(project => {
+            const isSelected = project.id === selectedProjectId;
+            const stage = stages[project.stage];
+            const deviation = project.progresFisikRealisasi - project.progresFisikRencana;
+            const isAhead = deviation >= 0;
+            const progress = Math.max(0, Math.min(100, project.progresFisikRealisasi));
+
+            return (
+              <article
+                key={project.id}
+                className={`min-w-0 overflow-hidden rounded-xl border bg-white ${isSelected ? 'border-emerald-500' : 'border-slate-200'}`}
+              >
+                <div className="space-y-4 p-4 sm:p-5">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-xs font-medium text-slate-600">
+                        {project.kodePaket} <span aria-hidden="true" className="px-0.5 text-slate-400">·</span> {project.tahunAnggaran}
+                      </p>
+                      {stage && <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${stage.color}`}>{stage.label}</span>}
+                    </div>
+                    <h3 className="break-words text-base font-bold leading-snug text-slate-900">{project.nama}</h3>
+                    {project.lokasi && (
+                      <p className="flex items-start gap-1.5 text-sm leading-snug text-slate-600">
+                        <MapPin aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-slate-400" />
+                        <span className="min-w-0 break-words">{project.lokasi}</span>
+                      </p>
+                    )}
+                    {project.sumberDana && <p className="text-xs text-slate-600">{project.sumberDana}</p>}
+                  </div>
+
+                  <dl className="grid grid-cols-2 gap-x-3 gap-y-2 rounded-lg bg-slate-50 px-3 py-2.5">
+                    <div className="min-w-0">
+                      <dt className="text-xs text-slate-600">Total kontrak</dt>
+                      <dd className="mt-0.5 break-words text-sm font-semibold tabular-nums text-slate-900">{formatRupiah(project.nilaiKontrak)}</dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-xs text-slate-600">Pagu anggaran</dt>
+                      <dd className="mt-0.5 break-words text-sm font-semibold tabular-nums text-slate-900">{formatRupiah(project.paguAnggaran)}</dd>
+                    </div>
+                  </dl>
+
+                  <div className="space-y-1.5">
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-xs">
+                      <span className="font-medium text-slate-700">Progres fisik <strong className="ml-1 text-sm tabular-nums text-slate-900">{project.progresFisikRealisasi}%</strong></span>
+                      <span className={`font-medium tabular-nums ${isAhead ? 'text-emerald-700' : 'text-rose-700'}`}>
+                        Deviasi {isAhead ? '+' : ''}{deviation.toFixed(1)}%
+                      </span>
+                    </div>
+                    <div role="progressbar" aria-label={`Progres fisik ${project.nama}`} aria-valuenow={progress} className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                      <div className={`h-full rounded-full ${isAhead ? 'bg-emerald-600' : 'bg-rose-500'}`} style={{ width: `${progress}%` }} />
+                    </div>
+                  </div>
+                </div>
+
+                <ProjectDetails project={project} />
+
+                <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-slate-100 px-3 py-2.5 sm:px-4">
+                  {isSelected ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-2 text-sm font-semibold text-emerald-800">
+                      <Check aria-hidden="true" className="size-4" /> Terpilih
+                    </span>
+                  ) : (
+                    <button type="button" onClick={() => setSelectedProjectId(project.id)} className={secondaryActionClass}>Pilih proyek</button>
+                  )}
+                  <div className="flex flex-wrap items-center gap-1">
+                    <button type="button" onClick={() => openProject(project.id, 'kontrak')} className={secondaryActionClass}>Kontrak</button>
+                    <button type="button" onClick={() => openProject(project.id, 'berita-acara')} className={secondaryActionClass}>Berita Acara</button>
+                    <button
+                      type="button"
+                      onClick={() => openProject(project.id, 'pelaksanaan')}
+                      className="inline-flex items-center gap-1.5 rounded-md bg-slate-800 px-2.5 py-2 text-sm font-semibold text-white hover:bg-slate-900"
+                    >
+                      Detail <ArrowRight aria-hidden="true" className="size-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      <NewProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    </section>
+  );
+}
