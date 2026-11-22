@@ -147,6 +147,7 @@ export interface WeeklyProgress {
   kendalaLapangan: string;
   solusiTindakan: string;
   addendumId?: string;
+  acuanLaporan?: { id: string; nama: string; tanggalBerlaku?: string };
   targetKontrakAwal?: number;
   lampiranDokumen?: ProgressAttachment[];
   fotoDokumentasi: {
@@ -178,12 +179,45 @@ export interface ScheduleAddendumPoint {
   tanggalSelesai?: string;
 }
 
+export interface ScheduleReconciliationItem {
+  pekerjaan: string;
+  volumeTerverifikasi: number;
+  volumeKontrakBaru: number;
+  bobotBaru: number;
+}
+
+export interface ScheduleReconciliation {
+  metode: 'tetap' | 'hitung-ulang';
+  realisasiSebelum: number;
+  realisasiSesudah: number;
+  dasar: string;
+  laporanSebelumnyaId?: string;
+  targetPeralihan?: number;
+  items: ScheduleReconciliationItem[];
+  riwayatMingguan?: { laporanId: string; tanggalAkhir: string; realisasi: number }[];
+}
+
+export interface ScheduleTransitionDraft {
+  date: string;
+  mode: ScheduleReconciliation['metode'];
+  before: string;
+  after: string;
+  basis: string;
+  target: string;
+  items: Record<keyof ScheduleReconciliationItem, string>[];
+  riwayatMingguan?: Record<string, string>;
+}
+
 export interface ScheduleAddendum {
   id: string;
   projectId: string;
   nomorAddendum: string; // Misal: "Kontrak Awal", "Addendum 01", "Addendum 02"
   judul: string; // Misal: "Perpanjangan Waktu Pelaksanaan 14 Hari & CCO Penataan Struktur"
   tanggal: string; // Tanggal penetapan adendum
+  tanggalBerlaku?: string;
+  disahkanPada?: string;
+  rekonsiliasi?: ScheduleReconciliation;
+  drafPeralihan?: ScheduleTransitionDraft;
   jenisPerubahan: 'Kontrak Awal' | 'Perpanjangan Waktu' | 'Pekerjaan Tambah Kurang (CCO)' | 'Perubahan Desain' | 'Waktu dan Biaya';
   nomorSurat: string;
   durasiHariBaru?: number;

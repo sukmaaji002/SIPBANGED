@@ -188,6 +188,13 @@ export const supabaseSync = {
     }
   },
 
+  async deleteWeeklyProgress(id: string): Promise<void> {
+    const sb = getSupabase();
+    if (!sb) return;
+    const { error } = await sb.from('sipbanged_weekly_progress').delete().eq('id', id);
+    if (error) console.warn('Supabase deleteWeeklyProgress failed:', error);
+  },
+
   // SUPERVISION
   async fetchSupervisionLogs(): Promise<SupervisionLog[] | null> {
     const sb = getSupabase();
@@ -378,18 +385,29 @@ export const supabaseSync = {
     }
   },
 
-  async upsertScheduleAddendum(addendum: ScheduleAddendum): Promise<void> {
+  async upsertScheduleAddendum(addendum: ScheduleAddendum): Promise<boolean> {
     const sb = getSupabase();
-    if (!sb) return;
+    if (!sb) return false;
     try {
-      await sb.from('sipbanged_schedule_addendums').upsert({
+      const { error } = await sb.from('sipbanged_schedule_addendums').upsert({
         id: addendum.id,
         project_id: addendum.projectId,
         data: addendum
       });
+      if (error) throw error;
+      return true;
     } catch (err) {
       console.warn('Supabase upsertScheduleAddendum failed:', err);
+      return false;
     }
+  },
+
+  async deleteScheduleAddendum(id: string): Promise<boolean> {
+    const sb = getSupabase();
+    if (!sb) return false;
+    const { error } = await sb.from('sipbanged_schedule_addendums').delete().eq('id', id);
+    if (error) console.warn('Supabase deleteScheduleAddendum failed:', error);
+    return !error;
   },
 
   // BULK SYNC FROM LOCAL TO CLOUD

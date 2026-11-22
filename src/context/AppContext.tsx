@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { 
   User, 
   UserRole, 
@@ -66,10 +66,8 @@ interface AppContextType {
   updateWeeklyProgress: (prog: WeeklyProgress) => void;
   deleteWeeklyProgress: (id: string) => void;
   scheduleAddendums: ScheduleAddendum[];
-  addScheduleAddendum: (addendum: ScheduleAddendum) => void;
-  updateScheduleAddendum: (addendum: ScheduleAddendum) => void;
-  deleteScheduleAddendum: (id: string) => void;
-  setActiveScheduleAddendum: (projectId: string, addendumId: string) => void;
+  saveScheduleAddendum: (addendum: ScheduleAddendum) => Promise<boolean>;
+  deleteScheduleAddendum: (id: string) => Promise<boolean>;
   
   // Phase 3: Pengawasan
   supervisionLogs: SupervisionLog[];
@@ -368,24 +366,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem(STORAGE_KEYS.MASTER_PPK, JSON.stringify(masterPpkList));
   }, [masterPpkList]);
 
+  const changedScheduleIds = useRef(new Set<string>());
+  const changedProgressIds = useRef(new Set<string>());
+
   // Supabase Cloud Initial Sync
   useEffect(() => {
     if (!isSupabaseConnected()) return;
 
     const syncFromSupabase = async () => {
       try {
-        const [cloudUsers, cloudProjects, cloudContracts, cloudSpk, cloudBeritaAcara] = await Promise.all([
+        const [cloudUsers, cloudProjects, cloudContracts, cloudSpk, cloudBeritaAcara, cloudSchedules, cloudReports] = await Promise.all([
           supabaseSync.fetchUsers(),
           supabaseSync.fetchProjects(),
           supabaseSync.fetchContracts(),
           supabaseSync.fetchSpkContracts(),
           supabaseSync.fetchBeritaAcara(),
+          supabaseSync.fetchScheduleAddendums(),
+          supabaseSync.fetchWeeklyProgress(),
         ]);
 
         if (cloudUsers && cloudUsers.length > 0) setUsers(cloudUsers);
         if (cloudProjects && cloudProjects.length > 0) setProjects(cloudProjects);
         if (cloudContracts && cloudContracts.length > 0) setContracts(cloudContracts);
         if (cloudSpk && cloudSpk.length > 0) setSpkContracts(cloudSpk);
+        const mergeCloud = <T extends { id: string }>(local: T[], cloud: T[], changed: Set<string>) => {
+          const merged = new Map(local.map(item => [item.id, item]));
+          for (const item of cloud) if (item?.id && !changed.has(item.id)) merged.set(item.id, item);
+          return [...merged.values()];
+        };
+        if (cloudSchedules) setScheduleAddendums(local => mergeCloud(local, cloudSchedules, changedScheduleIds.current));
+        if (cloudReports) setWeeklyProgressList(local => mergeCloud(local, cloudReports, changedProgressIds.current));
         if (cloudBeritaAcara) {
           setBeritaAcaraList(local => {
             const localIds = new Set(local.map(ba => ba.id));
@@ -498,49 +508,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Phase 2: Progress
   const addWeeklyProgress = (prog: WeeklyProgress) => {
+    changedProgressIds.current.add(prog.id);
     setWeeklyProgressList(prev => [prog, ...prev]);
     supabaseSync.upsertWeeklyProgress(prog);
   };
 
   const updateWeeklyProgress = (prog: WeeklyProgress) => {
+    changedProgressIds.current.add(prog.id);
     setWeeklyProgressList(prev => prev.map(p => p.id === prog.id ? prog : p));
     supabaseSync.upsertWeeklyProgress(prog);
   };
 
   const deleteWeeklyProgress = (id: string) => {
+    changedProgressIds.current.add(id);
+    void supabaseSync.deleteWeeklyProgress(id);
     setWeeklyProgressList(prev => prev.filter(p => p.id !== id));
   };
 
   // Kurva S Addendums
-  const addScheduleAddendum = (addendum: ScheduleAddendum) => {
-    setScheduleAddendums(prev => {
-      const updated = addendum.isAktif 
-        ? prev.map(a => a.projectId === addendum.projectId ? { ...a, isAktif: false } : a)
-        : prev;
-      return [...updated, addendum];
-    });
+  const saveScheduleAddendum = async (addendum: ScheduleAddendum) => {
+    if (scheduleAddendums.some(version => version.id === addendum.id && version.disahkanPada)) return false;
+    changedScheduleIds.current.add(addendum.id);
+    if (!await supabaseSync.upsertScheduleAddendum(addendum)) return false;
+    setScheduleAddendums(previous => [...previous.filter(version => version.id !== addendum.id), addendum]);
+    return true;
   };
 
-  const updateScheduleAddendum = (addendum: ScheduleAddendum) => {
-    setScheduleAddendums(prev => {
-      const updated = addendum.isAktif
-        ? prev.map(a => (a.projectId === addendum.projectId && a.id !== addendum.id) ? { ...a, isAktif: false } : a)
-        : prev;
-      return updated.map(a => a.id === addendum.id ? addendum : a);
-    });
-  };
-
-  const deleteScheduleAddendum = (id: string) => {
-    setScheduleAddendums(prev => prev.filter(a => a.id !== id));
-  };
-
-  const setActiveScheduleAddendum = (projectId: string, addendumId: string) => {
-    setScheduleAddendums(prev => prev.map(a => {
-      if (a.projectId === projectId) {
-        return { ...a, isAktif: a.id === addendumId };
-      }
-      return a;
-    }));
+  const deleteScheduleAddendum = async (id: string) => {
+    if (!await supabaseSync.deleteScheduleAddendum(id)) return false;
+    changedScheduleIds.current.add(id);
+    setScheduleAddendums(previous => previous.filter(version => version.id !== id));
+    return true;
   };
 
   // Phase 3: Supervision
@@ -684,10 +682,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateWeeklyProgress,
       deleteWeeklyProgress,
       scheduleAddendums,
-      addScheduleAddendum,
-      updateScheduleAddendum,
+      saveScheduleAddendum,
       deleteScheduleAddendum,
-      setActiveScheduleAddendum,
       supervisionLogs,
       addSupervisionLog,
       maintenanceIssues,

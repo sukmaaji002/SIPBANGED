@@ -39,19 +39,12 @@ import {
   UploadCloud,
   ExternalLink
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend 
-} from 'recharts';
-import { formatTanggalIndo, formatTanggalSingkat, formatRentangTanggal, formatRupiah } from '../../utils/formatters';
+import { formatTanggalIndo, formatTanggalSingkat, formatRupiah } from '../../utils/formatters';
 import { getProjectPackage } from '../../utils/projectPackages';
-import { buildReportingWeeks, getReportingTarget, reportingWeekNumber } from '../../utils/reportingSchedule';
+import { reportingWeekNumber } from '../../utils/reportingSchedule';
+import { buildVersionPeriods, isOriginalSchedule, isReportInVersion, reportedScheduleId, scheduleEffectiveDate, scheduleForDate, scheduleTimeline, targetForPeriod, parseScheduleTransition, transitionDraft, type VersionPeriod } from '../../utils/scheduleVersions';
+import { ScheduleReconciliationSummary, ScheduleVersionChart } from './ScheduleVersionChart';
+import { ScheduleTransitionFields } from './ScheduleTransitionFields';
 
 const addDays = (dateStr: string, days: number): string => {
   try {
@@ -104,10 +97,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     updateWeeklyProgress, 
     deleteWeeklyProgress,
     scheduleAddendums,
-    addScheduleAddendum,
-    updateScheduleAddendum,
+    saveScheduleAddendum,
     deleteScheduleAddendum,
-    setActiveScheduleAddendum,
     updateProject,
     currentUser 
   } = useApp();
@@ -162,149 +153,119 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const [addIsAktif, setAddIsAktif] = useState(false);
   const [addTargetMingguan, setAddTargetMingguan] = useState<ScheduleAddendumPoint[]>([]);
 
-  // Toggles for visible curves in chart: [curveId: boolean]
-  const [visibleCurves, setVisibleCurves] = useState<Record<string, boolean>>({
-    realisasi: true
-  });
+  const [transition, setTransition] = useState(() => transitionDraft());
+  const [addendumError, setAddendumError] = useState('');
+  const [savingAddendum, setSavingAddendum] = useState(false);
 
   if (!selectedProject) {
     return <div className="p-8 text-center text-slate-500">Pilih proyek terlebih dahulu.</div>;
   }
 
   // Filter addendums for current project
-  const projectAddendums = useMemo(() => {
+  const projectAddendums = useMemo<ScheduleAddendum[]>(() => {
     const list = scheduleAddendums.filter(a => a.projectId === selectedProject.id);
-    if (list.length > 0) return list;
+    if (list.some(isOriginalSchedule)) return list;
 
-    // Fallback baseline if empty
-    return [
+    // Show a placeholder until the original plan is recorded.
+    return [...list,
       {
         id: `add-orig-${selectedProject.id}`,
         projectId: selectedProject.id,
         nomorAddendum: 'Kontrak Awal',
-        judul: 'Kurva S Rencana Pelaksanaan Original (Baseline Master)',
+        judul: 'Kurva S Kontrak Awal',
         tanggal: selectedProject.tanggalMulai,
         jenisPerubahan: 'Kontrak Awal' as const,
         nomorSurat: selectedProject.kodePaket,
-        alasan: 'Jadwal rencana pelaksanaan kontrak awal sesuai surat perjanjian lelang.',
+        alasan: '',
         warnaGaris: '#94a3b8',
         isAktif: true,
         isKontrakAwal: true,
-        targetMingguan: [
-          { mingguKe: 'M-1', targetKumulatif: 2.0, bobotTarget: 2.0 },
-          { mingguKe: 'M-4', targetKumulatif: 10.0, bobotTarget: 8.0 },
-          { mingguKe: 'M-8', targetKumulatif: 25.0, bobotTarget: 15.0 },
-          { mingguKe: 'M-12', targetKumulatif: 42.0, bobotTarget: 17.0 },
-          { mingguKe: 'M-16', targetKumulatif: 56.0, bobotTarget: 14.0 },
-          { mingguKe: 'M-20', targetKumulatif: 68.0, bobotTarget: 12.0 },
-          { mingguKe: 'M-24', targetKumulatif: 82.0, bobotTarget: 14.0 },
-          { mingguKe: 'M-28', targetKumulatif: 94.0, bobotTarget: 12.0 },
-          { mingguKe: 'M-30', targetKumulatif: 100.0, bobotTarget: 6.0 },
-        ]
+        targetMingguan: []
       }
     ];
   }, [scheduleAddendums, selectedProject]);
 
-  const activeAddendum = projectAddendums.find(a => a.isAktif) || projectAddendums[0];
-  const kontrakAwalAddendum = projectAddendums.find(a => a.isKontrakAwal) || projectAddendums[0];
-
-  // Helper check curve visibility
-  const isCurveVisible = (id: string): boolean => {
-    if (visibleCurves[id] === undefined) return true;
-    return visibleCurves[id];
-  };
-
-  const toggleCurve = (id: string) => {
-    setVisibleCurves(prev => ({
-      ...prev,
-      [id]: !isCurveVisible(id)
-    }));
-  };
+  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
+  const activeAddendum = scheduleForDate(projectAddendums, today);
+  const timeline = scheduleTimeline(projectAddendums);
 
   const projectReports = weeklyProgressList
     .filter(report => report.projectId === selectedProject.id)
-    .sort((a, b) => {
-      const weekA = reportingWeekNumber(a.mingguKe);
-      const weekB = reportingWeekNumber(b.mingguKe);
-      if (weekA !== undefined && weekB !== undefined && weekA !== weekB) return weekB - weekA;
-      return (b.periodeSelesai || b.periodeMulai || '').localeCompare(a.periodeSelesai || a.periodeMulai || '');
-    });
+    .sort((a, b) => (b.periodeSelesai || b.periodeMulai || '').localeCompare(a.periodeSelesai || a.periodeMulai || ''));
 
   const canSubmit = hasPermission(currentUser?.role, 'submit_progress');
+  const canApprove = hasPermission(currentUser?.role, 'edit_contract');
   const physicalPackage = getProjectPackage(selectedProject, 'fisik');
-  const registeredAddendum = scheduleAddendums.find(addendum => addendum.id === activeAddendum?.id);
   const reportingWeeks = physicalPackage.active
-    ? buildReportingWeeks(physicalPackage.start, registeredAddendum?.tanggalSelesaiBaru || physicalPackage.end)
+    ? buildVersionPeriods(projectAddendums, physicalPackage.start, physicalPackage.end)
     : [];
-  const getReportWeek = (report: WeeklyProgress) => {
-    const end = report.periodeSelesai || report.periodeMulai;
-    return reportingWeekNumber(report.mingguKe) ??
-      reportingWeeks.find(week => week.start <= end && end <= week.end)?.number;
-  };
+  const isHistoricalReport = (report: WeeklyProgress) =>
+    timeline.some(entry => entry.date <= today && entry.date > (report.periodeMulai || report.periodeSelesai));
   const editingReport = projectReports.find(report => report.id === editingReportId);
   const savedPeriod = weekSelection === 'saved' ? editingReport : undefined;
-  const selectedWeek = reportingWeeks.find(week => String(week.number) === weekSelection);
+  const selectedWeek = reportingWeeks.find(week => week.key === weekSelection);
   const mingguKe = savedPeriod?.mingguKe ?? selectedWeek?.number;
   const periodeMulai = savedPeriod?.periodeMulai ?? selectedWeek?.start ?? '';
   const periodeSelesai = savedPeriod?.periodeSelesai ?? selectedWeek?.end ?? '';
   const otherReports = projectReports.filter(report => report.id !== editingReportId);
-  const reportedWeeks = new Set(otherReports.map(getReportWeek));
-  const scheduledTarget = getReportingTarget(registeredAddendum?.targetMingguan ?? [], selectedWeek?.number);
+  const isReported = (period: VersionPeriod, reports = otherReports) => reports.some(report =>
+    report.periodeMulai && report.periodeSelesai
+      ? report.periodeMulai <= period.end && period.start <= report.periodeSelesai
+      : reportingWeekNumber(report.mingguKe) === period.number,
+  );
+  const scheduledTarget = targetForPeriod(selectedWeek);
   const lockedCumulative = savedPeriod?.kumulatifRencana ?? scheduledTarget.cumulative;
   const lockedWeight = savedPeriod?.bobotRencana ?? scheduledTarget.weight;
   const kumulatifRencana = lockedCumulative ?? manualTarget.cumulative;
   const bobotRencana = lockedWeight ?? manualTarget.weight;
   const reportReference = savedPeriod
-    ? scheduleAddendums.find(addendum => addendum.id === savedPeriod.addendumId)
-    : registeredAddendum;
+    ? scheduleAddendums.find(addendum => addendum.id === reportedScheduleId(savedPeriod))
+    : selectedWeek?.version;
+  const reportReferenceName = savedPeriod?.acuanLaporan?.nama || reportReference?.nomorAddendum;
 
-  const previousReportFor = (number: number, reports: WeeklyProgress[]) =>
-    reports.reduce<WeeklyProgress | undefined>((closest, report) => {
-      const week = getReportWeek(report);
-      return week !== undefined && week < number && (!closest || week > (getReportWeek(closest) ?? 0)) ? report : closest;
-    }, undefined);
-  const previousReport = selectedWeek ? previousReportFor(selectedWeek.number, otherReports) : undefined;
+  const previousReportFor = (period: VersionPeriod, reports: WeeklyProgress[]) => reports.find(report =>
+    report.periodeSelesai < period.start &&
+    (period.version ? isReportInVersion(report, period.version, projectAddendums) : !reportedScheduleId(report)),
+  );
+  const previousActualFor = (period: VersionPeriod, reports: WeeklyProgress[]) =>
+    previousReportFor(period, reports)?.kumulatifRealisasi ?? period.version?.rekonsiliasi?.realisasiSesudah ?? 0;
+  const previousReport = selectedWeek ? previousReportFor(selectedWeek, otherReports) : undefined;
   const baselineKumRencana = savedPeriod
     ? Number((savedPeriod.kumulatifRencana - savedPeriod.bobotRencana).toFixed(2))
-    : previousReport?.kumulatifRencana ?? 0;
+    : previousReport?.kumulatifRencana ?? selectedWeek?.version?.rekonsiliasi?.targetPeralihan ?? 0;
   const baselineKumRealisasi = savedPeriod
     ? Number((savedPeriod.kumulatifRealisasi - savedPeriod.bobotRealisasi).toFixed(2))
-    : previousReport?.kumulatifRealisasi ?? 0;
-  const weekNumber = savedPeriod ? getReportWeek(savedPeriod) : selectedWeek?.number;
-  const hasLaterReport = otherReports.some(report => {
-    const otherWeek = getReportWeek(report);
-    return weekNumber !== undefined && otherWeek !== undefined
-      ? otherWeek > weekNumber
-      : report.periodeSelesai > periodeSelesai;
-  });
+    : selectedWeek ? previousActualFor(selectedWeek, otherReports) : 0;
+  const hasLaterReport = otherReports.some(report => report.periodeSelesai > periodeSelesai);
+  const earlierReports = transition.date ? projectReports.filter(report => report.periodeSelesai && report.periodeSelesai < transition.date) : [];
+  const transitionSource = earlierReports[0];
 
   const selectReportingWeek = (selection: string, reports: WeeklyProgress[], existing?: WeeklyProgress) => {
     setWeekSelection(selection);
     setReportError('');
     setManualTarget({ cumulative: '', weight: '' });
-    const previous = previousReportFor(Number(selection), reports);
-    const priorActual = previous?.kumulatifRealisasi ?? 0;
+    const period = reportingWeeks.find(week => week.key === selection);
     if (existing && selection === 'saved') {
       setBobotRealisasi(existing.bobotRealisasi);
       setKumulatifRealisasi(existing.kumulatifRealisasi);
-    } else if (existing && Number(selection) === getReportWeek(existing)) {
-      setKumulatifRealisasi(existing.kumulatifRealisasi);
-      setBobotRealisasi(Number((existing.kumulatifRealisasi - priorActual).toFixed(2)));
+    } else if (period) {
+      const prior = previousActualFor(period, reports);
+      const samePeriod = existing && period.start === existing.periodeMulai && period.end === existing.periodeSelesai &&
+        (period.version?.id ?? '') === (reportedScheduleId(existing) ?? '');
+      setKumulatifRealisasi(samePeriod ? existing.kumulatifRealisasi : prior);
+      setBobotRealisasi(samePeriod ? Number((existing.kumulatifRealisasi - prior).toFixed(2)) : 0);
     } else {
+      setKumulatifRealisasi(0);
       setBobotRealisasi(0);
-      setKumulatifRealisasi(priorActual);
     }
   };
 
-  // Open Modal for adding new progress
   const handleOpenAdd = () => {
     setEditingReportId(null);
     setUploadedAttachments([]);
-    const usedWeeks = new Set(projectReports.map(getReportWeek));
-    const latestWeek = Math.max(0, ...Array.from(usedWeeks, week => week ?? 0));
-    const firstAvailable = reportingWeeks.find(week => !usedWeeks.has(week.number));
-    const next = reportingWeeks.find(week => week.number > latestWeek) ?? firstAvailable;
-    selectReportingWeek(next ? String(next.number) : '', projectReports);
+    const available = reportingWeeks.filter(week => !isReported(week, projectReports));
+    const next = available.find(week => week.start > (projectReports[0]?.periodeSelesai ?? '')) ?? available[0];
+    selectReportingWeek(next?.key ?? '', projectReports);
     setKondisiCuaca('Cerah Mayoritas');
     setJumlahTenagaKerja(50);
     setMaterialMasuk('');
@@ -340,6 +301,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
   // Delete handler
   const handleDelete = (id: string, weekLabel: number | string) => {
+    if (!canSubmit || projectReports.some(report => report.id === id && isHistoricalReport(report))) return;
     if (window.confirm(`Hapus catatan progres Minggu ${weekLabel}? Data kurva S dan status proyek akan disesuaikan.`)) {
       deleteWeeklyProgress(id);
     }
@@ -449,12 +411,12 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const handleSaveReport = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!canSubmit) return;
+    if (!canSubmit || (editingReport && isHistoricalReport(editingReport))) return;
     if (mingguKe === undefined || !periodeMulai || !periodeSelesai) {
       setReportError('Pilih minggu dengan periode kontrak yang tersedia.');
       return;
     }
-    if (selectedWeek && reportedWeeks.has(selectedWeek.number)) {
+    if (selectedWeek && isReported(selectedWeek)) {
       setReportError('Laporan untuk minggu ini sudah ada. Edit laporan yang tersimpan.');
       return;
     }
@@ -480,6 +442,9 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       kumulatifRealisasi: Number(kumulatifRealisasi),
       deviasi: deviasiVal,
       addendumId: savedPeriod ? savedPeriod.addendumId : reportReference?.id,
+      acuanLaporan: savedPeriod ? savedPeriod.acuanLaporan : reportReference && {
+        id: reportReference.id, nama: reportReference.nomorAddendum, tanggalBerlaku: scheduleEffectiveDate(reportReference),
+      },
       kondisiCuaca,
       jumlahTenagaKerja: Number(jumlahTenagaKerja),
       materialMasuk: materialMasuk || 'Material pasir, semen, baja tulangan sesuai spesifikasi',
@@ -523,44 +488,31 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     setShowProjectModal(false);
   };
 
-  // --- ADDENDUM HANDLERS ---
   const handleOpenAddAddendum = () => {
     setEditingAddendumId(null);
-    const addCount = projectAddendums.filter(a => !a.isKontrakAwal).length;
-    setAddNomor(`Addendum 0${addCount + 1}`);
+    setAddendumError('');
+    setTransition(transitionDraft());
+    const addCount = projectAddendums.filter(version => !isOriginalSchedule(version)).length;
+    setAddNomor(`Addendum ${String(addCount + 1).padStart(2, '0')}`);
     setAddJudul('');
-    setAddTanggal(new Date().toISOString().split('T')[0]);
+    setAddTanggal(today);
     setAddJenis('Perpanjangan Waktu');
-    setAddNomorSurat(`600.2/ADD-0${addCount + 1}/${selectedProject.kodePaket}/${selectedProject.tahunAnggaran}`);
-    setAddDurasiBaru(selectedProject.durasiHari + 14);
-    setAddTanggalSelesaiBaru(addDays(selectedProject.tanggalSelesai, 14));
-    setAddNilaiKontrakBaru(selectedProject.nilaiKontrak);
+    setAddNomorSurat('');
+    setAddDurasiBaru(undefined);
+    setAddTanggalSelesaiBaru('');
+    setAddNilaiKontrakBaru(undefined);
     setAddAlasan('');
     setAddWarnaGaris(PRESET_COLORS[addCount % PRESET_COLORS.length].value);
-    setAddIsAktif(true);
-
-    const sourceAdd = activeAddendum || kontrakAwalAddendum;
-    if (sourceAdd && sourceAdd.targetMingguan.length > 0) {
-      setAddTargetMingguan([...sourceAdd.targetMingguan]);
-    } else {
-      setAddTargetMingguan([
-        { mingguKe: 'M-1', targetKumulatif: 2.0, bobotTarget: 2.0 },
-        { mingguKe: 'M-4', targetKumulatif: 10.0, bobotTarget: 8.0 },
-        { mingguKe: 'M-8', targetKumulatif: 25.0, bobotTarget: 15.0 },
-        { mingguKe: 'M-12', targetKumulatif: 40.0, bobotTarget: 15.0 },
-        { mingguKe: 'M-16', targetKumulatif: 55.0, bobotTarget: 15.0 },
-        { mingguKe: 'M-20', targetKumulatif: 68.0, bobotTarget: 13.0 },
-        { mingguKe: 'M-24', targetKumulatif: 80.0, bobotTarget: 12.0 },
-        { mingguKe: 'M-28', targetKumulatif: 92.0, bobotTarget: 12.0 },
-        { mingguKe: 'M-32', targetKumulatif: 100.0, bobotTarget: 8.0 },
-      ]);
-    }
-
+    setAddIsAktif(false);
+    setAddTargetMingguan([...(activeAddendum?.targetMingguan ?? [])]);
     setShowAddendumEditModal(true);
   };
 
   const handleOpenEditAddendum = (add: ScheduleAddendum) => {
+    if (add.disahkanPada) return;
     setEditingAddendumId(add.id);
+    setAddendumError('');
+    setTransition(add.drafPeralihan ?? transitionDraft(add.tanggalBerlaku || scheduleEffectiveDate(add), add.rekonsiliasi));
     setAddNomor(add.nomorAddendum);
     setAddJudul(add.judul);
     setAddTanggal(add.tanggal);
@@ -571,54 +523,92 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     setAddNilaiKontrakBaru(add.nilaiKontrakBaru);
     setAddAlasan(add.alasan || '');
     setAddWarnaGaris(add.warnaGaris || '#3b82f6');
-    setAddIsAktif(add.isAktif);
+    setAddIsAktif(canApprove && Boolean(scheduleEffectiveDate(add)));
     setAddTargetMingguan([...add.targetMingguan]);
     setShowAddendumEditModal(true);
   };
 
-  const handleSaveAddendum = (e: React.FormEvent) => {
-    e.preventDefault();
+  const editedAddendum = projectAddendums.find(version => version.id === editingAddendumId);
+  const isOriginalEditor = Boolean(editedAddendum && isOriginalSchedule(editedAddendum));
+  const handleSaveAddendum = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!canSubmit || savingAddendum || editedAddendum?.disahkanPada) return;
+    if (addIsAktif && !canApprove) return;
+    setAddendumError('');
+    if (editedAddendum && scheduleEffectiveDate(editedAddendum) && !addIsAktif) {
+      setAddendumError('Acuan lama yang berlaku memerlukan pengesahan ulang untuk pembaruan versi.');
+      return;
+    }
+    const reconciliation = isOriginalEditor ? undefined : parseScheduleTransition(transition, transitionSource?.kumulatifRealisasi, earlierReports);
+    const positions = addTargetMingguan.map(point => reportingWeekNumber(point.mingguKe));
+    if (addIsAktif && (!positions.length || positions.includes(undefined) || new Set(positions).size !== positions.length ||
+        addTargetMingguan.some(point => !Number.isFinite(point.targetKumulatif) || point.targetKumulatif < 0 || point.targetKumulatif > 100))) {
+      setAddendumError('Lengkapi target Kurva S dengan nomor minggu yang unik dan target antara 0% dan 100%.');
+      return;
+    }
+    if (addIsAktif && !isOriginalEditor) {
+      const latestApproved = timeline.filter(entry => entry.version.id !== editedAddendum?.id && entry.version.disahkanPada).at(-1);
+      const inheritedEnd = timeline.filter(entry => entry.date <= transition.date && entry.version.id !== editedAddendum?.id && entry.version.tanggalSelesaiBaru).at(-1)?.version.tanggalSelesaiBaru || physicalPackage.end;
+      if (!transition.date || !physicalPackage.start || transition.date < physicalPackage.start ||
+          !(addTanggalSelesaiBaru || inheritedEnd) || transition.date > (addTanggalSelesaiBaru || inheritedEnd || '')) {
+        setAddendumError('Tanggal mulai berlaku harus berada dalam masa kontrak pada versi ini.');
+        return;
+      }
+      if (timeline.some(entry => entry.date === transition.date && entry.version.id !== editedAddendum?.id) ||
+          (latestApproved && transition.date <= latestApproved.date)) {
+        setAddendumError('Tanggal berlaku harus lebih baru dari versi yang sudah disahkan dan belum dipakai versi lain.');
+        return;
+      }
+      if (!reconciliation) {
+        setAddendumError('Lengkapi realisasi sebelum dan sesudah peralihan serta dasar rekonsiliasi yang disetujui.');
+        return;
+      }
+      const startDay = new Date(transition.date + 'T00:00:00Z').getUTCDay();
+      if (startDay !== 1 && transition.date !== physicalPackage.start && reconciliation.targetPeralihan === undefined) {
+        setAddendumError('Isi target pada saat peralihan karena addendum berlaku di tengah minggu pelaporan.');
+        return;
+      }
+    }
 
-    if (!canSubmit) return;
-
-    const isOriginal = editingAddendumId ? projectAddendums.find(a => a.id === editingAddendumId)?.isKontrakAwal : false;
-
+    const approvedAt = addIsAktif ? new Date().toISOString() : undefined;
     const newAddendumData: ScheduleAddendum = {
-      id: editingAddendumId || `add-${Date.now()}`,
+      id: editingAddendumId || crypto.randomUUID(),
       projectId: selectedProject.id,
       nomorAddendum: addNomor,
-      judul: addJudul || (isOriginal ? 'Kurva S Kontrak Awal' : `Perubahan Jadwal Pelaksanaan (${addNomor})`),
+      judul: addJudul,
       tanggal: addTanggal,
-      jenisPerubahan: addJenis,
+      tanggalBerlaku: isOriginalEditor ? undefined : transition.date || undefined,
+      disahkanPada: approvedAt,
+      rekonsiliasi: reconciliation && { ...reconciliation, laporanSebelumnyaId: transitionSource?.id },
+      drafPeralihan: approvedAt || isOriginalEditor ? undefined : transition,
+      jenisPerubahan: isOriginalEditor ? 'Kontrak Awal' : addJenis === 'Kontrak Awal' ? 'Perpanjangan Waktu' : addJenis,
       nomorSurat: addNomorSurat,
       durasiHariBaru: addDurasiBaru,
       tanggalSelesaiBaru: addTanggalSelesaiBaru,
       nilaiKontrakBaru: addNilaiKontrakBaru,
       alasan: addAlasan,
       warnaGaris: addWarnaGaris,
-      isAktif: addIsAktif,
-      isKontrakAwal: Boolean(isOriginal),
-      targetMingguan: [...addTargetMingguan].sort((a, b) => getWeekOrder(a.mingguKe) - getWeekOrder(b.mingguKe))
+      isAktif: false,
+      isKontrakAwal: isOriginalEditor,
+      targetMingguan: [...addTargetMingguan].sort((a, b) => getWeekOrder(a.mingguKe) - getWeekOrder(b.mingguKe)),
     };
-
-    if (editingAddendumId) {
-      updateScheduleAddendum(newAddendumData);
-    } else {
-      addScheduleAddendum(newAddendumData);
+    setSavingAddendum(true);
+    try {
+      if (!await saveScheduleAddendum(newAddendumData)) {
+        setAddendumError('Versi gagal tersimpan ke Supabase. Coba simpan kembali.');
+        return;
+      }
+      setShowAddendumEditModal(false);
+    } finally {
+      setSavingAddendum(false);
     }
-
-    setVisibleCurves(prev => ({
-      ...prev,
-      [newAddendumData.id]: true
-    }));
-
-    setShowAddendumEditModal(false);
   };
 
-  const handleDeleteAddendum = (id: string, nomor: string) => {
-    if (window.confirm(`Hapus ${nomor}? Seluruh kurva S addendum ini akan dihapus dari grafik.`)) {
-      deleteScheduleAddendum(id);
-    }
+  const handleDeleteAddendum = async (version: ScheduleAddendum) => {
+    if (!canSubmit || isOriginalSchedule(version) || scheduleEffectiveDate(version) ||
+        projectReports.some(report => reportedScheduleId(report) === version.id)) return;
+    if (!window.confirm('Hapus draf ' + version.nomorAddendum + '?')) return;
+    if (!await deleteScheduleAddendum(version.id)) setAddendumError('Draf gagal dihapus dari Supabase.');
   };
 
   const handleDuplicateTarget = (sourceAddendumId: string) => {
@@ -657,79 +647,13 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
     setAddTargetMingguan(prev => prev.filter((_, idx) => idx !== index));
   };
 
-  // --- UNIFIED KURVA S MULTI-LINE DATA BUILDER ---
-  const chartData = useMemo(() => {
-    const weekMap = new Map<string, {
-      minggu: string;
-      order: number;
-      tanggal?: string;
-      realisasi: number | null;
-      [key: string]: any;
-    }>();
-
-    // From weekly progress reports (actual)
-    projectReports.forEach(r => {
-      const key = typeof r.mingguKe === 'number' || !isNaN(Number(r.mingguKe))
-        ? `M-${r.mingguKe}`
-        : String(r.mingguKe);
-      const order = getWeekOrder(key);
-      const dateRange = formatRentangTanggal(r.periodeMulai, r.periodeSelesai);
-
-      weekMap.set(key, {
-        minggu: key,
-        order,
-        tanggal: dateRange,
-        realisasi: r.kumulatifRealisasi
-      });
-    });
-
-    // From all project addendums (Kontrak Awal, Addendum 1, Addendum 2, etc.)
-    projectAddendums.forEach(add => {
-      add.targetMingguan.forEach(pt => {
-        const key = String(pt.mingguKe);
-        const order = getWeekOrder(key);
-        if (!weekMap.has(key)) {
-          weekMap.set(key, {
-            minggu: key,
-            order,
-            tanggal: pt.tanggalMulai ? formatRentangTanggal(pt.tanggalMulai, pt.tanggalSelesai || '') : undefined,
-            realisasi: null
-          });
-        }
-      });
-    });
-
-    // Sort weeks by numeric order
-    const sortedWeeks = Array.from(weekMap.values()).sort((a, b) => a.order - b.order);
-
-    // Populate target values for each addendum
-    return sortedWeeks.map(row => {
-      const result: any = {
-        minggu: row.minggu,
-        order: row.order,
-        tanggal: row.tanggal || 'Sesuai Jadwal',
-        realisasi: row.realisasi
-      };
-
-      projectAddendums.forEach(add => {
-        const pt = add.targetMingguan.find(p => 
-          String(p.mingguKe).toLowerCase() === row.minggu.toLowerCase() ||
-          getWeekOrder(p.mingguKe) === row.order
-        );
-        result[`target_${add.id}`] = pt !== undefined ? pt.targetKumulatif : null;
-      });
-
-      return result;
-    });
-  }, [projectReports, projectAddendums]);
-
   // Collect all photos from reports
   const allPhotos = projectReports.flatMap(r => r.fotoDokumentasi || []);
   const filteredPhotos = activePhotoTab === 'all' 
     ? allPhotos 
     : allPhotos.filter(p => p.stage === activePhotoTab);
 
-  const contractAddendums = projectAddendums.filter(item => !item.isKontrakAwal && item.jenisPerubahan !== 'Kontrak Awal');
+  const contractAddendums = projectAddendums.filter(item => !isOriginalSchedule(item));
   const currentDeviasi = Number((selectedProject.progresFisikRealisasi - selectedProject.progresFisikRencana).toFixed(2));
   const modalDeviasi = kumulatifRencana === '' ? null : Number((kumulatifRealisasi - Number(kumulatifRencana)).toFixed(2));
   const durasiMingguIni = getDurasiHari(periodeMulai, periodeSelesai);
@@ -761,7 +685,9 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
               {contractAddendums.map(item => (
                 <li key={item.id} className="space-y-1 py-2">
                   <p className="font-semibold text-slate-900">{item.nomorAddendum} · {item.judul}</p>
-                  <p className="text-slate-600">{formatTanggalIndo(item.tanggal)} · {item.jenisPerubahan}{item.isAktif && ' · Jadwal aktif'}</p>
+                  <p className="text-slate-600">{formatTanggalIndo(item.tanggal)} · {item.jenisPerubahan}{item.id === activeAddendum?.id && ' · Jadwal aktif'}</p>
+                  {scheduleEffectiveDate(item) && <p className="text-slate-600">Berlaku mulai {reportDateLabel(scheduleEffectiveDate(item)!)}</p>}
+                  <ScheduleReconciliationSummary version={item} />
                 </li>
               ))}
             </ul>
@@ -834,219 +760,17 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
         </div>
       </div>
 
-      {/* Kurva S (S-Curve) Multi-Line Chart with Addendums */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs">
-        
-        {/* Top Header of Chart */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-amber-600" />
-              <h3 className="font-extrabold text-sm sm:text-base text-slate-900">
-                Kurva S (Kontrak Awal, Addendum Perubahan, & Realisasi Riil)
-              </h3>
-            </div>
-            <p className="text-xs text-slate-400">
-              Menampilkan kurva S lama (kontrak awal) dan kurva addendum-addendum perubahan secara simultan
-            </p>
-          </div>
+      <ScheduleVersionChart versions={projectAddendums} active={activeAddendum} reports={projectReports} start={physicalPackage.start} end={physicalPackage.end} />
 
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-500">Jadwal Acuan Aktif:</span>
-            <span className="px-2.5 py-1 text-xs font-bold bg-blue-100 text-blue-800 rounded-lg border border-blue-200 inline-flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
-              {activeAddendum ? activeAddendum.nomorAddendum : 'Kontrak Awal'}
-            </span>
-          </div>
-        </div>
-
-        {/* Kurva S Filter Bar / Toggle Pills */}
-        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-wrap items-center justify-between gap-2 mb-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-slate-600 flex items-center gap-1 mr-1">
-              <Eye className="w-3.5 h-3.5 text-slate-500" />
-              Filter Garis:
-            </span>
-
-            {/* Toggle Realisasi Fisik Lapangan */}
-            <button
-              onClick={() => toggleCurve('realisasi')}
-              className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all border ${
-                isCurveVisible('realisasi')
-                  ? 'bg-emerald-600 text-white border-emerald-700 shadow-2xs'
-                  : 'bg-white text-slate-400 border-slate-300 hover:text-slate-700'
-              }`}
-            >
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-300"></span>
-              <span>Realisasi Fisik Riil</span>
-              {isCurveVisible('realisasi') ? <Check className="w-3 h-3 ml-0.5" /> : <EyeOff className="w-3 h-3 ml-0.5 text-slate-400" />}
-            </button>
-
-            {/* Toggle Each Addendum / Kontrak Awal */}
-            {projectAddendums.map(add => {
-              const activeVisible = isCurveVisible(add.id);
-              return (
-                <button
-                  key={add.id}
-                  onClick={() => toggleCurve(add.id)}
-                  style={{
-                    borderColor: activeVisible ? add.warnaGaris : undefined,
-                    backgroundColor: activeVisible ? `${add.warnaGaris}15` : '#ffffff',
-                    color: activeVisible ? add.warnaGaris : '#94a3b8'
-                  }}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all border shadow-2xs`}
-                >
-                  <span 
-                    className="w-2.5 h-2.5 rounded-full" 
-                    style={{ backgroundColor: add.warnaGaris }}
-                  ></span>
-                  <span>{add.nomorAddendum} {add.isKontrakAwal ? '(Baseline)' : add.isAktif ? '(Aktif)' : ''}</span>
-                  {activeVisible ? <Check className="w-3 h-3 ml-0.5" /> : <EyeOff className="w-3 h-3 ml-0.5" />}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                const allOn: Record<string, boolean> = { realisasi: true };
-                projectAddendums.forEach(a => { allOn[a.id] = true; });
-                setVisibleCurves(allOn);
-              }}
-              className="text-[11px] font-semibold text-slate-600 hover:text-slate-900 px-2 py-0.5 rounded hover:bg-slate-200/60 transition-colors"
-            >
-              Tampilkan Semua
-            </button>
-            <button
-              onClick={() => setShowAddendumListModal(true)}
-              className="text-[11px] font-bold text-blue-700 hover:text-blue-800 bg-blue-100/60 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
-            >
-              <Plus className="w-3 h-3" /> Tambah Addendum
-            </button>
-          </div>
-        </div>
-
-        {/* Recharts Multi-Line View */}
-        <div className="h-80 w-full pt-2">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="minggu" tick={{ fontSize: 11 }} />
-              <YAxis unit="%" domain={[0, 100]} tick={{ fontSize: 11 }} />
-              
-              <Tooltip 
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    const data = payload[0].payload;
-                    return (
-                      <div className="bg-white p-3.5 rounded-xl shadow-xl border border-slate-200 text-xs space-y-2 min-w-[220px]">
-                        <div className="border-b border-slate-100 pb-1">
-                          <p className="font-extrabold text-slate-800 text-sm">{data.minggu}</p>
-                          <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-amber-600" />
-                            <span>Periode: <strong>{data.tanggal}</strong></span>
-                          </p>
-                        </div>
-
-                        {/* Curves list */}
-                        <div className="space-y-1">
-                          {projectAddendums.map(add => {
-                            const val = data[`target_${add.id}`];
-                            if (val === undefined || val === null) return null;
-                            return (
-                              <div key={add.id} className="flex items-center justify-between gap-3 text-slate-600">
-                                <span className="flex items-center gap-1.5 truncate">
-                                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: add.warnaGaris }}></span>
-                                  <span>{add.nomorAddendum}{add.isAktif ? ' (Aktif)' : ''}:</span>
-                                </span>
-                                <strong className="font-mono text-slate-800">{val}%</strong>
-                              </div>
-                            );
-                          })}
-
-                          {/* Realisasi Lapangan */}
-                          <div className="flex items-center justify-between gap-3 text-emerald-700 pt-1 border-t border-slate-100">
-                            <span className="flex items-center gap-1.5 font-bold">
-                              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                              <span>Realisasi Fisik:</span>
-                            </span>
-                            <strong className="font-mono text-emerald-700 font-black">
-                              {data.realisasi !== null ? `${data.realisasi}%` : '-'}
-                            </strong>
-                          </div>
-
-                          {/* Deviasi against Active Addendum */}
-                          {data.realisasi !== null && activeAddendum && data[`target_${activeAddendum.id}`] !== null && (
-                            <div className="pt-1 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold">
-                              <span className="text-slate-500">Deviasi thd {activeAddendum.nomorAddendum}:</span>
-                              <span className={(data.realisasi - data[`target_${activeAddendum.id}`]) >= 0 ? 'text-emerald-600' : 'text-rose-600'}>
-                                {(data.realisasi - data[`target_${activeAddendum.id}`]) >= 0 ? '+' : ''}
-                                {(data.realisasi - data[`target_${activeAddendum.id}`]).toFixed(2)}%
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Deviasi against Kontrak Awal (if active differs from original) */}
-                          {data.realisasi !== null && kontrakAwalAddendum && kontrakAwalAddendum.id !== activeAddendum?.id && data[`target_${kontrakAwalAddendum.id}`] !== null && (
-                            <div className="flex items-center justify-between text-[10px] text-slate-400">
-                              <span>Deviasi thd Kontrak Awal:</span>
-                              <span className={(data.realisasi - data[`target_${kontrakAwalAddendum.id}`]) >= 0 ? 'text-slate-600 font-semibold' : 'text-rose-500 font-semibold'}>
-                                {(data.realisasi - data[`target_${kontrakAwalAddendum.id}`]) >= 0 ? '+' : ''}
-                                {(data.realisasi - data[`target_${kontrakAwalAddendum.id}`]).toFixed(2)}%
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              
-              <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-
-              {/* Render Lines for each visible addendum */}
-              {projectAddendums.map(add => {
-                if (!isCurveVisible(add.id)) return null;
-                return (
-                  <Line 
-                    key={add.id}
-                    type="monotone" 
-                    dataKey={`target_${add.id}`} 
-                    name={`${add.nomorAddendum}${add.isAktif ? ' (Aktif)' : add.isKontrakAwal ? ' (Baseline)' : ''} (%)`} 
-                    stroke={add.warnaGaris} 
-                    strokeDasharray={add.isKontrakAwal ? "5 5" : add.isAktif ? undefined : "3 3"} 
-                    strokeWidth={add.isAktif ? 2.5 : 1.5} 
-                    dot={{ r: add.isAktif ? 3.5 : 2.5 }} 
-                  />
-                );
-              })}
-
-              {/* Realisasi Fisik Line */}
-              {isCurveVisible('realisasi') && (
-                <Line 
-                  type="monotone" 
-                  dataKey="realisasi" 
-                  name="Realisasi Fisik Riil (%)" 
-                  stroke="#10b981" 
-                  strokeWidth={3} 
-                  dot={{ r: 4, fill: '#10b981' }} 
-                />
-              )}
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
+      <div className="rounded-2xl border border-slate-200 bg-white p-4">
         {/* Status Metrics Bar */}
         <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-slate-50 p-2.5 rounded-xl text-center">
-            <span className="text-[10px] text-slate-500 font-bold uppercase">Target Proyek ({activeAddendum?.nomorAddendum})</span>
+            <span className="text-[10px] text-slate-500 font-bold uppercase">Target ringkasan proyek</span>
             <div className="text-base font-extrabold text-slate-700">
               {selectedProject.progresFisikRencana}%
             </div>
-            <span className="text-[10px] text-slate-400">Jadwal Acuan Aktif</span>
+            <span className="text-[10px] text-slate-400">Nilai terakhir disimpan</span>
           </div>
           <div className="bg-emerald-50 p-2.5 rounded-xl text-center">
             <span className="text-[10px] text-emerald-700 font-bold uppercase">Realisasi Fisik Proyek</span>
@@ -1136,15 +860,15 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                       <span className="text-[11px] text-slate-400 font-medium">
                         ({durasi} Hari Kalender)
                       </span>
-                      {report.addendumId && (
+                      {(report.acuanLaporan || report.addendumId) && (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                          {projectAddendums.find(a => a.id === report.addendumId)?.nomorAddendum || 'Addendum'}
+                          {report.acuanLaporan?.nama || projectAddendums.find(a => a.id === report.addendumId)?.nomorAddendum || 'Acuan tersimpan'}
                         </span>
                       )}
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {canSubmit && (
+                      {canSubmit && !isHistoricalReport(report) && (
                         <>
                           <button
                             type="button"
@@ -1433,8 +1157,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                       <option value="" disabled>Pilih minggu</option>
                       {editingReport && <option value="saved">Periode tersimpan ({editingReport.mingguKe})</option>}
                       {reportingWeeks.map(week => (
-                        <option key={week.number} value={week.number} disabled={reportedWeeks.has(week.number)}>
-                          Minggu ke-{week.number}{reportedWeeks.has(week.number) ? ' (sudah dilaporkan)' : ''}
+                        <option key={week.key} value={week.key} disabled={isReported(week)}>
+                          Minggu ke-{week.number} · {reportDateLabel(week.start)}–{reportDateLabel(week.end)}{isReported(week) ? ' (sudah dilaporkan)' : ''}
                         </option>
                       ))}
                     </select>
@@ -1455,11 +1179,11 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 {periodeMulai && periodeSelesai && (
                   <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white p-2 text-[11px] text-slate-600">
                     <span>{reportDateLabel(periodeMulai)} s/d {reportDateLabel(periodeSelesai)} ({durasiMingguIni} hari)</span>
-                    {reportReference && <span className="font-semibold text-blue-700">Acuan {reportReference.nomorAddendum}</span>}
+                    {reportReferenceName && <span className="font-semibold text-blue-700">Acuan {reportReferenceName}</span>}
                   </div>
                 )}
-                {savedPeriod && <p className="text-xs text-slate-600">Periode dan target laporan lama dipertahankan. Pilih minggu untuk memakai jadwal terbaru.</p>}
-                {!weekSelection && reportingWeeks.length > 0 && reportedWeeks.size > 0 && (
+                {savedPeriod && <p className="text-xs text-slate-600">Periode dan target laporan lama dipertahankan. Pilih periode untuk memakai acuan yang berlaku pada periode itu.</p>}
+                {!weekSelection && reportingWeeks.length > 0 && reportingWeeks.every(week => isReported(week)) && (
                   <p className="text-xs text-slate-600">Semua minggu kontrak sudah dilaporkan.</p>
                 )}
               </div>
@@ -1932,21 +1656,22 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
             </div>
 
             <div className="py-4 space-y-4 overflow-y-auto flex-1">
+              {addendumError && !showAddendumEditModal && <p role="alert" className="text-xs text-rose-700">{addendumError}</p>}
               <div className="flex items-center justify-between bg-blue-50/70 p-3 rounded-xl border border-blue-200/80">
                 <div className="text-xs text-blue-900">
                   <p className="font-bold">Kurva S Multi-Addendum</p>
                   <p className="text-blue-700 mt-0.5">
-                    Anda dapat menyimpan kurva S awal (baseline) dan kurva hasil addendum. Seluruh kurva dapat ditampilkan di grafik untuk pemantauan deviasi pergeseran jadwal.
+                    Simpan Kurva S kontrak awal dan satu versi untuk setiap addendum. Versi yang sudah disahkan tersimpan di riwayat.
                   </p>
                 </div>
-                <button
+                {canSubmit && <button
                   type="button"
                   onClick={handleOpenAddAddendum}
                   className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-2xs flex-shrink-0 transition-colors ml-3"
                 >
                   <Plus className="w-4 h-4" />
                   Tambah Addendum Baru
-                </button>
+                </button>}
               </div>
 
               {/* List of Addendums */}
@@ -1956,7 +1681,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                     <div 
                       key={add.id}
                       className={`p-4 rounded-xl border transition-all ${
-                        add.isAktif 
+                        add.id === activeAddendum?.id
                           ? 'border-blue-400 bg-blue-50/20 ring-2 ring-blue-500/20' 
                           : 'border-slate-200 bg-white hover:border-slate-300'
                       }`}
@@ -1977,19 +1702,9 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                                 Baseline Original
                               </span>
                             )}
-                            {add.isAktif ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-md flex items-center gap-1">
-                                <CheckCircle2 className="w-3 h-3" /> Jadwal Acuan Aktif
-                              </span>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => setActiveScheduleAddendum(selectedProject.id, add.id)}
-                                className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-700 rounded-md border border-slate-200 transition-colors"
-                              >
-                                Jadikan Acuan Aktif
-                              </button>
-                            )}
+                            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
+                              {add.id === activeAddendum?.id ? 'Acuan berlaku' : add.disahkanPada ? 'Disahkan' : scheduleEffectiveDate(add) ? 'Acuan lama' : isOriginalSchedule(add) ? 'Kontrak awal' : 'Draf atau riwayat lama'}
+                            </span>
                           </div>
 
                           <h4 className="text-xs font-bold text-slate-800">
@@ -2014,6 +1729,8 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                             )}
                           </div>
 
+                          {scheduleEffectiveDate(add) && <p className="text-xs text-slate-600">Mulai berlaku {reportDateLabel(scheduleEffectiveDate(add)!)}</p>}
+                          <ScheduleReconciliationSummary version={add} />
                           {add.alasan && (
                             <p className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 mt-1">
                               <strong>Latar Belakang:</strong> {add.alasan}
@@ -2023,19 +1740,19 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
 
                         {/* Actions for this Addendum */}
                         <div className="flex items-center gap-1.5 flex-shrink-0 self-end sm:self-start">
-                          <button
+                          {canSubmit && !add.disahkanPada && (canApprove || !scheduleEffectiveDate(add)) && <button
                             type="button"
                             onClick={() => handleOpenEditAddendum(add)}
                             className="px-2.5 py-1 text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg flex items-center gap-1 shadow-2xs transition-colors"
                           >
                             <Edit3 className="w-3.5 h-3.5 text-blue-600" />
-                            <span>Edit Target</span>
-                          </button>
+                            <span>{isOriginalSchedule(add) ? 'Isi Kurva S Awal' : 'Edit versi'}</span>
+                          </button>}
                           
-                          {!add.isKontrakAwal && (
+                          {canSubmit && !isOriginalSchedule(add) && !scheduleEffectiveDate(add) && !projectReports.some(report => reportedScheduleId(report) === add.id) && (
                             <button
                               type="button"
-                              onClick={() => handleDeleteAddendum(add.id, add.nomorAddendum)}
+                              onClick={() => handleDeleteAddendum(add)}
                               className="px-2 py-1 text-xs font-semibold bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-700 border border-slate-200 rounded-lg transition-colors"
                               title="Hapus Addendum"
                             >
@@ -2125,14 +1842,19 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                     </label>
                     <select
                       value={addJenis}
-                      onChange={e => setAddJenis(e.target.value as any)}
+                      disabled={isOriginalEditor}
+                      onChange={event => {
+                        const kind = event.target.value as ScheduleAddendum['jenisPerubahan'];
+                        setAddJenis(kind);
+                        setTransition(previous => ({ ...previous, mode: kind === 'Perpanjangan Waktu' ? 'tetap' : 'hitung-ulang' }));
+                      }}
                       className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white font-medium"
                     >
                       <option value="Perpanjangan Waktu">Perpanjangan Waktu</option>
                       <option value="Pekerjaan Tambah Kurang (CCO)">Pekerjaan Tambah Kurang (CCO)</option>
                       <option value="Waktu dan Biaya">Waktu dan Biaya</option>
                       <option value="Perubahan Desain">Perubahan Desain</option>
-                      <option value="Kontrak Awal">Kontrak Awal</option>
+                      {isOriginalEditor && <option value="Kontrak Awal">Kontrak Awal</option>}
                     </select>
                   </div>
 
@@ -2237,20 +1959,19 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                     </div>
                   </div>
 
-                  <label className="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
-                    <input
-                      type="checkbox"
-                      checked={addIsAktif}
-                      onChange={e => setAddIsAktif(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
-                    />
-                    <span className="text-xs font-bold text-slate-700">
-                      Jadikan sebagai Acuan Jadwal Aktif
-                    </span>
-                  </label>
+                  {canApprove && (
+                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                      <input type="checkbox" checked={addIsAktif} onChange={event => setAddIsAktif(event.target.checked)} />
+                      Sahkan versi Kurva S
+                    </label>
+                  )}
                 </div>
               </div>
 
+              {!isOriginalEditor && (
+                <ScheduleTransitionFields draft={transition} onChange={setTransition} suggested={transitionSource?.kumulatifRealisasi} earlierReports={earlierReports}
+                  previousLabel={transitionSource && ('laporan sampai ' + reportDateLabel(transitionSource.periodeSelesai))} />
+              )}
               {/* Target Points Editor */}
               <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -2354,6 +2075,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 </div>
               </div>
 
+              {addendumError && <p role="alert" className="text-sm text-rose-700">{addendumError}</p>}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button
                   type="button"
@@ -2364,10 +2086,11 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
                 </button>
                 <button
                   type="submit"
+                  disabled={savingAddendum}
                   className="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  {editingAddendumId ? 'Simpan Perubahan Addendum' : 'Simpan & Aktifkan Addendum'}
+                  {savingAddendum ? 'Menyimpan...' : addIsAktif ? 'Simpan dan sahkan versi' : 'Simpan draf'}
                 </button>
               </div>
             </form>
