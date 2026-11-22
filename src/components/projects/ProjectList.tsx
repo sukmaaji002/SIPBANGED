@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { ArrowRight, Building2, MapPin, Plus, Search } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import type { ProjectStage } from '../../types';
-import { formatRupiah } from '../../utils/formatters';
+import type { ProjectStage, WeeklyProgress } from '../../types';
+import { formatRupiah, formatTanggalSingkat } from '../../utils/formatters';
 import { hasPermission } from '../../utils/permissions';
+import { getProjectPackage } from '../../utils/projectPackages';
 import { NewProjectModal } from './NewProjectModal';
 
 interface ProjectListProps {
@@ -19,9 +20,28 @@ const stages: Record<ProjectStage, { label: string; color: string }> = {
 };
 
 const fieldClass = 'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 focus-visible:outline-2 focus-visible:outline-emerald-600';
+const contractPriority = ['fisik', 'pengawas', 'perencana'] as const;
+
+function reportPeriodEnd(report: WeeklyProgress): string {
+  return report.periodeSelesai || report.periodeMulai || report.tanggalLaporan || '';
+}
+
+function formatReportWeek(report?: WeeklyProgress): string {
+  const label = report?.labelMinggu?.trim() || String(report?.mingguKe ?? '').trim();
+  if (!label) return 'Belum ada laporan mingguan';
+
+  const week = label.match(/^(?:(?:minggu(?:\s*ke)?|m)[\s-]*)?(\d+(?:[.,]\d+)?)$/i)?.[1];
+  return week ? `Minggu ke-${week}` : label;
+}
+
+function ContractDate({ date }: { date?: string }) {
+  if (!date) return <span>—</span>;
+  const localDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date}T00:00:00` : date;
+  return <time dateTime={date}>{formatTanggalSingkat(localDate)}</time>;
+}
 
 export function ProjectList({ onOpenProject }: ProjectListProps) {
-  const { projects, selectedProjectId, currentUser } = useApp();
+  const { projects, selectedProjectId, currentUser, weeklyProgressList } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState('');
@@ -40,6 +60,13 @@ export function ProjectList({ onOpenProject }: ProjectListProps) {
     (!stageFilter || project.stage === stageFilter) &&
     (!selectedYear || Number(project.tahunAnggaran) === Number(selectedYear)),
   );
+  const latestReports = new Map<string, WeeklyProgress>();
+  for (const report of weeklyProgressList) {
+    const previous = latestReports.get(report.projectId);
+    if (!previous || reportPeriodEnd(report) > reportPeriodEnd(previous)) {
+      latestReports.set(report.projectId, report);
+    }
+  }
 
   const resetFilters = () => {
     setSearchTerm('');
@@ -123,6 +150,7 @@ export function ProjectList({ onOpenProject }: ProjectListProps) {
             const deviation = project.progresFisikRealisasi - project.progresFisikRencana;
             const isAhead = deviation >= 0;
             const progress = Math.max(0, Math.min(100, project.progresFisikRealisasi));
+            const contract = contractPriority.map(type => getProjectPackage(project, type)).find(pack => pack.active);
 
             return (
               <article
@@ -168,6 +196,17 @@ export function ProjectList({ onOpenProject }: ProjectListProps) {
                     <div role="progressbar" aria-label={`Progres fisik ${project.nama}`} aria-valuenow={progress} className="h-1.5 overflow-hidden rounded-full bg-slate-100">
                       <div className={`h-full rounded-full ${isAhead ? 'bg-emerald-600' : 'bg-rose-500'}`} style={{ width: `${progress}%` }} />
                     </div>
+                    <p className="pt-0.5 text-xs font-medium text-slate-600">{formatReportWeek(latestReports.get(project.id))}</p>
+                    <dl className="grid grid-cols-2 gap-x-3 pt-1.5 text-xs">
+                      <div>
+                        <dt className="text-slate-600">Awal kontrak</dt>
+                        <dd className="mt-0.5 font-semibold text-slate-800"><ContractDate date={contract?.start} /></dd>
+                      </div>
+                      <div>
+                        <dt className="text-slate-600">Akhir kontrak</dt>
+                        <dd className="mt-0.5 font-semibold text-slate-800"><ContractDate date={contract?.end} /></dd>
+                      </div>
+                    </dl>
                   </div>
                 </div>
 
