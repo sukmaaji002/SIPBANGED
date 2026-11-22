@@ -137,6 +137,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   // Preview Document Modal State
   const [viewedReportId, setViewedReportId] = useState<string>();
   const [viewedPhotoIndex, setViewedPhotoIndex] = useState<number>();
+  const photoTouchStart = useRef<{ id: number; x: number; y: number } | null>(null);
   const [previewFile, setPreviewFile] = useState<ProgressAttachment | null>(null);
 
   // Addendum Management Modal States
@@ -732,6 +733,31 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
   const viewedReport = projectReports.find(report => report.id === viewedReportId);
   const viewedReportPhotos = viewedReport?.fotoDokumentasi ?? [];
   const viewedPhoto = viewedPhotoIndex === undefined ? undefined : viewedReportPhotos[viewedPhotoIndex];
+
+  const moveViewedPhoto = (direction: -1 | 1) => {
+    setViewedPhotoIndex(current => {
+      if (current === undefined) return current;
+      const next = current + direction;
+      return next >= 0 && next < viewedReportPhotos.length ? next : current;
+    });
+  };
+
+  const handlePhotoTouchStart = (event: React.PointerEvent<HTMLImageElement>) => {
+    if (event.pointerType !== 'touch' || viewedReportPhotos.length <= 1) return;
+    photoTouchStart.current = event.isPrimary
+      ? { id: event.pointerId, x: event.clientX, y: event.clientY }
+      : null;
+  };
+
+  const handlePhotoTouchEnd = (event: React.PointerEvent<HTMLImageElement>) => {
+    const start = photoTouchStart.current;
+    if (start?.id !== event.pointerId) return;
+    photoTouchStart.current = null;
+    const horizontal = event.clientX - start.x;
+    const vertical = event.clientY - start.y;
+    if (Math.abs(horizontal) < 50 || Math.abs(horizontal) < 1.2 * Math.abs(vertical)) return;
+    moveViewedPhoto(horizontal < 0 ? 1 : -1);
+  };
 
   const renderReportCard = (report: WeeklyProgress, inDetail = false) => {
     const weekLabel = typeof report.mingguKe === 'number' || !isNaN(Number(report.mingguKe))
@@ -2257,7 +2283,10 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
       )}
 
       {viewedPhotoIndex !== undefined && viewedPhoto && (
-        <ReportDialog wide titleId="report-photo-preview-title" onClose={() => setViewedPhotoIndex(undefined)}>
+        <ReportDialog wide titleId="report-photo-preview-title" onClose={() => {
+          photoTouchStart.current = null;
+          setViewedPhotoIndex(undefined);
+        }}>
           <header className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 px-4 py-3">
             <h2 id="report-photo-preview-title" className="text-sm font-bold text-slate-900">Pratinjau Foto Dokumentasi</h2>
             <form method="dialog">
@@ -2270,7 +2299,10 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
             <img
               src={viewedPhoto.url}
               alt={viewedPhoto.caption || 'Foto dokumentasi lapangan'}
-              className="block max-h-[72dvh] w-full bg-slate-950 object-contain"
+              onPointerDown={handlePhotoTouchStart}
+              onPointerUp={handlePhotoTouchEnd}
+              onPointerCancel={() => { photoTouchStart.current = null; }}
+              className={`block max-h-[72dvh] w-full bg-slate-950 object-contain ${viewedReportPhotos.length > 1 ? '[touch-action:pan-y_pinch-zoom]' : ''}`}
             />
             <figcaption className="space-y-1 px-4 py-3 text-xs text-slate-600">
               {viewedPhoto.caption && <p className="text-sm font-semibold text-slate-900">{viewedPhoto.caption}</p>}
@@ -2281,7 +2313,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
             <nav aria-label="Navigasi foto dokumentasi" className="flex shrink-0 items-center justify-between gap-2 border-t border-slate-200 px-3 py-2 text-xs sm:px-4 sm:text-sm">
               <button
                 type="button"
-                onClick={() => setViewedPhotoIndex(viewedPhotoIndex - 1)}
+                onClick={() => moveViewedPhoto(-1)}
                 disabled={viewedPhotoIndex === 0}
                 className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2 py-2 font-semibold text-slate-800 hover:bg-slate-100 disabled:opacity-40 sm:px-3"
               >
@@ -2290,7 +2322,7 @@ export const ExecutionPhase: React.FC<{ mode?: 'progress' | 'addendum' }> = ({ m
               <span role="status" className="shrink-0 tabular-nums text-slate-600">{viewedPhotoIndex + 1} dari {viewedReportPhotos.length}</span>
               <button
                 type="button"
-                onClick={() => setViewedPhotoIndex(viewedPhotoIndex + 1)}
+                onClick={() => moveViewedPhoto(1)}
                 disabled={viewedPhotoIndex === viewedReportPhotos.length - 1}
                 className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2 py-2 font-semibold text-slate-800 hover:bg-slate-100 disabled:opacity-40 sm:px-3"
               >
