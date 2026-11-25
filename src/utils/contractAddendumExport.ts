@@ -108,7 +108,8 @@ export function contractAddendumHtml(document: ContractAddendumDocument): string
   const { sumber, nomor, tanggal, uraian, format } = document;
   const details = sumber.rincian ?? {};
   const title = sumber.jenis === 'spk' ? 'Surat Perintah Kerja' : 'Surat Perjanjian';
-  const order = format?.urutan ?? addendumOrder(nomor) ?? 1;
+  const savedOrder = format?.urutan;
+  const order = savedOrder && Number.isSafeInteger(savedOrder) && savedOrder > 0 ? savedOrder : addendumOrder(nomor) ?? 1;
   const heading = 'Addendum Ke-' + order;
   const footerLabel = 'Addendum ke-' + order + ' ' + title;
   const printFooter = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="664" height="65" viewBox="0 0 664 65">
@@ -133,7 +134,7 @@ export function contractAddendumHtml(document: ContractAddendumDocument): string
   const days = (count?: number) => count && Number.isFinite(count) ? `${count} (${angkaKeTerbilangHari(count)}) Hari Kalender` : '';
   const dateText = (day?: string) => day ? formatTanggalIndo(day) : '';
   const row = (label: string, value?: string | number) =>
-    `<tr><td>${label}</td><td>:</td><td>${escapeHtml(value == null || value === '' ? '—' : String(value))}</td></tr>`;
+    `<tr><td>${escapeHtml(label)}</td><td>:</td><td>${escapeHtml(value == null || value === '' ? '—' : String(value))}</td></tr>`;
   const sections = sumber.pasal.map(clause => {
     const label = escapeHtml(clause.label);
     const title = escapeHtml(clause.judul);
@@ -156,7 +157,7 @@ export function contractAddendumHtml(document: ContractAddendumDocument): string
     ? ' berdasarkan Surat Keputusan Kepala Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal Nomor ' +
       escapeHtml(details.ppkNomorSk) + (details.ppkTanggalSk ? ' tanggal ' + escapeHtml(dateText(details.ppkTanggalSk)) : '') +
       ' tentang Penunjukan Pejabat Pembuat Komitmen (PPKom) pada Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Tegal' +
-      (details.tahun ? ' Tahun Anggaran ' + details.tahun : '')
+      (details.tahun ? ' Tahun Anggaran ' + escapeHtml(String(details.tahun)) : '')
     : '';
   const deed = details.aktaNomor ? ' berdasarkan Akta Notaris No. ' + escapeHtml(details.aktaNomor) +
     (details.aktaTanggal ? ' tanggal ' + escapeHtml(dateText(details.aktaTanggal)) : '') +
@@ -170,8 +171,8 @@ export function contractAddendumHtml(document: ContractAddendumDocument): string
       <p class="document-date">Tanggal ${escapeHtml(dateText(tanggal))}</p>
       <div class="project-summary">
         ${details.kegiatan ? '<p>KEGIATAN ' + escapeHtml(details.kegiatan.replace(/^kegiatan\s+/i, '')) + '</p>' : ''}
-        <p>PEKERJAAN ${escapeHtml(sumber.namaPaket.toUpperCase())}</p>
-        ${details.tahun ? '<p>TAHUN ANGGARAN ' + details.tahun + '</p>' : ''}
+        <p>PEKERJAAN ${escapeHtml((sumber.namaPaket ?? '').toUpperCase())}</p>
+        ${details.tahun ? '<p>TAHUN ANGGARAN ' + escapeHtml(String(details.tahun)) + '</p>' : ''}
       </div>
       <table class="cover-data"><tbody>
         ${row('Lokasi Pekerjaan', details.lokasi)}

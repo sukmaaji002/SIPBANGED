@@ -133,7 +133,8 @@ export function sourceFromAddendum(id: string, document: ContractAddendumDocumen
 
 export function addendumOrder(number: string): number | undefined {
   const match = /\b(?:addendum|adendum|add)\s*(?:ke\s*)?[-. ]*0*([1-9]\d*)\b/i.exec(number);
-  return match ? Number(match[1]) : undefined;
+  const order = Number(match?.[1]);
+  return Number.isSafeInteger(order) ? order : undefined;
 }
 
 export function scheduleAddendumTerms(record?: ScheduleAddendum) {
