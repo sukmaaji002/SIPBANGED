@@ -1,4 +1,4 @@
-import type { ContractAddendumDocument, ContractAddendumSource, ContractClause, ProjectContract, SpkContract } from '../types';
+import type { ContractAddendumDocument, ContractAddendumSource, ContractClause, Project, ProjectContract, ScheduleAddendum, SpkContract } from '../types';
 import { SURAT_PERJANJIAN_CLAUSES } from '../data/lkppClauses';
 import { angkaKeTerbilang, angkaKeTerbilangHari, formatRupiah, formatTanggalIndo, resolveContractPlaceholders } from './formatters';
 import { parseRuangLingkup } from './ruangLingkupParser';
@@ -39,7 +39,7 @@ export function agreementArticleText(contract: ProjectContract, clause: Contract
   }
 }
 
-export function sourceFromAgreement(contract: ProjectContract): ContractAddendumSource {
+export function sourceFromAgreement(contract: ProjectContract, project: Project): ContractAddendumSource {
   const active = activeAgreementArticles(contract);
   const articles = active.length ? active : SURAT_PERJANJIAN_CLAUSES.filter(clause => typeof clause.pasal === 'number');
   const preliminaries = (contract.clauses ?? []).filter(clause => clause.isActive && ['sp-konsiderans', 'sp-premis'].includes(clause.id));
@@ -54,6 +54,17 @@ export function sourceFromAgreement(contract: ProjectContract): ContractAddendum
     ppk: contract.ppkNama,
     penyedia: contract.penyediaNamaBadanUsaha,
     penandaTanganPenyedia: contract.penyediaNamaDirektur,
+    rincian: {
+      lokasi: project.lokasi, dana: contract.sumberPembiayaan || project.sumberDana, tahun: project.tahunAnggaran,
+      nilai: contract.nilaiKontrakAngka, durasi: contract.jangkaWaktuPelaksanaanHari,
+      mulai: project.paketFisik?.tanggalMulai || project.tanggalMulai,
+      selesai: project.paketFisik?.tanggalSelesai || project.tanggalSelesai,
+      pemeliharaan: contract.jangkaWaktuPemeliharaanHari, jenisKontrak: contract.jenisKontrak,
+      ppkNip: contract.ppkNip, ppkJabatan: contract.ppkJabatan,
+      ppkNomorSk: contract.ppkNomorSK, ppkTanggalSk: contract.ppkTanggalSK,
+      penyediaAlamat: contract.penyediaKedudukan, penyediaJabatan: contract.penyediaJabatan,
+      aktaNomor: contract.penyediaAktaNomor, aktaTanggal: contract.penyediaAktaTanggal, aktaNotaris: contract.penyediaAktaNotaris,
+    },
     pasal: [
       ...preliminaries.map(clause => ({
         id: clause.id, label: String(clause.pasal), judul: clause.judul,
@@ -93,6 +104,14 @@ export function sourceFromSpk(spk: SpkContract): ContractAddendumSource {
     ppk: spk.ppkNama,
     penyedia: spk.penyediaNamaBadanUsaha,
     penandaTanganPenyedia: spk.penyediaNamaPimpinan,
+    rincian: {
+      kegiatan: spk.kegiatan, lokasi: spk.lokasiPekerjaan, dana: spk.sumberDana, tahun: spk.tahunAnggaran,
+      nilai: spk.nilaiKontrak, durasi: spk.jangkaWaktuHari, mulai: spk.tanggalMulai, selesai: spk.tanggalSelesai,
+      pemeliharaan: spk.masaPemeliharaanHari, jenisKontrak: spk.jenisKontrak,
+      ppkNip: spk.ppkNip, ppkJabatan: spk.ppkJabatan, ppkNomorSk: spk.ppkNomorSk,
+      penyediaAlamat: spk.penyediaAlamat, penyediaJabatan: spk.penyediaJabatanPimpinan,
+      aktaNomor: spk.penyediaAktaNotarisNomor, aktaTanggal: spk.penyediaAktaNotarisTanggal, aktaNotaris: spk.penyediaAktaNotarisNama,
+    },
     pasal: [
       ...coverItems.map(item => ({ ...item, id: 'spk-cover-' + item.id, label: 'Lembar SPK' })),
       ...(spk.clauses ?? []).filter(clause => clause.isActive).map(clause => ({
@@ -109,5 +128,18 @@ export function sourceFromAddendum(id: string, document: ContractAddendumDocumen
     pasal: document.sumber.pasal.map(({ perubahan, ...clause }) => ({
       ...clause, sebelumnya: perubahan ?? clause.sebelumnya,
     })),
+  };
+}
+
+export function addendumOrder(number: string): number | undefined {
+  const match = /\b(?:addendum|adendum|add)\s*(?:ke\s*)?[-. ]*0*([1-9]\d*)\b/i.exec(number);
+  return match ? Number(match[1]) : undefined;
+}
+
+export function scheduleAddendumTerms(record?: ScheduleAddendum) {
+  return {
+    nilai: record?.nilaiKontrakBaru,
+    durasi: record?.durasiHariBaru,
+    selesai: record?.tanggalSelesaiBaru,
   };
 }

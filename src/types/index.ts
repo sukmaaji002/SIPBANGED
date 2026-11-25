@@ -55,6 +55,39 @@ export interface ContractAddendumClause {
   perubahan?: string;
 }
 
+export interface ContractAddendumTerms {
+  nilai?: number;
+  durasi?: number;
+  selesai?: string;
+}
+
+export interface ContractAddendumDetails extends ContractAddendumTerms {
+  kegiatan?: string;
+  lokasi?: string;
+  dana?: string;
+  tahun?: number;
+  mulai?: string;
+  pemeliharaan?: number;
+  jenisKontrak?: string;
+  ppkNip?: string;
+  ppkJabatan?: string;
+  ppkNomorSk?: string;
+  ppkTanggalSk?: string;
+  penyediaAlamat?: string;
+  penyediaJabatan?: string;
+  aktaNomor?: string;
+  aktaTanggal?: string;
+  aktaNotaris?: string;
+}
+
+export interface ContractAddendumFormat {
+  urutan: number;
+  tempat: string;
+  dasar: string;
+  jenisPaket: string;
+  revisi: ({ urutan: number } & ContractAddendumTerms)[];
+}
+
 export interface ContractAddendumSource {
   id: string;
   jenis: ContractDocType;
@@ -66,6 +99,7 @@ export interface ContractAddendumSource {
   ppk: string;
   penyedia: string;
   penandaTanganPenyedia: string;
+  rincian?: ContractAddendumDetails;
   pasal: ContractAddendumClause[];
 }
 
@@ -74,6 +108,7 @@ export interface ContractAddendumDocument {
   tanggal: string;
   uraian: string;
   sumber: ContractAddendumSource;
+  format?: ContractAddendumFormat;
 }
 
 export interface ConsultantProgress {

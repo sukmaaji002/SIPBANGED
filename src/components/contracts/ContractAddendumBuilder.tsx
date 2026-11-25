@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useApp } from '../../context/AppContext';
-import type { ContractAddendumDocument, Project, ScheduleAddendum, SpkType } from '../../types';
-import { sourceFromAddendum, sourceFromAgreement, sourceFromSpk } from '../../utils/contractAddendum';
-import { contractAddendumHtml, downloadContractAddendum, paragraph } from '../../utils/contractAddendumExport';
+import type { ContractAddendumDocument, ContractAddendumFormat, ContractAddendumSource, Project, ScheduleAddendum, SpkType } from '../../types';
+import { addendumOrder, scheduleAddendumTerms, sourceFromAddendum, sourceFromAgreement, sourceFromSpk } from '../../utils/contractAddendum';
+import { contractAddendumHtml, paragraph } from '../../utils/contractAddendumExport';
 import { formatTanggalIndo } from '../../utils/formatters';
 import { hasPermission } from '../../utils/permissions';
 import { isOriginalSchedule } from '../../utils/scheduleVersions';
@@ -17,6 +17,20 @@ function AddendumPreview({ document }: { document: ContractAddendumDocument }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const section = useRef<HTMLElement>(null);
   const html = useMemo(() => contractAddendumHtml(document), [document]);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState(false);
+  const download = async () => {
+    setDownloading(true);
+    setDownloadError(false);
+    try {
+      const { downloadContractAddendum } = await import('../../utils/contractAddendumWord');
+      await downloadContractAddendum(document, html);
+    } catch {
+      setDownloadError(true);
+    } finally {
+      setDownloading(false);
+    }
+  };
   useEffect(() => {
     section.current?.focus({ preventScroll: true });
     section.current?.scrollIntoView({ block: 'start' });
@@ -26,10 +40,11 @@ function AddendumPreview({ document }: { document: ContractAddendumDocument }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-base font-semibold text-slate-900">Pratinjau addendum</h3>
         <div className="flex flex-wrap gap-2">
-          <button type="button" className={action} onClick={() => downloadContractAddendum(document, html)}>Unduh Word (.doc)</button>
+          <button type="button" className={action} disabled={downloading} onClick={download}>{downloading ? 'Menyiapkan Word…' : 'Unduh Word (.docx)'}</button>
           <button type="button" className={action} onClick={() => frame.current?.contentWindow?.print()}>Cetak addendum</button>
         </div>
       </div>
+      {downloadError && <p role="alert" className="text-sm text-rose-700">Word gagal diunduh. Coba lagi.</p>}
       <iframe ref={frame} title="Naskah addendum" srcDoc={html} sandbox="allow-same-origin allow-modals" className="h-[65vh] w-full rounded-lg border border-slate-200 bg-white" />
     </section>
   );
@@ -59,9 +74,9 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
   }, [completingId]);
 
   const sources = [
-    ...(agreement ? [sourceFromAgreement(agreement)] : []),
+    ...(agreement ? [sourceFromAgreement(agreement, project)] : []),
     ...(spk ? [sourceFromSpk(spk)] : []),
-    ...records.flatMap(item => item.dokumenKontrak &&
+    ...records.flatMap(item => item.id !== completingId && item.dokumenKontrak &&
       (!completing?.tanggal || item.dokumenKontrak.tanggal <= completing.tanggal)
       ? [sourceFromAddendum(item.id, item.dokumenKontrak)] : []),
   ];
@@ -77,6 +92,44 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
   const [saving, setSaving] = useState(false);
   const pending = useRef(false);
   const [status, setStatus] = useState<{ error?: boolean; text: string }>();
+
+  const enrichSource = (input: ContractAddendumSource): ContractAddendumSource => {
+    const original = sources.find(item => !item.id.startsWith('addendum:') &&
+      item.jenis === input.jenis && item.nomorKontrakAwal === input.nomorKontrakAwal);
+    return { ...input, rincian: { ...original?.rincian, ...input.rincian } };
+  };
+
+  const kind = category === 'fisik' ? 'Konstruksi' : category === 'pengawas' ? 'Konsultansi Pengawasan' : 'Konsultansi Perencanaan';
+  const priorRevisions = (input: ContractAddendumSource, date: string, number: string, id?: string) => {
+    const order = addendumOrder(number);
+    return records.filter(item => item.id !== id &&
+      (!item.dokumenKontrak || (item.dokumenKontrak.sumber.nomorKontrakAwal === input.nomorKontrakAwal &&
+        item.dokumenKontrak.sumber.jenis === input.jenis)) &&
+      (item.tanggal < date || 'addendum:' + item.id === input.id ||
+        (item.tanggal === date && order !== undefined &&
+          (item.dokumenKontrak?.format?.urutan ?? addendumOrder(item.nomor) ?? Infinity) < order)))
+      .sort((left, right) => left.tanggal.localeCompare(right.tanggal))
+      .map((item, index) => ({
+        ...scheduleAddendumTerms(schedules.find(record => record.id === item.id)),
+        urutan: item.dokumenKontrak?.format?.urutan ?? addendumOrder(item.nomor) ?? index + 1,
+      }));
+  };
+
+  const existingFormat = (document: ContractAddendumDocument, id: string): ContractAddendumFormat => {
+    if (document.format) return document.format;
+    const prior = priorRevisions(document.sumber, document.tanggal, document.nomor, id);
+    const urutan = addendumOrder(document.nomor) ?? Math.max(0, ...prior.map(item => item.urutan)) + 1;
+    return {
+      urutan, jenisPaket: kind, tempat: 'Slawi', dasar: document.uraian,
+      revisi: [...prior.filter(item => item.urutan < urutan), {
+        ...scheduleAddendumTerms(schedules.find(item => item.id === id)), urutan,
+      }],
+    };
+  };
+
+  const showRecord = (document: ContractAddendumDocument, id: string) => {
+    setPreview({ ...document, sumber: enrichSource(document.sumber), format: existingFormat(document, id) });
+  };
 
   const selectRecord = (id?: string) => {
     if (Object.values(edits).some(value => value?.trim()) &&
@@ -99,6 +152,18 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
     const nomor = (completing?.nomor || value('nomor')).trim();
     const tanggal = completing?.tanggal || value('tanggal');
     const uraian = (completing?.uraian || value('uraian')).trim();
+    const prior = priorRevisions(source, tanggal, nomor, completing?.id);
+    const urutan = (value('urutan') ? Number(value('urutan')) : addendumOrder(nomor)) ??
+      Math.max(0, ...prior.map(item => item.urutan)) + 1;
+    const newTerms = {
+      tanggalSelesaiBaru: value('selesai') || undefined,
+      durasiHariBaru: value('durasi') ? Number(value('durasi')) : undefined,
+      nilaiKontrakBaru: value('nilai') ? Number(value('nilai')) : undefined,
+    };
+    if (source.id.startsWith('addendum:') && source.tanggal > tanggal) {
+      setStatus({ error: true, text: 'Tanggal addendum harus pada atau setelah tanggal dokumen sumber.' });
+      return;
+    }
     if (!nomor || !tanggal || !uraian || source.pasal.some(item => {
       const text = edits[item.id];
       return text !== undefined && !new DOMParser().parseFromString(paragraph(text), 'text/html').body.textContent?.trim();
@@ -111,9 +176,18 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
       setStatus({ error: true, text: 'Nomor addendum sudah digunakan di kategori ini.' });
       return;
     }
+    const enrichedSource = enrichSource(source);
     const document: ContractAddendumDocument = {
       nomor, tanggal, uraian,
-      sumber: { ...source, pasal: source.pasal.map(item => ({ ...item, perubahan: edits[item.id]?.trim() })) },
+      format: {
+        urutan, jenisPaket: kind, tempat: value('tempat') || 'Slawi', dasar: value('dasar') || uraian,
+        revisi: [...prior.filter(item => item.urutan < urutan), {
+          ...scheduleAddendumTerms(completing ? schedules.find(item => item.id === completing.id) : undefined),
+          ...(!completing && { nilai: newTerms.nilaiKontrakBaru, durasi: newTerms.durasiHariBaru, selesai: newTerms.tanggalSelesaiBaru }),
+          urutan,
+        }],
+      },
+      sumber: { ...enrichedSource, rincian: { ...enrichedSource.rincian, kegiatan: value('kegiatan') }, pasal: source.pasal.map(item => ({ ...item, perubahan: edits[item.id]?.trim() })) },
     };
     const submitter = (event.nativeEvent as SubmitEvent).submitter;
     if (submitter instanceof HTMLButtonElement && submitter.value === 'preview') {
@@ -131,9 +205,7 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
         ? await saveScheduleAddendum({
           id, projectId: project.id, nomorAddendum: nomor, nomorSurat: nomor, tanggal, judul: uraian, alasan: uraian,
           tanggalBerlaku: value('berlaku') || undefined,
-          tanggalSelesaiBaru: value('selesai') || undefined,
-          durasiHariBaru: value('durasi') ? Number(value('durasi')) : undefined,
-          nilaiKontrakBaru: value('nilai') ? Number(value('nilai')) : undefined,
+          ...newTerms,
           jenisPerubahan: value('jenis') as ScheduleAddendum['jenisPerubahan'],
           warnaGaris: '#2563eb', isAktif: false, targetMingguan: [], dokumenKontrak: document,
         })
@@ -154,6 +226,7 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
     }
   };
 
+  const savedFormat = completing?.dokumenKontrak ? existingFormat(completing.dokumenKontrak, completing.id) : undefined;
   const sortedRecords = [...records].sort((a, b) => b.tanggal.localeCompare(a.tanggal));
 
   return (
@@ -168,7 +241,7 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
                   <p className="whitespace-pre-wrap break-words text-slate-600">{record.uraian}</p></div>
                 {record.dokumenKontrak ? (
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" className={action} onClick={() => setPreview(record.dokumenKontrak)}>Lihat naskah {record.nomor}</button>
+                    <button type="button" className={action} onClick={() => record.dokumenKontrak && showRecord(record.dokumenKontrak, record.id)}>Lihat naskah {record.nomor}</button>
                     {canEdit && <button type="button" disabled={saving} className={action} onClick={() => selectRecord(record.id)}>Edit Naskah</button>}
                   </div>
                 ) : canEdit && (
@@ -235,6 +308,15 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
                     <textarea id="contract-addendum-description" name="uraian" rows={2} required defaultValue={completing?.uraian} readOnly={Boolean(completing?.uraian)} className={field} />
                   </div>
                 </div>
+                <details open className="rounded-lg border border-slate-200 p-3">
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-800">Sampul dan dasar addendum</summary>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <label className="grid gap-1 text-sm">Addendum ke-<input name="urutan" type="number" min="1" max="9999" step="1" defaultValue={savedFormat?.urutan} placeholder="Otomatis dari nomor atau riwayat" className={field} /></label>
+                    <label className="grid gap-1 text-sm">Tempat penandatanganan<input name="tempat" defaultValue={savedFormat?.tempat ?? 'Slawi'} className={field} /></label>
+                    <label className="grid gap-1 text-sm sm:col-span-2">Nama kegiatan<input key={source.id} name="kegiatan" defaultValue={enrichSource(source).rincian?.kegiatan?.replace(/^kegiatan\s+/i, '')} className={field} /></label>
+                    <label className="grid gap-1 text-sm sm:col-span-2">Dasar perubahan<textarea name="dasar" rows={2} defaultValue={savedFormat?.dasar} placeholder="Nomor dan tanggal berita acara atau dokumen pendukung" className={field} /></label>
+                  </div>
+                </details>
                 {category === 'fisik' && !completing && (
                   <details className="rounded-lg border border-slate-200 p-3">
                     <summary className="cursor-pointer text-sm font-semibold text-slate-800">Data jadwal dan nilai kontrak fisik</summary>
@@ -261,17 +343,17 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <h5 className="text-sm font-semibold text-slate-900">{title}</h5>
                             <div role="group" aria-label={title} className="flex gap-1">
-                              <button type="button" aria-pressed={!changed} className={action + ' aria-pressed:border-emerald-600 aria-pressed:bg-emerald-50'} onClick={() => setEdits(current => ({ ...current, [item.id]: undefined }))}>Sama</button>
+                              <button type="button" aria-pressed={!changed} className={action + ' aria-pressed:border-emerald-600 aria-pressed:bg-emerald-50'} onClick={() => setEdits(current => ({ ...current, [item.id]: undefined }))}>Tetap</button>
                               <button type="button" aria-pressed={changed} className={action + ' aria-pressed:border-emerald-600 aria-pressed:bg-emerald-50'} onClick={() => setEdits(current => ({ ...current, [item.id]: current[item.id] ?? item.sebelumnya }))}>Berubah</button>
                             </div>
                           </div>
                           {changed ? <>
                             <div className="grid gap-1 text-sm text-slate-800">
-                              <strong>Klausul sebelumnya</strong>
+                              <strong>SEMULA</strong>
                               <div className="whitespace-pre-wrap break-words rounded-lg bg-slate-50 p-3" dangerouslySetInnerHTML={{ __html: paragraph(item.sebelumnya || '—') }} />
                             </div>
                             <div className="grid gap-1 text-sm font-medium text-slate-800">
-                              <span>Klausul perubahan</span>
+                              <span>MENJADI</span>
                               <AddendumTextEditor value={edits[item.id] ?? ''} label={'Klausul perubahan ' + title} onChange={value => setEdits(current => ({ ...current, [item.id]: value }))} />
                             </div>
                           </> : (
