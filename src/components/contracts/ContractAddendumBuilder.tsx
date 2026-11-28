@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useApp } from '../../context/AppContext';
 import type { ContractAddendumDocument, ContractAddendumFormat, ContractAddendumSource, Project, ScheduleAddendum, SpkType } from '../../types';
-import { addendumOrder, scheduleAddendumTerms, sourceFromAddendum, sourceFromAgreement, sourceFromSpk } from '../../utils/contractAddendum';
+import { contractAddendumHistory, recordedAddendumOrder, sourceFromAddendum, sourceFromAgreement, sourceFromSpk } from '../../utils/contractAddendum';
 import { contractAddendumHtml, paragraph } from '../../utils/contractAddendumExport';
 import { formatTanggalIndo } from '../../utils/formatters';
 import { hasPermission } from '../../utils/permissions';
@@ -100,32 +100,13 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
   };
 
   const kind = category === 'fisik' ? 'Konstruksi' : category === 'pengawas' ? 'Konsultansi Pengawasan' : 'Konsultansi Perencanaan';
-  const priorRevisions = (input: ContractAddendumSource, date: string, number: string, id?: string) => {
-    const order = addendumOrder(number);
-    return records.filter(item => item.id !== id &&
-      (!item.dokumenKontrak || (item.dokumenKontrak.sumber.nomorKontrakAwal === input.nomorKontrakAwal &&
-        item.dokumenKontrak.sumber.jenis === input.jenis)) &&
-      (item.tanggal < date || 'addendum:' + item.id === input.id ||
-        (item.tanggal === date && order !== undefined &&
-          (item.dokumenKontrak?.format?.urutan ?? addendumOrder(item.nomor) ?? Infinity) < order)))
-      .sort((left, right) => left.tanggal.localeCompare(right.tanggal))
-      .map((item, index) => ({
-        ...scheduleAddendumTerms(schedules.find(record => record.id === item.id)),
-        urutan: item.dokumenKontrak?.format?.urutan ?? addendumOrder(item.nomor) ?? index + 1,
-      }));
-  };
-
-  const existingFormat = (document: ContractAddendumDocument, id: string): ContractAddendumFormat => {
-    if (document.format) return document.format;
-    const prior = priorRevisions(document.sumber, document.tanggal, document.nomor, id);
-    const urutan = addendumOrder(document.nomor) ?? Math.max(0, ...prior.map(item => item.urutan)) + 1;
-    return {
-      urutan, jenisPaket: kind, tempat: 'Slawi', dasar: document.uraian,
-      revisi: [...prior.filter(item => item.urutan < urutan), {
-        ...scheduleAddendumTerms(schedules.find(item => item.id === id)), urutan,
-      }],
-    };
-  };
+  const existingFormat = (document: ContractAddendumDocument, id: string): ContractAddendumFormat => ({
+    jenisPaket: kind, tempat: 'Slawi', dasar: document.uraian,
+    ...document.format,
+    ...contractAddendumHistory(records, schedules, {
+      source: document.sumber, date: document.tanggal, number: document.nomor, id,
+    }),
+  });
 
   const showRecord = (document: ContractAddendumDocument, id: string) => {
     setPreview({ ...document, sumber: enrichSource(document.sumber), format: existingFormat(document, id) });
@@ -152,9 +133,7 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
     const nomor = (completing?.nomor || value('nomor')).trim();
     const tanggal = completing?.tanggal || value('tanggal');
     const uraian = (completing?.uraian || value('uraian')).trim();
-    const prior = priorRevisions(source, tanggal, nomor, completing?.id);
-    const urutan = (value('urutan') ? Number(value('urutan')) : addendumOrder(nomor)) ??
-      Math.max(0, ...prior.map(item => item.urutan)) + 1;
+    const manualOrder = value('urutan') ? Number(value('urutan')) : undefined;
     const newTerms = {
       tanggalSelesaiBaru: value('selesai') || undefined,
       durasiHariBaru: value('durasi') ? Number(value('durasi')) : undefined,
@@ -176,16 +155,21 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
       setStatus({ error: true, text: 'Nomor addendum sudah digunakan di kategori ini.' });
       return;
     }
+    if (manualOrder !== undefined && (!Number.isInteger(manualOrder) || manualOrder < 1 || manualOrder > 9999)) {
+      setStatus({ error: true, text: 'Urutan addendum harus berupa bilangan bulat antara 1 dan 9999.' });
+      return;
+    }
+    const history = contractAddendumHistory(records, schedules, {
+      source, date: tanggal, number: nomor, manualOrder, id: completing?.id,
+      terms: completing ? undefined : {
+        nilai: newTerms.nilaiKontrakBaru, durasi: newTerms.durasiHariBaru, selesai: newTerms.tanggalSelesaiBaru,
+      },
+    });
     const enrichedSource = enrichSource(source);
     const document: ContractAddendumDocument = {
       nomor, tanggal, uraian,
       format: {
-        urutan, jenisPaket: kind, tempat: value('tempat') || 'Slawi', dasar: value('dasar') || uraian,
-        revisi: [...prior.filter(item => item.urutan < urutan), {
-          ...scheduleAddendumTerms(completing ? schedules.find(item => item.id === completing.id) : undefined),
-          ...(!completing && { nilai: newTerms.nilaiKontrakBaru, durasi: newTerms.durasiHariBaru, selesai: newTerms.tanggalSelesaiBaru }),
-          urutan,
-        }],
+        ...history, jenisPaket: kind, tempat: value('tempat') || 'Slawi', dasar: value('dasar') || uraian,
       },
       sumber: { ...enrichedSource, rincian: { ...enrichedSource.rincian, kegiatan: value('kegiatan') }, pasal: source.pasal.map(item => ({ ...item, perubahan: edits[item.id]?.trim() })) },
     };
@@ -227,7 +211,8 @@ export function ContractAddendumBuilder({ project, category, recordsOnly = false
   };
 
   const savedFormat = completing?.dokumenKontrak ? existingFormat(completing.dokumenKontrak, completing.id) : undefined;
-  const sortedRecords = [...records].sort((a, b) => b.tanggal.localeCompare(a.tanggal));
+  const sortedRecords = [...records].sort((a, b) => b.tanggal.localeCompare(a.tanggal) ||
+    (recordedAddendumOrder(b) ?? 0) - (recordedAddendumOrder(a) ?? 0));
 
   return (
     <div className="space-y-4">

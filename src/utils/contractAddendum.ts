@@ -1,4 +1,4 @@
-import type { ContractAddendumDocument, ContractAddendumSource, ContractClause, Project, ProjectContract, ScheduleAddendum, SpkContract } from '../types';
+import type { ContractAddendumDocument, ContractAddendumFormat, ContractAddendumSource, ContractAddendumTerms, ContractClause, Project, ProjectContract, ScheduleAddendum, SpkContract } from '../types';
 import { SURAT_PERJANJIAN_CLAUSES } from '../data/lkppClauses';
 import { angkaKeTerbilang, angkaKeTerbilangHari, formatRupiah, formatTanggalIndo, resolveContractPlaceholders } from './formatters';
 import { parseRuangLingkup } from './ruangLingkupParser';
@@ -142,5 +142,98 @@ export function scheduleAddendumTerms(record?: ScheduleAddendum) {
     nilai: record?.nilaiKontrakBaru,
     durasi: record?.durasiHariBaru,
     selesai: record?.tanggalSelesaiBaru,
+  };
+}
+
+type AddendumRecord = {
+  id: string;
+  nomor: string;
+  tanggal: string;
+  dokumenKontrak?: ContractAddendumDocument;
+};
+
+export function recordedAddendumOrder(record: AddendumRecord) {
+  return record.dokumenKontrak?.format?.urutan ??
+    addendumOrder(record.dokumenKontrak?.nomor ?? '') ??
+    addendumOrder(record.nomor);
+}
+
+function revisionTerms(primary: ContractAddendumTerms, fallback?: ContractAddendumTerms): ContractAddendumTerms {
+  return {
+    nilai: primary.nilai ?? fallback?.nilai,
+    durasi: primary.durasi ?? fallback?.durasi,
+    selesai: primary.selesai || fallback?.selesai,
+  };
+}
+
+export function contractAddendumHistory(
+  records: AddendumRecord[],
+  schedules: ScheduleAddendum[],
+  { source, date, number, manualOrder, id, terms }: {
+    source: ContractAddendumSource;
+    date: string;
+    number: string;
+    manualOrder?: number;
+    id?: string;
+    terms?: ContractAddendumTerms;
+  },
+): Pick<ContractAddendumFormat, 'urutan' | 'revisi'> {
+  const saved = records.find(record => record.id === id)?.dokumenKontrak?.format;
+  const savedOrder = saved?.urutan;
+  const order = manualOrder ?? savedOrder ?? addendumOrder(number);
+  const bySourceId = new Map(records.map(record => ['addendum:' + record.id, record]));
+  const ancestors = new Set<string>();
+  let sourceId = source.id;
+  while (bySourceId.has(sourceId) && !ancestors.has(sourceId)) {
+    ancestors.add(sourceId);
+    sourceId = bySourceId.get(sourceId)?.dokumenKontrak?.sumber.id ?? '';
+  }
+
+  const candidates = records.flatMap(record => {
+    const documentSource = record.dokumenKontrak?.sumber;
+    if (record.id === id || record.tanggal > date || (documentSource &&
+      (documentSource.nomorKontrakAwal !== source.nomorKontrakAwal || documentSource.jenis !== source.jenis))) return [];
+    const recordOrder = recordedAddendumOrder(record);
+    if (order !== undefined && recordOrder !== undefined && recordOrder >= order) return [];
+    // A new document can follow the day's existing records. For a saved document,
+    // same-day predecessors need an earlier order or a link in its source chain.
+    const isEarlier = id === undefined || record.tanggal < date || ancestors.has('addendum:' + record.id) ||
+      (order !== undefined && recordOrder !== undefined);
+    if (!isEarlier) return [];
+    return [{ record, order: recordOrder }];
+  }).sort((a, b) => a.record.tanggal.localeCompare(b.record.tanggal) ||
+    (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER));
+
+  const occupied = new Set(candidates.map(candidate => candidate.order));
+  const scheduleById = new Map(schedules.map(schedule => [schedule.id, schedule]));
+  const prior = new Map<number, ContractAddendumFormat['revisi'][number]>();
+  // Retain terms saved with the document and fill missing rows or fields from records.
+  if (saved) {
+    for (const row of saved.revisi) {
+      if (row.urutan < saved.urutan) prior.set(row.urutan, row);
+    }
+  }
+  let previousOrder = 0;
+  for (const candidate of candidates) {
+    let recordOrder = candidate.order;
+    if (recordOrder === undefined) {
+      recordOrder = previousOrder + 1;
+      while (occupied.has(recordOrder)) recordOrder++;
+    }
+    previousOrder = Math.max(previousOrder, recordOrder);
+    const format = candidate.record.dokumenKontrak?.format;
+    const recordedTerms = format?.revisi.find(row => row.urutan === format.urutan);
+    const scheduleTerms = scheduleAddendumTerms(scheduleById.get(candidate.record.id));
+    const currentTerms = revisionTerms(recordedTerms ?? {}, scheduleTerms);
+    prior.set(recordOrder, { ...revisionTerms(prior.get(recordOrder) ?? {}, currentTerms), urutan: recordOrder });
+  }
+
+  const urutan = order ?? Math.max(0, ...prior.keys()) + 1;
+  const savedTerms = saved?.revisi.find(row => row.urutan === savedOrder);
+  const ownTerms = terms ?? revisionTerms(savedTerms ?? {}, scheduleAddendumTerms(scheduleById.get(id ?? '')));
+  return {
+    urutan,
+    revisi: [...prior.values()].filter(row => row.urutan < urutan).sort((a, b) => a.urutan - b.urutan)
+      .concat({ ...ownTerms, urutan }),
   };
 }
